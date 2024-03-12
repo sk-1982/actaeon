@@ -4,9 +4,14 @@ import { ChuniTopRating, ChuniTopRatingProps } from '@/components/chuni/top-rati
 import { getUserRating } from '@/actions/chuni/profile';
 import { useState } from 'react';
 import { Button, ButtonGroup } from '@nextui-org/react';
+import { useBreakpoint } from '@/helpers/use-breakpoint';
 
 export const ChuniTopRatingSidebar = ({ rating }: { rating: Awaited<ReturnType<typeof getUserRating>> }) => {
 	const [shownRating, setShownRating] = useState<'top' | 'recent' | null>('recent');
+	const breakpoint = useBreakpoint();
+
+	if (![undefined, 'sm'].includes(breakpoint) && shownRating === null)
+		setShownRating('recent');
 
 	return (<div className="w-full mt-4 md:mt-0 px-2 sm:px-0 md:fixed md:overflow-y-auto h-fixed flex md:w-[16rem] 2xl:w-[32rem]">
 		<div className="hidden 2xl:flex">
