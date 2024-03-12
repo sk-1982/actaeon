@@ -1,0 +1,29 @@
+# path to ffmpeg if it is not on the path
+ffmpeg_path: 'ffmpeg'
+# path to vgmstream if it is not on the path
+# required for some audio conversions
+# https://github.com/vgmstream/vgmstream
+vgmstream_path: 'vgmstream-cli'
+
+# options for music
+music:
+  enable: true
+  extension: .opus
+  ffmpeg_args: ['-b:a', '64k']
+
+# options for music jacket images
+jackets:
+  enable: true
+  extension: .webp
+
+# options for other images
+images:
+  enable: true
+  extension: .webp
+  ffmpeg_args: ['-preset', 'drawing']
+
+# options for other audio
+audio:
+  enable: true
+  extension: .opus
+  ffmpeg_args: [ '-b:a', '64k' ]
