@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+	font-family: Rodin;
+	src: url(#{$asset-url}fonts/rodinl.woff2) format("woff2");
+	font-weight: 300;
+}
+
+@font-face {
+	font-family: Rodin;
+	src: url(#{$asset-url}fonts/rodinm.woff2) format("woff2");
+	font-weight: 500;
+}
+
+@font-face {
+	font-family: Rodin;
+	src: url(#{$asset-url}fonts/rodindb.woff2) format("woff2");
+	font-weight: 600;
+}
+
+@font-face {
+	font-family: Rodin;
+	src: url(#{$asset-url}fonts/rodinb.woff2) format("woff2");
+	font-weight: 700;
+}
+
+@font-face {
+	font-family: Rodin;
+	src: url(#{$asset-url}fonts/rodineb.woff2) format("woff2");
+	font-weight: 800;
+}
+
+@font-face {
+	font-family: Rodin;
+	src: url(#{$asset-url}fonts/rodinub.woff2) format("woff2");
+	font-weight: 900;
+}
+
+html {
+	font-family: Rodin, "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.h-fixed {
+	height: calc(100% - 5.5rem);
+}
+
+.\@container-size {
+	container-type: size;
+}
+
+@layer base {
+	:root {
+		--background: 275 22% 96%;
+		--foreground: 275 5% 10%;
+		--card: 275 22% 96%;
+		--card-foreground: 275 5% 15%;
+		--popover: 275 22% 96%;
+		--popover-foreground: 275 95% 10%;
+		--primary: 275 100% 30%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 275 22% 90%;
+		--secondary-foreground: 0 0% 0%;
+		--muted: 237 22% 95%;
+		--muted-foreground: 275 5% 40%;
+		--accent: 237 22% 90%;
+		--accent-foreground: 275 5% 15%;
+		--destructive: 0 50% 50%;
+		--destructive-foreground: 275 5% 96%;
+		--border: 275 22% 82%;
+		--input: 275 22% 50%;
+		--ring: 275 100% 30%;
+		--radius: 0.5rem;
+	}
+
+	.dark {
+		--background: 275 47% 5%;
+		--foreground: 275 5% 90%;
+		--card: 275 47% 3%;
+		--card-foreground: 275 5% 90%;
+		--popover: 275 47% 5%;
+		--popover-foreground: 275 5% 90%;
+		--primary: 275 100% 30%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 275 30% 10%;
+		--secondary-foreground: 0 0% 100%;
+		--muted: 237 30% 15%;
+		--muted-foreground: 275 5% 60%;
+		--accent: 237 30% 15%;
+		--accent-foreground: 275 5% 90%;
+		--destructive: 0 50% 30%;
+		--destructive-foreground: 275 5% 90%;
+		--border: 275 30% 18%;
+		--input: 275 30% 18%;
+		--ring: 275 100% 30%;
+		--radius: 0.5rem;
+	}
+}
