@@ -1,0 +1,1 @@
+DROP TABLE actaeon_chuni_static_map_icon;
