@@ -1,4 +1,4 @@
-# produces small-sized, decent quality files at the expense of long encoding times
+# produces decent quality files faster, at the expense of larger file sizes
 
 # path to ffmpeg if it is not on the path
 ffmpeg_path: 'ffmpeg'
@@ -16,14 +16,14 @@ music:
 # options for music jacket images
 jackets:
   enable: true
-  extension: .avif
-  ffmpeg_args: ['-c:v', 'libaom-av1', '-still-picture', '1', '-cpu-used', '2', '-pix_fmt:0', 'yuv420p']
+  extension: .webp
+  ffmpeg_args: []
 
 # options for other images
 images:
   enable: true
-  extension: .avif
-  ffmpeg_args: ['-map', '0', '-map', '0', '-filter:v:1', 'alphaextract', '-c:v', 'libaom-av1', '-still-picture', '1', '-cpu-used', '2', '-pix_fmt:0', 'yuv420p']
+  extension: .webp
+  ffmpeg_args: ['-preset', 'drawing']
 
 # options for other audio
 audio:

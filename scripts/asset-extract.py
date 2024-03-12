@@ -18,9 +18,14 @@ def run(event, func, args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', help='asset config', default='assets.yaml')
-    parser.add_argument('--processes', type=int, default=cpu_count(), help='number of processes to use')
-    parser.add_argument('--out-dir', '--output', help='output directory', default='../public/assets')
+    parser.add_argument('--config', help='asset config (default=assets.yaml)', default='assets.yaml')
+    parser.add_argument('--processes', type=int, default=cpu_count(), help=f'number of processes to use (default={cpu_count()})')
+    parser.add_argument('--out-dir', '--output-dir', '--output', '-o', help='output directory (default=../public/assets)', default='../public/assets')
+    parser.add_argument('--no-overwrite', '-n', help='don\'t overwrite exising files', action='store_true')
+    parser.add_argument('--no-music', help='don\'t process music files', action='store_true')
+    parser.add_argument('--no-audio', help='don\'t process other audio files', action='store_true')
+    parser.add_argument('--no-jackets', help='don\'t process jacket images', action='store_true')
+    parser.add_argument('--no-images', help='don\'t process other images', action='store_true')
     subparsers = parser.add_subparsers(dest='game', help='game extracter to use', required=True)
     extracters = get_extracters()
     for name, extracter in extracters.items():

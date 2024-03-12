@@ -13,7 +13,7 @@ from collections import defaultdict
 
 
 class Extracter:
-    def __init__(self, *, config, out_dir, **kwargs):
+    def __init__(self, *, config, out_dir, no_overwrite, no_music, no_audio, no_jackets, no_images, **kwargs):
         with open(config, 'r') as f:
             self.config = yaml.safe_load(f)
         self.music_enabled = self.config['music']['enable']
@@ -22,6 +22,11 @@ class Extracter:
         self.audio_enabled = self.config['audio']['enable']
         self.out_dir = Path(out_dir)
         self.tmp_dir = self.out_dir / 'tmp'
+        self.no_overwrite = no_overwrite
+        self.no_music = no_music
+        self.no_audio = no_audio
+        self.no_jackets = no_jackets
+        self.no_images = no_images
 
     def get_tmp(self, ext='.dat'):
         self.tmp_dir.mkdir(parents=True, exist_ok=True)
@@ -76,7 +81,7 @@ class Extracter:
 
         args = [
             self.config['ffmpeg_path'],
-            '-y',
+            ('-n' if self.no_overwrite else '-y'),
             '-hide_banner',
             '-loglevel',
             'error',
@@ -141,13 +146,13 @@ class Extracter:
         raise NotImplementedError
 
     def extract(self):
-        if self.jackets_enabled:
+        if self.jackets_enabled and not self.no_jackets:
             yield from self.extract_jacket()
-        if self.images_enabled:
+        if self.images_enabled and not self.no_images:
             yield from self.extract_images()
-        if self.music_enabled:
+        if self.music_enabled and not self.no_music:
             yield from self.extract_music()
-        if self.audio_enabled:
+        if self.audio_enabled and not self.no_audio:
             yield from self.extract_audio()
 
     @staticmethod

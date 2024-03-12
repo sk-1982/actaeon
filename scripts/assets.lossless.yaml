@@ -1,0 +1,32 @@
+# produces lossless files
+
+# path to ffmpeg if it is not on the path
+ffmpeg_path: 'ffmpeg'
+# path to vgmstream if it is not on the path
+# required for some audio conversions
+# https://github.com/vgmstream/vgmstream
+vgmstream_path: 'vgmstream-cli'
+
+# options for music
+music:
+  enable: true
+  extension: .flac
+  ffmpeg_args: []
+
+# options for music jacket images
+jackets:
+  enable: true
+  extension: .webp
+  ffmpeg_args: ['-lossless', '1']
+
+# options for other images
+images:
+  enable: true
+  extension: .webp
+  ffmpeg_args: ['-lossless', '1']
+
+# options for other audio
+audio:
+  enable: true
+  extension: .flac
+  ffmpeg_args: []
