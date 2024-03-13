@@ -13,7 +13,7 @@ export const useUser = <R extends boolean>({ required }: UseUserProps<R> = {}): 
 	const path = usePathname();
 
 	if (required && !session.data?.user)
-		return redirect(`/auth/login?error=1&callbackUrl=${encodeURIComponent(process.env.NEXT_PUBLIC_BASE_PATH + path)}`);
+		return redirect(`/auth/login?error=1&callbackUrl=${encodeURIComponent(process.env.NEXT_PUBLIC_BASE_PATH! + path)}`);
 
 	return session.data?.user as UserPayload;
 };
