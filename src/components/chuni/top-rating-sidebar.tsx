@@ -48,19 +48,21 @@ export const ChuniTopRatingSidebar = ({ rating }: { rating: Awaited<ReturnType<t
 					{(shownRating === 'top' ? topAvg : recentAvg).toFixed(2)}
 				</ChuniRating>
 			</div>
-			<div className="flex items-center justify-center overflow-hidden h-32 md:hidden">
-				{shownRating && <div className="flex items-baseline mb-2">
+			<div className="flex items-center max-w-full md:hidden flex-wrap">
+				{shownRating && <div className="flex items-baseline mb-2 mr-auto">
 						Average:&nbsp;
 					<ChuniRating className="text-xl" rating={+(shownRating === 'top' ? topAvg : recentAvg).mul(100)}>
 						{(shownRating === 'top' ? topAvg : recentAvg).toFixed(2)}
 					</ChuniRating>
 				</div>}
-				<span className="text-lg mr-6 font-semibold pb-2 ml-auto">Ratings</span>
-				<ButtonGroup size="md" className="mb-2 h-full">
-					<Button color={shownRating === 'top' ? 'primary' : 'default'} onClick={() => setShownRating('top')}>Top</Button>
-					<Button color={shownRating === 'recent' ? 'primary' : 'default'} onClick={() => setShownRating('recent')}>Recent</Button>
-					<Button color={shownRating === null ? 'primary' : 'default'} onClick={() => setShownRating(null)}>Hide</Button>
-				</ButtonGroup>
+				<div className="ml-auto flex items-center justify-center flex-wrap">
+					<span className="text-lg mr-6 font-semibold pb-2">Ratings</span>
+					<ButtonGroup size="md" className="mb-2 h-full">
+						<Button color={shownRating === 'top' ? 'primary' : 'default'} onClick={() => setShownRating('top')}>Top</Button>
+						<Button color={shownRating === 'recent' ? 'primary' : 'default'} onClick={() => setShownRating('recent')}>Recent</Button>
+						<Button color={shownRating === null ? 'primary' : 'default'} onClick={() => setShownRating(null)}>Hide</Button>
+					</ButtonGroup>
+				</div>
 			</div>
 			{shownRating && <ChuniTopRating rating={shownRating === 'top' ? rating.top : rating.recent.slice(0, 10)} />}
 		</div>
