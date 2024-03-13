@@ -28,9 +28,9 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	const params = useSearchParams();
 	const [isMenuOpen, setMenuOpen] = useState(false);
 
-	const from = params.get('from');
+	const from = params?.get('from');
 	const filter = filterUserOnly.bind(null, user);
-	const routeGroup = ROUTES.find(route => route.title === from || path.startsWith(route.url))!;
+	const routeGroup = ROUTES.find(route => route.title === from || path?.startsWith(route.url))!;
 
 	return (<>
 		<div className={`fixed inset-0 w-full h-full z-[9999] ${isMenuOpen ? '' : 'pointer-events-none'}`}>
@@ -58,7 +58,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 							<div className="ml-2 mt-2">
 								{route.routes?.filter(filter)?.map(subroute => <div className="mb-1" key={subroute.url}>
 									<Link href={subroute.url} onClick={() => setMenuOpen(false)}
-										className={`text-xl transition hover:text-secondary ${path.startsWith(subroute.url) ? 'font-semibold' : ''}`}>
+										className={`text-xl transition hover:text-secondary ${path?.startsWith(subroute.url) ? 'font-semibold' : ''}`}>
 										{subroute.name}
 									</Link>
 								</div>)}
@@ -82,7 +82,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			</div>
 		</div>
 		<div className="flex flex-col">
-			<div className="flex p-6 items-center flex-shrink-0 sticky top-0 bg-background z-[9998] shadow-lg">
+			<div className="flex p-6 items-center flex-shrink-0 sticky top-0 bg-background/80 z-[9998] backdrop-blur-2xl">
 				<Button className="text-2xl font-bold cursor-pointer flex items-center m-0 ps-1.5 pe-2 mr-6" variant="light"
 					onClick={() => setMenuOpen(true)}>
 					<Bars3Icon className="h-6 mt-0.5" />
@@ -90,7 +90,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				</Button>
 				<div className="mr-auto mt-1 hidden md:flex text-lg">
 					{routeGroup.routes?.filter(filter).map(route =>
-						<Link href={route.url} key={route.url} className={`mr-4 transition ${path.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
+						<Link href={route.url} key={route.url} className={`mr-4 transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
 							{route.name}
 						</Link>)
 					}
@@ -98,7 +98,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				{routeGroup !== MAIN_ROUTES && <div className="mr-4 mt-1 hidden lg:flex text-lg transition hover:text-secondary">
 					{MAIN_ROUTES.routes.filter(filter).map(route => <Link
 						href={`${route.url}?from=${encodeURIComponent(routeGroup.title)}`} key={route.url}
-						className={`mr-4 transition ${path.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
+						className={`mr-4 transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
 						{route.name}
 					</Link>)}
         </div>}
