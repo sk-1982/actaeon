@@ -24,7 +24,6 @@ export const RegisterCard = ({ callback }: RegisterCardProps) => {
 	const submit = (data: FormData) => {
 		setLoading(true);
 		setError('');
-		console.log(data);
 		register(data)
 			.then(({ error, message }) => {
 				if (!error)
