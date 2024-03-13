@@ -13,12 +13,14 @@ export default async function ChuniDashboard() {
 		getUserData(user),
 		getUserRating(user),
 		getPlaylog({ limit: 72 })
-	])
+	]);
 
 	if (!profile) return notFound();
 
 	return (<div className="flex h-full flex-col md:flex-row">
-		<ChuniNameplate className="block md:hidden w-full" profile={profile} />
+		<div>
+			<ChuniNameplate className="block md:hidden w-full" profile={profile} />
+		</div>
 		<div className="mr-4 w-full md:w-[16rem] 2xl:w-[32rem] flex-shrink-0">
 			<ChuniTopRatingSidebar rating={rating} />
 		</div>
