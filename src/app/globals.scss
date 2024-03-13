@@ -42,8 +42,13 @@ html {
 	font-family: Rodin, "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+// offsets for header size of 5.5rem
 .h-fixed {
 	height: calc(100% - 5.5rem);
+}
+
+.pt-fixed {
+	padding-top: 5.5rem;
 }
 
 .\@container-size {

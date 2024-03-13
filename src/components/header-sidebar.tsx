@@ -81,8 +81,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				</Button>
 			</div>
 		</div>
-		<div className="flex flex-col">
-			<div className="flex p-6 items-center flex-shrink-0 sticky top-0 bg-background/80 z-[9998] backdrop-blur-2xl">
+		<div className="flex flex-col flex-grow">
+			<div className="flex p-6 items-center flex-shrink-0 fixed top-0 left-0 w-full bg-background/80 z-[9998] backdrop-blur-2xl">
 				<Button className="text-2xl font-bold cursor-pointer flex items-center m-0 ps-1.5 pe-2 mr-6" variant="light"
 					onClick={() => setMenuOpen(true)}>
 					<Bars3Icon className="h-6 mt-0.5" />
@@ -114,7 +114,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					</Button>
 				</div>
 			</div>
-			<div className="sm:px-5 flex-grow">
+			<div className="sm:px-5 flex-grow pt-fixed">
 				{children}
 			</div>
 		</div>
