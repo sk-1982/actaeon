@@ -20,6 +20,7 @@ export const {
 	session: {
 		strategy: 'jwt'
 	},
+	trustHost: true,
 	callbacks: {
 		jwt({ token, user  }) {
 			token.user ??= user;
