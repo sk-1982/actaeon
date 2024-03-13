@@ -1,0 +1,40 @@
+
+@font-face {
+  font-family: Rodin;
+  src: url(#{$asset-url}fonts/rodinl.woff2) format("woff2");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: Rodin;
+  src: url(#{$asset-url}fonts/rodinm.woff2) format("woff2");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Rodin;
+  src: url(#{$asset-url}fonts/rodindb.woff2) format("woff2");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: Rodin;
+  src: url(#{$asset-url}fonts/rodinb.woff2) format("woff2");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Rodin;
+  src: url(#{$asset-url}fonts/rodineb.woff2) format("woff2");
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: Rodin;
+  src: url(#{$asset-url}fonts/rodinub.woff2) format("woff2");
+  font-weight: 900;
+}
+
+html {
+  font-family: Rodin, "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
