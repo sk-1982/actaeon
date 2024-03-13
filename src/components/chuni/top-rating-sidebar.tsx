@@ -5,10 +5,18 @@ import { getUserRating } from '@/actions/chuni/profile';
 import { useState } from 'react';
 import { Button, ButtonGroup } from '@nextui-org/react';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
+import { BigDecimal } from '@/helpers/big-decimal';
+import { ChuniRating } from '@/components/chuni/rating';
 
 export const ChuniTopRatingSidebar = ({ rating }: { rating: Awaited<ReturnType<typeof getUserRating>> }) => {
 	const [shownRating, setShownRating] = useState<'top' | 'recent' | null>('recent');
 	const breakpoint = useBreakpoint();
+
+	const recent = rating.recent.slice(0, 10);
+	const topAvg = rating.top.reduce((t, x) => t.add(x.rating), new BigDecimal(0))
+		.div(30, 2n);
+	const recentAvg = recent.reduce((t, x) => t.add(x.rating), new BigDecimal(0))
+		.div(10, 2n);
 
 	if (![undefined, 'sm'].includes(breakpoint) && shownRating === null)
 		setShownRating('recent');
@@ -16,22 +24,39 @@ export const ChuniTopRatingSidebar = ({ rating }: { rating: Awaited<ReturnType<t
 	return (<div className="w-full mt-4 md:mt-0 px-2 sm:px-0 md:fixed md:overflow-y-auto h-fixed flex md:w-[16rem] 2xl:w-[32rem]">
 		<div className="hidden 2xl:flex">
 			<div className="w-1/2 pr-1">
-				<div>Top</div>
+				<div className="flex items-baseline">
+					<span>Top&nbsp;</span>
+					<ChuniRating className="text-xl" rating={+topAvg.mul(100)}>{ topAvg.toFixed(2) }</ChuniRating>
+				</div>
 				<ChuniTopRating rating={rating.top}  />
 			</div>
 			<div className="pl-1 w-1/2 mr-2">
-				<div>Recent</div>
-				<ChuniTopRating rating={rating.recent.slice(0, 10)}  />
+				<div className="flex items-baseline">
+					<span>Recent&nbsp;</span>
+					<ChuniRating className="text-xl" rating={+recentAvg.mul(100)}>{ recentAvg.toFixed(2) }</ChuniRating>
+				</div>
+				<ChuniTopRating rating={recent}  />
 			</div>
 		</div>
 		<div className="w-full flex flex-col 2xl:hidden pr-2">
-			<ButtonGroup size="sm" className="mb-2 hidden md:block">
-				<Button color={shownRating === 'top' ? 'primary' : 'default'} onClick={() => setShownRating('top')}>Top</Button>
-				<Button color={shownRating === 'recent' ? 'primary' : 'default'} onClick={() => setShownRating('recent')}>Recent</Button>
-			</ButtonGroup>
-			<div className="flex items-center justify-center overflow-hidden">
-				<span className="text-lg mr-6 md:hidden font-semibold pb-2">Ratings</span>
-				<ButtonGroup size="md" className="mb-2 md:hidden">
+			<div className="mb-2 hidden md:flex">
+				<ButtonGroup size="sm" className="">
+					<Button color={shownRating === 'top' ? 'primary' : 'default'} onClick={() => setShownRating('top')}>Top</Button>
+					<Button color={shownRating === 'recent' ? 'primary' : 'default'} onClick={() => setShownRating('recent')}>Recent</Button>
+				</ButtonGroup>
+				<ChuniRating className="ml-auto text-xl" rating={+(shownRating === 'top' ? topAvg : recentAvg).mul(100)}>
+					{(shownRating === 'top' ? topAvg : recentAvg).toFixed(2)}
+				</ChuniRating>
+			</div>
+			<div className="flex items-center justify-center overflow-hidden h-32 md:hidden">
+				{shownRating && <div className="flex items-baseline mb-2">
+						Average:&nbsp;
+					<ChuniRating className="text-xl" rating={+(shownRating === 'top' ? topAvg : recentAvg).mul(100)}>
+						{(shownRating === 'top' ? topAvg : recentAvg).toFixed(2)}
+					</ChuniRating>
+				</div>}
+				<span className="text-lg mr-6 font-semibold pb-2 ml-auto">Ratings</span>
+				<ButtonGroup size="md" className="mb-2 h-full">
 					<Button color={shownRating === 'top' ? 'primary' : 'default'} onClick={() => setShownRating('top')}>Top</Button>
 					<Button color={shownRating === 'recent' ? 'primary' : 'default'} onClick={() => setShownRating('recent')}>Recent</Button>
 					<Button color={shownRating === null ? 'primary' : 'default'} onClick={() => setShownRating(null)}>Hide</Button>
