@@ -8,7 +8,7 @@ import { useIsMounted } from 'usehooks-ts';
 export function ThemeSwitcherDropdown() {
 	const { setTheme } = useTheme();
 
-	return (<Dropdown>
+	return (<Dropdown style={{ zIndex: 99999999999 }}>
 		<DropdownTrigger>
 			<Button variant="bordered" isIconOnly size="sm">
 				<MoonIcon className="w-5" />
