@@ -9,10 +9,14 @@ import { worldsEndStars } from '@/helpers/chuni/worlds-end-stars';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
 import { getJacketUrl } from '@/helpers/assets';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
-import { ChuniScoreBadge, getVariantFromRank } from '@/components/chuni/score-badge';
+import { ChuniScoreBadge, getVariantFromLamp, getVariantFromRank } from '@/components/chuni/score-badge';
 import { ChuniRating } from '@/components/chuni/rating';
 import Link from 'next/link';
 import { Squares2X2Icon } from '@heroicons/react/24/outline';
+import { Ticker } from '@/components/ticker';
+import { CHUNI_DIFFICULTIES } from '@/helpers/chuni/difficulties';
+import { CHUNI_SCORE_RANKS } from '@/helpers/chuni/score-ranks';
+import { CHUNI_LAMPS } from '@/helpers/chuni/lamps';
 
 const getLevelFromStop = (n: number) => {
 	if (n < 7)
@@ -55,25 +59,6 @@ const searcher = (query: string, data: ChuniMusicListProps['music'][number]) => 
 	return data.title?.toLowerCase().includes(query) || data.artist?.toLowerCase().includes(query);
 };
 
-const SCORES = ['D', 'C', 'B', 'BB', 'BBB', 'A', 'AA', 'AAA', 'S', 'S+', 'SS', 'SS+', 'SSS', 'SSS+'];
-// TODO: check if these are correct
-const LAMPS = new Map([
-	[1, 'Clear'],
-	[2, 'Hard'],
-	[3, 'Absolute'],
-	[4, 'Absolute+'],
-	[5, 'Absolute++'],
-	[6, 'Catastrophy']
-]);
-const LAMP_DISPLAY = {
-	1: 'gold',
-	2: 'gold',
-	3: 'gold',
-	4: 'platinum',
-	5: 'platinum',
-	6: 'platinum'
-};
-
 const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' }) => {
 	let itemWidth = 0;
 	let itemHeight = 0;
@@ -81,12 +66,12 @@ const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' })
 
 	if (size === 'sm') {
 		itemWidth = 175;
-		itemHeight = 225;
-		itemClass = 'w-[175px] h-[230px] py-1.5 px-1';
+		itemHeight = 235;
+		itemClass = 'w-[175px] h-[235px] py-1.5 px-1';
 	} else {
 		itemWidth = 285;
-		itemHeight = 360;
-		itemClass = 'w-[285px] h-[360px] py-1.5 px-1';
+		itemHeight = 375;
+		itemClass = 'w-[285px] h-[375px] py-1.5 px-1';
 	}
 
 	const listRef = useRef<List | null>(null);
@@ -106,7 +91,7 @@ const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' })
 						onScroll={onChildScroll} scrollTop={scrollTop} ref={listRef}
 						rowRenderer={({ index, key, style }) => <div key={key} style={style} className="w-full h-full flex justify-center">
 							{music.slice(index * itemsPerRow, (index + 1) * itemsPerRow).map(item => <div key={`${item.songId}-${item.chartId}`} className={itemClass}>
-									<ChuniDifficultyContainer difficulty={item.chartId!} containerClassName="flex flex-col" className="w-full h-full border border-gray-500/75 rounded-md">
+									<ChuniDifficultyContainer difficulty={item.chartId!} containerClassName="flex flex-col" className="w-full h-full border border-gray-500/75 rounded-md [&:hover_.ticker]:[animation-play-state:running]">
 										<div className="aspect-square w-full p-[0.2rem] relative">
 											<img src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)} alt={item.title ?? 'Music'} className="rounded" />
 											{item.rating && !item.worldsEndTag && <div className={`${size === 'sm' ? '' : 'text-2xl'} absolute bottom-0.5 left-0.5 bg-gray-200/60 backdrop-blur-sm px-0.5 rounded`}>
@@ -118,8 +103,8 @@ const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' })
 										</div>
 										<div className="px-0.5 mb-1 flex">
 											{size === 'lg' && <div className="h-full w-1/3 mr-0.5">
-												{item.isSuccess ? <ChuniScoreBadge variant={LAMP_DISPLAY[item.isSuccess]} className="h-full">
-													{LAMPS.get(item.isSuccess)}
+												{item.isSuccess ? <ChuniScoreBadge variant={getVariantFromLamp(item.isSuccess)} className="h-full">
+													{CHUNI_LAMPS.get(item.isSuccess)}
 												</ChuniScoreBadge> : null}
 											</div>}
 
@@ -136,13 +121,10 @@ const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' })
 											</div>
 										</div>
 										<Link href={`/chuni/music/${item.songId}`}
-											className={`${size === 'sm' ? 'text-xs' : 'text-lg'} mt-auto px-1 block text-white hover:text-gray-200 transition text-center font-semibold text-nowrap overflow-hidden drop-shadow-lg`}
-											lang="ja">
-											{item.title}
+											className={`${size === 'sm' ? 'text-xs' : 'text-lg'} mt-auto px-1 block text-white hover:text-gray-200 transition text-center font-semibold drop-shadow-lg`}>
+											<Ticker hoverOnly noDelay>{item.title}</Ticker>
 										</Link>
-										<div className={`${size === 'sm' ? 'text-xs mb-0.5' : 'text-medium mb-1.5'} px-1 text-white text-center text-nowrap overflow-hidden drop-shadow-lg`} lang="ja">
-											{item.artist}
-										</div>
+										<Ticker className={`${size === 'sm' ? 'text-xs mb-0.5' : 'text-medium mb-1.5'} text-center px-1 drop-shadow-2xl`} hoverOnly noDelay>{item.artist}</Ticker>
 									</ChuniDifficultyContainer>
 							</div>)}
 						</div>} />)
@@ -167,14 +149,9 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			value: new Set<string>(),
 			className: 'col-span-6 md:col-span-3 5xl:col-span-1',
 			props: {
-				children: [
-					<SelectItem key="0" value="0">Basic</SelectItem>,
-					<SelectItem key="1" value="1">Advanced</SelectItem>,
-					<SelectItem key="2" value="2">Expert</SelectItem>,
-					<SelectItem key="3" value="3">Master</SelectItem>,
-					<SelectItem key="4" value="4">Ultima</SelectItem>,
-					<SelectItem key="5" value="5">World&apos;s End</SelectItem>,
-				],
+				children: CHUNI_DIFFICULTIES.map((name, i) => <SelectItem key={i.toString()} value={i.toString()}>
+					{name}
+				</SelectItem>),
 				selectionMode: 'multiple'
 			},
 			filter: (val: Set<string>, data) => !val.size || val.has(data.chartId?.toString()!)
@@ -200,14 +177,14 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 				children: [
 					<SelectItem key="aj" value="aj">All Justice</SelectItem>,
 					<SelectItem key="fc" value="fc">Full Combo</SelectItem>,
-					...[...LAMPS].map(([id, name]) => <SelectItem key={id.toString()} value={id.toString()}>{name}</SelectItem>)
+					...[...CHUNI_LAMPS].map(([id, name]) => <SelectItem key={id.toString()} value={id.toString()}>{name}</SelectItem>)
 				],
 				selectionMode: 'multiple'
 			},
 			filter: (val: Set<string>, data) => {
 				if (!val.size) return true;
 
-				const checkLamps = [...LAMPS].some(([id]) => val.has(id.toString()));
+				const checkLamps = [...CHUNI_LAMPS].some(([id]) => val.has(id.toString()));
 				if (checkLamps && (!data.isSuccess || !val.has(data.isSuccess.toString())))
 					return false
 
@@ -238,7 +215,7 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			value: new Set<string>(),
 			className: 'col-span-full sm:col-span-6 md:col-span-4 lg:col-span-2 xl:col-span-2 5xl:col-span-1',
 			props: {
-				children: SCORES
+				children: CHUNI_SCORE_RANKS
 					.map((s, i) => <SelectItem key={i.toString()} value={i.toString()}>{s}</SelectItem>)
 					.reverse(),
 				selectionMode: 'multiple'

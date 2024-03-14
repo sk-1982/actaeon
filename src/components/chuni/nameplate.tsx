@@ -3,6 +3,7 @@ import {  getImageUrl } from '@/helpers/assets';
 import { ChuniTrophy } from '@/components/chuni/trophy';
 import { PickNullable } from '@/types/pick-nullable';
 import { ChuniRating } from '@/components/chuni/rating';
+import { formatJst } from '@/helpers/format-jst';
 
 export type Profile = PickNullable<Awaited<ReturnType<typeof getUserData>>,
 	'trophyName' | 'trophyRareType' | 'nameplateImage' | 'nameplateName' | 'teamName' | 'characterId' | 'level' | 'userName' | 'overPowerRate' | 'overPowerPoint' | 'lastPlayDate' | 'playerRating' | 'highestRating'>;
@@ -47,13 +48,7 @@ export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
 							</div>
 							<div className="leading-none py-[1%] border-b border-gray-700 flex items-baseline">
 								<span className="font-normal text-[13cqh]">Last Play Date:&nbsp;</span>
-								<span className="text-[15cqh]">{profile.lastPlayDate && new Date(`${profile.lastPlayDate} +0900`).toLocaleTimeString(undefined, {
-									month: 'numeric',
-									day: 'numeric',
-									year: '2-digit',
-									hour: 'numeric',
-									minute: '2-digit'
-								})}</span>
+								<span className="text-[15cqh]">{profile.lastPlayDate && formatJst(profile.lastPlayDate)}</span>
 							</div>
 							<div className="leading-none py-[2%] flex items-baseline">
 								<ChuniRating className="text-[12cqh] text-stroke-[0.75cqh]" rating={profile.playerRating}>

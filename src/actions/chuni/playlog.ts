@@ -14,6 +14,8 @@ export type GetPlaylogOptions = {
 
 export async function getPlaylog(opts: GetPlaylogOptions) {
 	const user = await requireUser();
+	const musicId = 'musicId' in opts ? +opts.musicId : NaN;
+	const chartId = 'chartId' in opts ? +opts.chartId : NaN;
 
 	const playlog = await db.with('p', db => db
 		.selectFrom('chuni_score_playlog as playlog')
@@ -41,8 +43,8 @@ export async function getPlaylog(opts: GetPlaylogOptions) {
 	)
 		.selectFrom('p')
 		.where(({ and, eb }) => and([
-			...('musicId' in opts ? [eb('p.songId', '=', opts.musicId)] : []),
-			...('chartId' in opts ? [eb('p.chartId', '=', opts.chartId)] : []),
+			...(!Number.isNaN(musicId) ? [eb('p.songId', '=', musicId)] : []),
+			...(!Number.isNaN(chartId) ? [eb('p.chartId', '=', chartId)] : []),
 		]))
 		.selectAll()
 		.limit(+opts.limit)
@@ -54,8 +56,8 @@ export async function getPlaylog(opts: GetPlaylogOptions) {
 			.where(({ and, eb }) => and([
 				eb('playlog.user', '=', user.id),
 				eb('playlog.id', '<', playlog.at(-1)!.id),
-				...('musicId' in opts ? [eb('playlog.musicId', '=', opts.musicId)] : []),
-				...('chartId' in opts ? [eb('playlog.level', '=', opts.chartId)] : []),
+				...(!Number.isNaN(musicId) ? [eb('playlog.musicId', '=', musicId)] : []),
+				...(!Number.isNaN(chartId) ? [eb('playlog.level', '=', chartId)] : []),
 			]))
 			.select(({ fn }) => fn.countAll().as('remaining'))
 			.executeTakeFirstOrThrow()).remaining);

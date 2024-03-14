@@ -19,6 +19,16 @@ const ChuniScoreBadgeVariant = {
 type Variant = keyof typeof ChuniScoreBadgeVariant | (typeof ChuniScoreBadgeVariant)[keyof typeof ChuniScoreBadgeVariant];
 
 const RANK_VARIANTS = [0, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4] as const;
+
+export const CHUNI_LAMP_DISPLAY = new Map<number, Variant>([
+	[1, 'gold'],
+	[2, 'gold'],
+	[3, 'gold'],
+	[4, 'platinum'],
+	[5, 'platinum'],
+	[6, 'platinum']
+]);
+
 export const getVariantFromRank = (rank: number): Variant => {
 	return RANK_VARIANTS[rank];
 }
@@ -33,6 +43,10 @@ export const getVariantFromScore = (score: number): Variant => {
 	if (score >= 500000)
 		return 1;
 	return 0;
+};
+
+export const getVariantFromLamp = (lamp: number): Variant => {
+	return CHUNI_LAMP_DISPLAY.get(lamp)!
 };
 
 export type ChuniScoreBadgeProps = {

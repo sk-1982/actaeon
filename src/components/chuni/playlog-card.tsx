@@ -1,11 +1,12 @@
 import { getPlaylog } from '@/actions/chuni/playlog';
 import { getJacketUrl } from '@/helpers/assets';
 import Link from 'next/link';
-import { floorToDp } from '@/helpers/floor-dp';
 import { ChuniRating } from '@/components/chuni/rating';
 import { ChuniScoreBadge, getVariantFromRank } from '@/components/chuni/score-badge';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
+import { formatJst } from '@/helpers/format-jst';
+import { Ticker } from '@/components/ticker';
 
 export type ChuniPlaylogCardProps = {
 	playlog: Awaited<ReturnType<typeof getPlaylog>>['data'][number],
@@ -25,16 +26,22 @@ const getChangeColor = (val: number) => {
 }
 
 export const ChuniPlaylogCard = ({ playlog, className }: ChuniPlaylogCardProps) => {
-	return (<div className={`rounded-md bg-content1 flex flex-col p-2 border border-black/25 ${className ?? ''}`}>
+	return (<div className={`rounded-md bg-content1 relative flex flex-col p-2 pt-1 border border-black/25 ${className ?? ''}`}>
 		<div className="flex">
-			<ChuniDifficultyContainer difficulty={playlog.chartId ?? 0} className="mr-2 w-28 aspect-square flex-shrink-0 relative p-1">
-				<ChuniLevelBadge className="absolute -bottom-1.5 -right-1.5 w-12" music={playlog} />
-				<img className="aspect-square w-full rounded overflow-hidden" src={getJacketUrl(`chuni/jacket/${playlog.jacketPath}`)}
-					alt={playlog.title ?? ''} />
-			</ChuniDifficultyContainer>
-			<div className="flex flex-col leading-tight overflow-hidden text-nowrap">
-				<Link href={`/chuni/music/${playlog.songId}`} lang="ja" className="underline hover:text-secondary transition mb-2 font-semibold">{ playlog.title }</Link>
-				<span lang="ja" className="text-sm mb-2">{ playlog.artist }</span>
+			<div className="flex-shrink-0 mr-2 mt-auto">
+				<ChuniDifficultyContainer difficulty={playlog.chartId ?? 0} className="w-28 aspect-square relative p-1">
+					<ChuniLevelBadge className="absolute -bottom-1.5 -right-1.5 w-12" music={playlog} />
+					<img className="aspect-square w-full rounded overflow-hidden" src={getJacketUrl(`chuni/jacket/${playlog.jacketPath}`)}
+						alt={playlog.title ?? ''} />
+				</ChuniDifficultyContainer>
+			</div>
+
+			<div className="flex flex-col leading-tight overflow-hidden text-nowrap w-full">
+				<div className="text-xs text-right -mb-0.5 w-full">{ formatJst(playlog.userPlayDate!) }</div>
+				<Link href={`/chuni/music/${playlog.songId}`} lang="ja" className="hover:text-secondary transition mb-2 font-semibold">
+					<Ticker hoverOnly noDelay><span className="underline">{ playlog.title }</span></Ticker>
+				</Link>
+				<Ticker className="text-sm mb-2">{ playlog.artist }</Ticker>
 				<span lang="ja" className="text-sm mb-2">{ playlog.genre }</span>
 				<div className="text-sm flex items-center">
 					Rating:&nbsp;<ChuniRating className="text-medium" rating={+playlog.rating * 100} />
