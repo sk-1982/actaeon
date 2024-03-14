@@ -15,7 +15,7 @@ export const ChuniLevelBadge = ({ music, className }: ChuniLevelBadgeProps) => {
 					{music.worldsEndTag ? worldsEndStars(Math.ceil((music.level!) / 2)) : '\u200b'}
 				</div>
 				<div className="bg-black text-[45cqh] w-full flex-grow flex items-center justify-center text-white font-bold" lang="ja">
-					{music.worldsEndTag ?? (floorToDp(music.level!, 1))}
+					{music.worldsEndTag ?? (music.level! <= 7 && Number.isInteger(music.level) ? music.level : floorToDp(music.level!, 1))}
 				</div>
 			</div>
 		</div>
