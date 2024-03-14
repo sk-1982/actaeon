@@ -15,12 +15,13 @@ const BACKGROUNDS = [
 export type ChuniDifficultyContainerProps = {
 	children?: ReactNode,
 	className?: string,
-	difficulty: number
+	difficulty: number,
+	containerClassName?: string
 };
 
-export const ChuniDifficultyContainer = ({ children, className, difficulty }: ChuniDifficultyContainerProps) => {
+export const ChuniDifficultyContainer = ({ children, className, difficulty, containerClassName }: ChuniDifficultyContainerProps) => {
 	return (<div className={`relative ${className ?? ''}`}>
 		{BACKGROUNDS[difficulty].map((className, i) => <div className={`${className} w-full h-full absolute inset-0 z-0 rounded`} key={i} />)}
-		<div className="z-0 relative w-full h-full">{children}</div>
+		<div className={`z-0 relative w-full h-full ${containerClassName ?? ''}`}>{children}</div>
 	</div>)
 };
