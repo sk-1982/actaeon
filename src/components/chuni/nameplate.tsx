@@ -1,11 +1,11 @@
-import { getUserData } from '@/actions/chuni/profile';
+import { ChuniUserData } from '@/actions/chuni/profile';
 import {  getImageUrl } from '@/helpers/assets';
 import { ChuniTrophy } from '@/components/chuni/trophy';
 import { PickNullable } from '@/types/pick-nullable';
 import { ChuniRating } from '@/components/chuni/rating';
 import { formatJst } from '@/helpers/format-jst';
 
-export type Profile = PickNullable<Awaited<ReturnType<typeof getUserData>>,
+export type Profile = PickNullable<ChuniUserData,
 	'trophyName' | 'trophyRareType' | 'nameplateImage' | 'nameplateName' | 'teamName' | 'characterId' | 'level' | 'userName' | 'overPowerRate' | 'overPowerPoint' | 'lastPlayDate' | 'playerRating' | 'highestRating'>;
 
 export type ChuniNameplateProps = {
@@ -16,7 +16,7 @@ export type ChuniNameplateProps = {
 export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
 	if (!profile) return null;
 
-	return (<div className={`aspect-[576/210] overflow-hidden ${className ?? ''}`}>
+	return (<div className={`aspect-[576/228] overflow-hidden ${className ?? ''}`}>
 		<div className="aspect-[576/228] w-full relative">
 			<div className="absolute z-10 w-[72%] h-[83%] right-[3.25%] top-[2.5%] flex flex-col items-center">
 				<div className="h-[15%] w-[99%]">

@@ -62,6 +62,8 @@ export async function getUserData(user: UserPayload) {
 	return res;
 }
 
+export type ChuniUserData = Awaited<ReturnType<typeof getUserData>>;
+
 export async function getUserRating(user: UserPayload) {
 	const recent = await db.selectFrom('chuni_profile_recent_rating as recent')
 		.where('user', '=', user.id)
