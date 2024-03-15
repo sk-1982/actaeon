@@ -24,7 +24,7 @@ export type ChuniTrophyProps = {
 export const ChuniTrophy = ({ name, rarity, className }: ChuniTrophyProps) => {
 	return (<div className={`w-full overflow-hidden relative aspect-[593/62] @container-size ${className}`}>
 		<div className="z-10 absolute w-full h-full flex items-center justify-center top-0" lang="ja">
-			<div className="w-11/12 text-black font-semibold text-center text-nowrap overflow-hidden text-[50cqh]" title={name ?? 'Trophy'}>
+			<div className="w-11/12 pb-[2.5cqh] leading-loose text-black font-semibold text-center text-nowrap overflow-hidden text-[50cqh]" title={name ?? 'Trophy'}>
 				{name}
 			</div>
 		</div>
