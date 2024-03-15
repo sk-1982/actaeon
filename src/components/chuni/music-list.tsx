@@ -84,7 +84,7 @@ const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' })
 		{({ height, isScrolling, onChildScroll, scrollTop }) =>
 			(<AutoSizer disableHeight>
 				{({ width }) => {
-					const itemsPerRow = Math.floor(width / itemWidth);
+					const itemsPerRow = Math.max(1, Math.floor(width / itemWidth));
 					const rowCount = Math.ceil(music.length / itemsPerRow);
 
 					return (<List rowCount={rowCount} autoHeight height={height} width={width} rowHeight={itemHeight} isScrolling={isScrolling}
