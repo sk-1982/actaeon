@@ -7,6 +7,7 @@ import { XMarkIcon } from '@heroicons/react/16/solid';
 import { ArrowLongUpIcon } from '@heroicons/react/24/solid';
 import { useDebounceCallback, useIsMounted } from 'usehooks-ts';
 import { usePathname } from 'next/navigation';
+import { SearchIcon } from '@nextui-org/shared-icons';
 
 
 type ValueType = {
@@ -269,7 +270,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 								setFilterState(defaultFilterState);
 								setQuery('');
 							}}>Reset</Button>
-							<Input ref={searchRef} size="sm" label="Search" type="text" isClearable={true} value={query} onValueChange={setQuery} onClear={() => setQuery('')} />
+							<Input startContent={<SearchIcon />} ref={searchRef} size="sm" label="Search" type="text" isClearable={true} value={query} onValueChange={setQuery} onClear={() => setQuery('')} />
 						</div>
 						<div className="flex gap-2 sm:w-1/3 flex-grow sm:flex-grow-0 sm:max-w-80 items-center">
 							<Select name="page" label="Per Page" size="sm" className="w-1/2" selectedKeys={pageSize} onSelectionChange={sel => sel !== 'all' && sel.size && setPageSize(sel)}>
