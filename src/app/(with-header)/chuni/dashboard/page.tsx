@@ -27,7 +27,7 @@ export default async function ChuniDashboard() {
 		<div className="flex flex-col h-full flex-grow">
 			<div className="flex flex-wrap-reverse">
 				<div className="text-xl font-semibold mt-auto pt-3 hidden md:block pr-3">Recent Plays</div>
-				<ChuniNameplate className="hidden md:block max-w-[38rem] w-full ml-auto" profile={profile} />
+				<ChuniNameplate className="hidden md:block max-w-[50rem] w-full ml-auto" profile={profile} />
 			</div>
 			<div className="text-lg font-semibold px-4 pt-4 border-t border-gray-500 md:hidden">Recent Plays</div>
 			<div className="my-4 w-full flex-grow grid gap-2 grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 5xl:grid-cols-6 6xl:grid-cols-8">

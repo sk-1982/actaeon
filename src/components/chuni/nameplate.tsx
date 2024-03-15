@@ -18,7 +18,7 @@ export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
 
 	return (<div className={`aspect-[576/210] overflow-hidden ${className ?? ''}`}>
 		<div className="aspect-[576/228] w-full relative">
-			<div className="absolute z-10 w-[73%] h-full right-[1.5%] top-[3%] flex flex-col items-center">
+			<div className="absolute z-10 w-[72%] h-[83%] right-[3.25%] top-[2.5%] flex flex-col items-center">
 				<div className="h-[15%] w-[99%]">
 					<div className="@container-size h-full bg-gray-400 rounded p-[0.35%]">
 						<div className="w-full h-full border border-gray-600 rounded flex items-center shadow-inner">
@@ -50,16 +50,16 @@ export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
 								<span className="font-normal text-[13cqh]">Last Play Date:&nbsp;</span>
 								<span className="text-[15cqh]">{profile.lastPlayDate && formatJst(profile.lastPlayDate)}</span>
 							</div>
-							<div className="leading-none py-[2%] flex items-baseline">
-								<ChuniRating className="text-[12cqh] text-stroke-[0.75cqh]" rating={profile.playerRating}>
+							<div className="leading-none flex items-baseline">
+								<ChuniRating className="text-[14cqh] text-stroke-[0.75cqh]" rating={profile.playerRating}>
 									RATING:&nbsp;
 								</ChuniRating>
-								<ChuniRating className="text-[15cqh] text-stroke-[0.75cqh]" rating={profile.playerRating} />
+								<ChuniRating className="text-[18cqh] text-stroke-[0.75cqh]" rating={profile.playerRating} />
 								<span className="text-[13cqh]">&nbsp;(<span className="text-[11cqh]">MAX</span> {((profile.highestRating ?? 0) / 100).toFixed(2)})</span>
 							</div>
 						</div>
 					</div>
-					<img className="ml-auto aspect-square h-full bg-gray-200 border-2 border-black" alt="Character" src={profile.characterId ? getImageUrl(
+					<img className="ml-auto aspect-square h-full bg-gray-200 border-2 border-black" alt="Character" src={profile.characterId !== null ? getImageUrl(
 						`chuni/character/CHU_UI_Character_${Math.floor(profile.characterId / 10).toString()
 							.padStart(4, '0')}_${(profile.characterId % 10).toString().padStart(2, '0')}_02`) : ''}/>
 				</div>
