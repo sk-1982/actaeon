@@ -33,9 +33,9 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	const routeGroup = ROUTES.find(route => route.title === from || path?.startsWith(route.url))!;
 
 	return (<>
-		<div className={`fixed inset-0 w-full h-full z-[9999999] ${isMenuOpen ? '' : 'pointer-events-none'}`}>
-			<div className={`transition bg-black z-40 absolute inset-0 w-full h-full ${isMenuOpen ? 'bg-opacity-25' : 'bg-opacity-0 pointer-events-none'}`} onClick={() => setMenuOpen(false)} />
-			<div className={`dark flex flex-col text-white absolute p-6 top-0 h-full max-w-full w-96 bg-gray-950 z-[9999999] transition-all ${isMenuOpen ? 'left-0 shadow-2xl' : '-left-full'}`}>
+		<div className={`fixed inset-0 w-full h-full z-[49] ${isMenuOpen ? '' : 'pointer-events-none'}`}>
+			<div className={`transition bg-black z-[49] absolute inset-0 w-full h-full ${isMenuOpen ? 'bg-opacity-25' : 'bg-opacity-0 pointer-events-none'}`} onClick={() => setMenuOpen(false)} />
+			<div className={`dark flex flex-col text-white absolute p-6 top-0 h-full max-w-full w-96 bg-gray-950 z-[49] transition-all ${isMenuOpen ? 'left-0 shadow-2xl' : '-left-full'}`}>
 				<div className="flex">
 					<Button className="text-2xl mb-6 font-bold cursor-pointer flex items-center ps-1.5 pe-2" variant="light"
 						onClick={() => setMenuOpen(false)}>
@@ -82,7 +82,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			</div>
 		</div>
 		<div className="flex flex-col flex-grow">
-			<div className="flex p-6 items-center flex-shrink-0 fixed top-0 left-0 w-full bg-background/80 z-[9999998] backdrop-blur-2xl">
+			<div className="flex p-6 items-center flex-shrink-0 fixed top-0 left-0 w-full bg-background/80 z-[48] backdrop-blur-2xl">
 				<Button className="text-2xl font-bold cursor-pointer flex items-center m-0 ps-1.5 pe-2 mr-6" variant="light"
 					onClick={() => setMenuOpen(true)}>
 					<Bars3Icon className="h-6 mt-0.5" />

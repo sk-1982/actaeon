@@ -5,10 +5,12 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Switch }
 import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
 import { useIsMounted } from 'usehooks-ts';
 
+const THEME_SWITCHER_STYLE = { zIndex: 99999999999 } as const;
+
 export function ThemeSwitcherDropdown() {
 	const { setTheme } = useTheme();
 
-	return (<Dropdown style={{ zIndex: 99999999999 }}>
+	return (<Dropdown style={THEME_SWITCHER_STYLE}>
 		<DropdownTrigger>
 			<Button variant="bordered" isIconOnly size="sm">
 				<MoonIcon className="w-5" />
