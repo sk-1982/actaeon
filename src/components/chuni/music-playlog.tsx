@@ -6,7 +6,7 @@ import { Accordion, AccordionItem } from '@nextui-org/react';
 import { CHUNI_DIFFICULTIES } from '@/helpers/chuni/difficulties';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import { ChuniRating } from '@/components/chuni/rating';
-import { ChuniScoreBadge, getVariantFromLamp, getVariantFromRank } from '@/components/chuni/score-badge';
+import { ChuniLampComboBadge, ChuniLampSuccessBadge, ChuniScoreBadge, getVariantFromLamp, getVariantFromRank } from '@/components/chuni/score-badge';
 import { CHUNI_SCORE_RANKS } from '@/helpers/chuni/score-ranks';
 import {  CHUNI_LAMPS } from '@/helpers/chuni/lamps';
 import { ChuniPlaylogCard } from '@/components/chuni/playlog-card';
@@ -38,19 +38,16 @@ export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) =>
 
 	return (<div className="flex flex-col w-full px-2 sm:px-0">
 		{difficulties.map((data, i) => {
+			const rank = CHUNI_SCORE_RANKS[data.scoreRank!];
 			const badges = [
-				!!data.scoreRank && <ChuniScoreBadge variant={getVariantFromRank(data.scoreRank)} className={badgeClass} key="1">
-					{CHUNI_SCORE_RANKS[data.scoreRank]}
+				!!data.scoreRank && <ChuniScoreBadge variant={getVariantFromRank(data.scoreRank)} className={`${badgeClass} tracking-[0.05cqw]`} key="1">
+					{rank.endsWith('+') ? <>
+						{rank.slice(0, -1)}
+						<div className="inline-block translate-y-[-15cqh]">+</div>
+					</> : rank}
 				</ChuniScoreBadge>,
-				!!data.isSuccess && <ChuniScoreBadge variant={getVariantFromLamp(data.isSuccess)} className={badgeClass} key="2">
-					{CHUNI_LAMPS.get(data.isSuccess)}
-				</ChuniScoreBadge>,
-				!!data.isFullCombo && !data.isAllJustice && <ChuniScoreBadge variant="gold" className={badgeClass} key="3">
-					Full Combo
-				</ChuniScoreBadge>,
-				!!data.isAllJustice && <ChuniScoreBadge variant="platinum" className={badgeClass} key="4">
-					All Justice
-        </ChuniScoreBadge>,
+				data.isSuccess ? <ChuniLampSuccessBadge key="2" className={badgeClass} success={data.isSuccess} /> : null,
+				<ChuniLampComboBadge key="3" className={badgeClass} {...data} />
 			].filter(x => x);
 
 			const toggleExpanded = () => expanded[i] && setExpanded(e =>

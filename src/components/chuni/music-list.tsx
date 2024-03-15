@@ -9,7 +9,7 @@ import { worldsEndStars } from '@/helpers/chuni/worlds-end-stars';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
 import { getJacketUrl } from '@/helpers/assets';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
-import { ChuniScoreBadge, getVariantFromLamp, getVariantFromRank } from '@/components/chuni/score-badge';
+import { ChuniScoreBadge, ChuniLampSuccessBadge, getVariantFromLamp, getVariantFromRank, ChuniLampComboBadge } from '@/components/chuni/score-badge';
 import { ChuniRating } from '@/components/chuni/rating';
 import Link from 'next/link';
 import { Squares2X2Icon } from '@heroicons/react/24/outline';
@@ -103,9 +103,7 @@ const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' })
 										</div>
 										<div className="px-0.5 mb-1 flex">
 											{size === 'lg' && <div className="h-full w-1/3 mr-0.5">
-												{item.isSuccess ? <ChuniScoreBadge variant={getVariantFromLamp(item.isSuccess)} className="h-full">
-													{CHUNI_LAMPS.get(item.isSuccess)}
-												</ChuniScoreBadge> : null}
+												{item.isSuccess ? <ChuniLampSuccessBadge success={item.isSuccess} /> : null}
 											</div>}
 
 											<div className={`h-full ${size === 'sm' ? 'w-1/2' : 'w-1/3'}`}>
@@ -115,9 +113,7 @@ const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' })
 											</div>
 
 											<div className={`h-full ml-0.5 ${size === 'sm' ? 'w-1/2' : 'w-1/3'}`}>
-												{(item.isFullCombo || item.isAllJustice) ? <ChuniScoreBadge variant={item.isAllJustice ? 'platinum' : 'gold'} className="h-full">
-													{item.isAllJustice ? 'All Justice' : 'Full Combo'}
-												</ChuniScoreBadge> : null}
+												<ChuniLampComboBadge {...item} />
 											</div>
 										</div>
 										<Link href={`/chuni/music/${item.songId}`}

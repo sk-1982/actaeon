@@ -31,7 +31,7 @@ export const ChuniRating = ({ children, rating, className }: ChuniRatingProps) =
 	else
 		bg = 'bg-[linear-gradient(180deg,rgba(255,0,0,1)_0%,rgba(255,64,0,1)_25%,rgba(255,255,0,1)_50%,rgba(0,255,0,1)_60%,rgba(0,64,255,1)_80%)]'
 
-	return (<div className={`bg-clip-text text-transparent text-stroke text-stroke-black font-extrabold ${bg} ${className ?? ''}`}>
+	return (<div className={`bg-clip-text text-transparent text-stroke text-stroke-black font-extrabold font-helvetica ${bg} ${className ?? ''}`}>
 		{children ?? (ratingNum / 100).toFixed(2)}
 	</div>)
 }

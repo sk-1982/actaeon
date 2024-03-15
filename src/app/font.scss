@@ -10,8 +10,6 @@ $rodin-langs: ('en': $rodin-en-ranges, 'jp': $rodin-jp-ranges , 'rest': $rodin-r
   $weight-val: nth($weight, 2);
 
   @each $lang, $range in $rodin-langs {
-
-
     @font-face {
       font-family: FOT-RodinProN;
       src: url(#{$asset-url}fonts/FOT-RodinProN-#{$weight-type}-#{$lang}.woff2) format("woff2");
@@ -22,6 +20,18 @@ $rodin-langs: ('en': $rodin-en-ranges, 'jp': $rodin-jp-ranges , 'rest': $rodin-r
   }
 }
 
+@font-face {
+  font-family: HelveticaNowDisplay;
+  src: url(#{$asset-url}fonts/HelveticaNowDisplay-ExtraBold.woff2) format("woff2");
+  font-weight: 800;
+  unicode-range: U+21-7e;
+  font-display: swap;
+}
+
 html {
   font-family: FOT-RodinProN, "Helvetica Neue", Helvetica, Arial, ui-sans-serif, system-ui, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.font-helvetica {
+  font-family: HelveticaNowDisplay, "Helvetica Neue", Helvetica, Aria, ui-sans-serif, system-ui;
 }

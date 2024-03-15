@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { CHUNI_LAMPS } from '@/helpers/chuni/lamps';
 
 const BACKGROUNDS = [
 	'bg-[linear-gradient(135deg,rgba(120,120,120,1)_30%,rgba(90,91,90,1)_50%,rgba(172,170,170,1)_50%,rgba(115,114,114,1)_63%,rgba(98,98,98,1)_80%,rgba(129,129,129,1)_100%)]',
@@ -53,14 +54,38 @@ export type ChuniScoreBadgeProps = {
 	children: ReactNode,
 	variant: Variant,
 	className?: string,
+	fontSize?: 'xs' | 'sm' | 'md'
 };
 
-export const ChuniScoreBadge = ({ children, variant, className }: ChuniScoreBadgeProps) => {
-	return (<div className={`aspect-[68/16] ${className ?? ''}`}>
+const sizes = {
+	xs: 'text-[52cqh]',
+	sm: 'text-[59cqh]',
+	md: 'text-[70cqh]'
+}
+
+export const ChuniScoreBadge = ({ children, variant, className, fontSize }: ChuniScoreBadgeProps) => {
+	const size = sizes[fontSize ?? 'md'];
+
+	return (<div className={`aspect-[72/16] font-helvetica ${className ?? ''}`}>
 		<div className="@container-size w-full h-full text-black">
 			<div className={`${BACKGROUNDS[typeof variant === 'number' ? variant : ChuniScoreBadgeVariant[variant]]} w-full h-full flex items-center justify-center border-black border`}>
-				<span className="font-bold drop-shadow-[0_0_25cqh_#fff] text-[65cqh]">{ children }</span>
+				<span className={`font-bold drop-shadow-[0_0_25cqh_#fff] ${size}`}>{ children }</span>
 			</div>
 		</div>
 	</div>)
 };
+
+export const ChuniLampSuccessBadge = ({ success, className }: { className?: string, success: number }) => {
+	const text = CHUNI_LAMPS.get(success)?.toUpperCase();
+	const fontSize = text?.length! > 5 ? text?.length! > 10 ? 'xs' : 'sm' : 'md';
+	return (<ChuniScoreBadge variant={getVariantFromLamp(success)} className={`${className ?? ''} ${fontSize === 'md' ? 'tracking-[0.1cqw]' : 'tracking-[0.025cqw]'}`} fontSize={fontSize}>
+		{text}
+	</ChuniScoreBadge>)
+}
+
+export const ChuniLampComboBadge = ({ className, isFullCombo, isAllJustice }: { className?: string, isFullCombo: number | null, isAllJustice: number | null }) => {
+	if (!isFullCombo && !isAllJustice) return null;
+	return (<ChuniScoreBadge variant={isAllJustice ? 'platinum' : 'gold'} className={className} fontSize="sm">
+		{isAllJustice ? 'ALL JUSTICE' : 'FULL COMBO'}
+	</ChuniScoreBadge>)
+}

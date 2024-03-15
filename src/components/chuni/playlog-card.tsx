@@ -2,7 +2,7 @@ import { getPlaylog } from '@/actions/chuni/playlog';
 import { getJacketUrl } from '@/helpers/assets';
 import Link from 'next/link';
 import { ChuniRating } from '@/components/chuni/rating';
-import { ChuniScoreBadge, getVariantFromRank } from '@/components/chuni/score-badge';
+import { ChuniScoreBadge, ChuniLampSuccessBadge, getVariantFromRank, ChuniLampComboBadge } from '@/components/chuni/score-badge';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
 import { formatJst } from '@/helpers/format-jst';
@@ -56,10 +56,9 @@ export const ChuniPlaylogCard = ({ playlog, className }: ChuniPlaylogCardProps) 
 			<ChuniScoreBadge variant={getVariantFromRank(playlog.rank ?? 0)} className="h-full">
 				{playlog.score?.toLocaleString()}
 			</ChuniScoreBadge>
-			{!!playlog.isClear && <ChuniScoreBadge variant="gold">Clear</ChuniScoreBadge>}
-			{!!playlog.isAllJustice && <ChuniScoreBadge variant="platinum">All Justice</ChuniScoreBadge>}
-			{!!playlog.isFullCombo && !playlog.isAllJustice && <ChuniScoreBadge variant="gold">Full Combo</ChuniScoreBadge>}
-			{!!playlog.isNewRecord && <ChuniScoreBadge variant="gold">New Record</ChuniScoreBadge>}
+			{!!playlog.isClear && <ChuniLampSuccessBadge success={1} />}
+			<ChuniLampComboBadge {...playlog} />
+			{!!playlog.isNewRecord && <ChuniScoreBadge variant="gold" fontSize="sm">NEW RECORD</ChuniScoreBadge>}
 		</div>
 		<div className="flex flex-wrap text-xs justify-around drop-shadow-sm">
 			<div className="mr-0.5 text-chuni-justice-critical">Justice Critical: { playlog.judgeHeaven }</div>
