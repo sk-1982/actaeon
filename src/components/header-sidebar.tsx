@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Divider } from '@nextui-org/react';
+import { Button, Divider, Navbar } from '@nextui-org/react';
 import { Bars3Icon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Fragment, useState } from 'react';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { UserPayload } from '@/types/user';
 import { MAIN_ROUTES, ROUTES, UserOnly } from '@/routes';
 import { useUser } from '@/helpers/use-user';
+import { useBreakpoint } from '@/helpers/use-breakpoint';
 
 export type HeaderSidebarProps = {
 	children?: React.ReactNode
@@ -27,6 +28,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	const path = usePathname();
 	const params = useSearchParams();
 	const [isMenuOpen, setMenuOpen] = useState(false);
+	const breakpoint = useBreakpoint();
 
 	const from = params?.get('from');
 	const filter = filterUserOnly.bind(null, user);
@@ -82,38 +84,41 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			</div>
 		</div>
 		<div className="flex flex-col flex-grow">
-			<div className="flex p-6 items-center flex-shrink-0 fixed top-0 left-0 w-full bg-background/80 z-[48] backdrop-blur-2xl">
-				<Button className="text-2xl font-bold cursor-pointer flex items-center m-0 ps-1.5 pe-2 mr-6" variant="light"
-					onClick={() => setMenuOpen(true)}>
-					<Bars3Icon className="h-6 mt-0.5" />
-					<span>{ routeGroup.title }</span>
-				</Button>
-				<div className="mr-auto mt-1 hidden md:flex text-lg">
-					{routeGroup.routes?.filter(filter).map(route =>
-						<Link href={route.url} key={route.url} className={`mr-4 transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
-							{route.name}
-						</Link>)
-					}
-				</div>
-				{routeGroup !== MAIN_ROUTES && <div className="mr-4 mt-1 hidden lg:flex text-lg transition hover:text-secondary">
-					{MAIN_ROUTES.routes.filter(filter).map(route => <Link
-						href={`${route.url}?from=${encodeURIComponent(routeGroup.title)}`} key={route.url}
-						className={`mr-4 transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
-						{route.name}
-					</Link>)}
-        </div>}
-				<div className="hidden md:flex">
-					<Link href={routeGroup === MAIN_ROUTES ? '/settings' : `/settings?from=${encodeURIComponent(routeGroup.title)}`}>
-						{user && <Button isIconOnly variant="bordered" size="sm" className="mr-2">
-                <AdjustmentsHorizontalIcon className="w-6" />
-            </Button>}
-					</Link>
-					<ThemeSwitcherDropdown />
-					<Button size="sm" className="ml-2" color="primary" onClick={() => user ? logout({ redirectTo: '/' }) : login()}>
-						{user ? 'Logout' : 'Login'}
+			<Navbar className="w-full fixed" classNames={{ wrapper: 'max-w-full p-0' }} shouldHideOnScroll={breakpoint === undefined} height="5.5rem">
+				<div className="flex p-6 items-center flex-shrink-0 w-full z-[48]">
+					<Button className="text-2xl font-bold cursor-pointer flex items-center m-0 ps-1.5 pe-2 mr-6" variant="light"
+						onClick={() => setMenuOpen(true)}>
+						<Bars3Icon className="h-6 mt-0.5" />
+						<span>{ routeGroup.title }</span>
 					</Button>
+					<div className="mr-auto mt-1 hidden md:flex text-lg">
+						{routeGroup.routes?.filter(filter).map(route =>
+							<Link href={route.url} key={route.url} className={`mr-4 transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
+								{route.name}
+							</Link>)
+						}
+					</div>
+					{routeGroup !== MAIN_ROUTES && <div className="mr-4 mt-1 hidden lg:flex text-lg transition hover:text-secondary">
+						{MAIN_ROUTES.routes.filter(filter).map(route => <Link
+							href={`${route.url}?from=${encodeURIComponent(routeGroup.title)}`} key={route.url}
+							className={`mr-4 transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
+							{route.name}
+						</Link>)}
+				  </div>}
+					<div className="hidden md:flex">
+						<Link href={routeGroup === MAIN_ROUTES ? '/settings' : `/settings?from=${encodeURIComponent(routeGroup.title)}`}>
+							{user && <Button isIconOnly variant="bordered" size="sm" className="mr-2">
+				          <AdjustmentsHorizontalIcon className="w-6" />
+				      </Button>}
+						</Link>
+						<ThemeSwitcherDropdown />
+						<Button size="sm" className="ml-2" color="primary" onClick={() => user ? logout({ redirectTo: '/' }) : login()}>
+							{user ? 'Logout' : 'Login'}
+						</Button>
+					</div>
 				</div>
-			</div>
+			</Navbar>
+
 			<div className="sm:px-5 flex-grow pt-fixed flex flex-col">
 				{children}
 			</div>
