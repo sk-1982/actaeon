@@ -69,6 +69,9 @@ class Extracter:
     def ffmpeg(self, input_args, media_type, output_name):
         buffer_input = None
         input_args = list(input_args)
+        out_path = Path(output_name).with_suffix(self.config[media_type]['extension'])
+        if self.no_overwrite and out_path.exists():
+            return
 
         for i, arg in enumerate(input_args):
             if type(arg) == bytes:
@@ -87,7 +90,7 @@ class Extracter:
             'error',
             *input_args,
             *self.config[media_type].get('ffmpeg_args', []),
-            Path(output_name).with_suffix(self.config[media_type]['extension'])
+            out_path
         ]
 
         if buffer_input:

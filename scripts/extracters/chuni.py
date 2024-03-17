@@ -43,6 +43,7 @@ class Chuni(Extracter):
 
         texture = self.data_dir / 'surfboard' / 'texture'
         yield self.process_image, texture / 'CHU_UI_Common_Avatar_body_00.dds', self.out_dir / 'avatar' / 'CHU_UI_Common_Avatar_body_00.dds', 'images'
+        yield self.process_image, texture / 'CHU_UI_Common_Avatar_face_00.dds', self.out_dir / 'avatar' / 'CHU_UI_Common_Avatar_face_00.dds', 'images'
         yield self.process_image, texture / 'CHU_UI_title_rank_00_v10.dds', self.out_dir / 'trophy' / 'CHU_UI_title_rank_00_v10.dds', 'images'
 
     def extract_jacket(self):
