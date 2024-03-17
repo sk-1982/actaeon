@@ -120,7 +120,7 @@ const MusicGrid = ({ music, size }: ChuniMusicListProps & { size: 'sm' | 'lg' })
 											className={`${size === 'sm' ? 'text-xs' : 'text-lg'} mt-auto px-1 block text-white hover:text-gray-200 transition text-center font-semibold drop-shadow-lg`}>
 											<Ticker hoverOnly noDelay>{item.title}</Ticker>
 										</Link>
-										<Ticker className={`${size === 'sm' ? 'text-xs mb-0.5' : 'text-medium mb-1.5'} text-center px-1 drop-shadow-2xl`} hoverOnly noDelay>{item.artist}</Ticker>
+										<Ticker className={`${size === 'sm' ? 'text-xs mb-0.5' : 'text-medium mb-1.5'} text-center px-1 drop-shadow-2xl text-white`} hoverOnly noDelay>{item.artist}</Ticker>
 									</ChuniDifficultyContainer>
 							</div>)}
 						</div>} />)
