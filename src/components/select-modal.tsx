@@ -7,6 +7,8 @@ import { SearchIcon } from '@nextui-org/shared-icons';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
 import { useDebounceCallback } from 'usehooks-ts';
 import { CellMeasurerChildProps } from 'react-virtualized/dist/es/CellMeasurer';
+import { useRouter } from 'next/navigation';
+import { useWindowListener } from '@/helpers/use-window-listener';
 
 
 
@@ -19,14 +21,16 @@ export type SelectModalProps<T extends 'grid' | 'list', D extends { name?: strin
 	rowSize: number,
 	items: D[],
 	renderItem: (item: D) => (ReactNode | ((props: Pick<CellMeasurerChildProps, 'measure'>) => ReactNode)),
-	gap?: number
+	gap?: number,
+	onSelectionChanged?: (item: D) => void,
+	footer?: ReactNode
 } & (T extends 'grid' ? {
 	colSize: number
 } : {
 	colSize?: never
 });
 
-const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null }>({ gap, selectedItem, renderItem, displayMode, items, isOpen, onSelected, modalSize, colSize, rowSize }: SelectModalProps<T, D>) => {
+const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null }>({ footer, onSelectionChanged, gap, selectedItem, renderItem, displayMode, items, isOpen, onSelected, modalSize, colSize, rowSize }: SelectModalProps<T, D>) => {
 	const measurementCache = useMemo(() => {
 		return new CellMeasurerCache({
 			defaultHeight: rowSize,
@@ -40,6 +44,7 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 	const [selected, setSelected] = useState(selectedItem);
 	const [filteredItems, setFilteredItems] = useState(items);
 	const [gridRowCount, setGridRowCount] = useState(0);
+	const outputSelected = useRef<null | undefined | D>(null);
 
 	useEffect(() => {
 		// reset filtered and displayed selected item on open
@@ -48,6 +53,10 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 			setFilteredItems(items);
 		}
 	}, [isOpen]);
+
+	useEffect(() => {
+		listRef.current?.recomputeRowHeights();
+	}, [colSize, rowSize]);
 
 	const filter = useDebounceCallback((query: string) => {
 		const lowerQuery = query.toLowerCase();
@@ -101,7 +110,7 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 										<Button
 											style={buttonStyle}
 											className={`w-full h-fit max-h-full px-0 transition ${filteredItems[index] === selected ? 'bg-gray-400/75' : 'bg-transparent'}`}
-											variant="flat" onPress={() => setSelected(filteredItems[index])}>
+											variant="flat" onPress={() => { setSelected(filteredItems[index]); onSelectionChanged?.(filteredItems[index]) }}>
 											{typeof child === 'function' ? child({ measure }) : child}
 										</Button>
 									</div>)
@@ -122,7 +131,7 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 			{(({ width }) => {
 				const itemsPerRow = Math.max(1, Math.floor(width / colSize!));
 				const rowCount = Math.ceil(filteredItems.length / itemsPerRow);
-				setGridRowCount(rowCount);
+				setTimeout(() => setGridRowCount(rowCount));
 
 				return (<div style={{ flexBasis: `${rowCount * rowSize}px` }}>
 					<AutoSizer disableWidth>
@@ -140,13 +149,15 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 											const res = renderItem(item);
 
 											return (<Button key={i} style={buttonStyle} className={`w-full px-0 ${selected === item ? 'bg-gray-400/75' : 'bg-transparent'}`}
-												onPress={() => setSelected(item)}>
+												onPress={() => { setSelected(item); onSelectionChanged?.(item) }}>
 												{ typeof res === 'function' ? res({ measure }) : res }
 											</Button>)
 										});
 
 									return <div style={{...style, ...rowStyle}} className="w-full h-full flex items-center justify-center" ref={registerChild as any}>
 										{children}
+										{ index === rowCount - 1 ? [...new Array(itemsPerRow - children.length)].map((_, i) =>
+											<div key={i} style={buttonStyle} className="w-full"></div>) : null }
 									</div>;
 								}}
 							</CellMeasurer>)} />)}
@@ -154,10 +165,10 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 				</div>);
 			})}
 		</AutoSizer>)
-	}, [displayMode, filteredItems, colSize, rowSize, selected, isOpen, gridRowCount, gap]);
+	}, [displayMode, filteredItems, colSize, rowSize, selected, isOpen, gridRowCount, gap, onSelectionChanged]);
 
 	return (<Modal size={modalSize} onClose={() => {
-		onSelected(selected);
+		onSelected(outputSelected.current);
 	}} isOpen={isOpen}
 		className={`!rounded-2xl !max-h-[90dvh] sm:!max-h-[85dvh] ${modalSize === 'full' ? 'md:max-w-[90dvw]' : ''}`}>
 		<ModalContent className="flex flex-1 max-h-full">
@@ -168,12 +179,19 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 						onClear={() => setFilteredItems(items)} />
 					{renderedContent}
 				</ModalBody>
-				<ModalFooter>
-					<Button variant="light" color="danger" onClick={() => {
-						setSelected(null);
-						onModalClose()
-					}}>Cancel</Button>
-					<Button variant="solid" color="primary" onClick={onModalClose}>Select</Button>
+				<ModalFooter className="items-center flex-wrap gap-2">
+					{ footer }
+					<div className="flex gap-1">
+						<Button variant="light" color="danger" onClick={() => {
+							setSelected(null);
+							outputSelected.current = null;
+							onModalClose();
+						}}>Cancel</Button>
+						<Button variant="solid" color="primary" onClick={() => {
+							outputSelected.current = selected;
+							onModalClose();
+						}}>Select</Button>
+					</div>
 				</ModalFooter>
 			</>}
 		</ModalContent>
@@ -181,18 +199,36 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 };
 
 export type SelectModalButtonProps<T extends 'grid' | 'list', D extends { name?: string | null }> = Omit<ButtonProps, 'onClick'> &
-	Pick<SelectModalProps<T, D>, 'modalSize' | 'displayMode' | 'colSize' | 'rowSize' | 'items' | 'renderItem' | 'selectedItem' | 'onSelected' | 'gap'>
+	Pick<SelectModalProps<T, D>, 'modalSize' | 'displayMode' | 'colSize' | 'rowSize' | 'items' | 'renderItem' | 'selectedItem' | 'onSelected' | 'gap' | 'onSelectionChanged' | 'footer'> &
+	{ modalId: string };
 export const SelectModalButton = <T extends 'grid' | 'list', D extends { name?: string | null }>(props: SelectModalButtonProps<T, D>) => {
+	const router = useRouter();
 	const [isOpen, setOpen] = useState(false);
-	const { gap, onSelected, selectedItem, renderItem, items, colSize, rowSize, displayMode, modalSize } = props;
+	const { modalId, footer, onSelectionChanged, gap, onSelected, selectedItem, renderItem, items, colSize, rowSize, displayMode, modalSize } = props;
+
+	useWindowListener('hashchange', () => {
+		if (window.location.hash !== `#modal-${modalId}` && isOpen) {
+			setOpen(false);
+			onSelected(null);
+		}
+	}, [isOpen, modalId]);
+
+	useEffect(() => {
+		if (window.location.hash === `#modal-${modalId}`)
+			setOpen(true);
+	}, []);
 
 	return (<>
-		<SelectModal displayMode={displayMode} modalSize={modalSize} isOpen={isOpen} selectedItem={selectedItem} gap={gap}
-			colSize={colSize as any} rowSize={rowSize} items={items} renderItem={renderItem}
+		<SelectModal displayMode={displayMode} modalSize={modalSize} isOpen={isOpen} selectedItem={selectedItem} gap={gap} footer={footer}
+			colSize={colSize as any} rowSize={rowSize} items={items} renderItem={renderItem} onSelectionChanged={onSelectionChanged}
 			onSelected={item => {
 				setOpen(false);
 				onSelected(item);
+				router.back();
 			}} />
-		<Button {...(props as object)} onClick={() => setOpen(true)} />
+		<Button {...(props as object)} onClick={() => {
+			setOpen(true);
+			router.push(`#modal-${modalId}`);
+		}} />
 	</>);
 };
