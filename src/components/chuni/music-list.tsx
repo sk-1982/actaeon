@@ -4,7 +4,7 @@ import { Filterers, FilterSorter, Sorter } from '@/components/filter-sorter';
 import { WindowScroller, Grid, AutoSizer, List } from 'react-virtualized';
 import { Button, SelectItem } from '@nextui-org/react';
 import { addFavoriteMusic, getMusic, removeFavoriteMusic } from '@/actions/chuni/music';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { worldsEndStars } from '@/helpers/chuni/worlds-end-stars';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
 import { getJacketUrl } from '@/helpers/assets';
@@ -14,7 +14,7 @@ import { ChuniRating } from '@/components/chuni/rating';
 import Link from 'next/link';
 import { HeartIcon as OutlineHeartIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 import { HeartIcon as SolidHeartIcon }  from '@heroicons/react/24/solid';
-import { Ticker } from '@/components/ticker';
+import { Ticker, TickerHoverProvider } from '@/components/ticker';
 import { CHUNI_DIFFICULTIES } from '@/helpers/chuni/difficulties';
 import { CHUNI_SCORE_RANKS } from '@/helpers/chuni/score-ranks';
 import { CHUNI_LAMPS } from '@/helpers/chuni/lamps';
@@ -93,7 +93,7 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 	}, [size])
 
 	return (<WindowScroller>
-		{({ height, isScrolling, onChildScroll, scrollTop }) =>
+		{useCallback(({ height, isScrolling, onChildScroll, scrollTop }) =>
 			(<AutoSizer disableHeight>
 				{({ width }) => {
 					const itemsPerRow = Math.max(1, Math.floor(width / itemWidth));
@@ -103,14 +103,19 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 						onScroll={onChildScroll} scrollTop={scrollTop} ref={listRef}
 						rowRenderer={({ index, key, style }) => <div key={key} style={style} className="w-full h-full flex justify-center">
 							{music.slice(index * itemsPerRow, (index + 1) * itemsPerRow).map(item => <div key={`${item.songId}-${item.chartId}`} className={itemClass}>
-									<ChuniDifficultyContainer difficulty={item.chartId!} containerClassName="flex flex-col" className="w-full h-full border border-gray-500/75 rounded-md [&:hover_.ticker]:[animation-play-state:running]">
+								<TickerHoverProvider>
+									{setHover => 	<ChuniDifficultyContainer difficulty={item.chartId!}
+										containerClassName="flex flex-col"
+										className="w-full h-full border border-gray-500/75 rounded-md"
+										onMouseEnter={() => setHover(true)}
+										onMouseLeave={() => setHover(false)}>
 										<div className="aspect-square w-full p-[0.2rem] relative">
 											<img src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)} alt={item.title ?? 'Music'} className="rounded" />
 											{item.rating && !item.worldsEndTag && <div className={`${size === 'lg' ? 'text-2xl' : ''} absolute bottom-0.5 left-0.5 bg-gray-200/60 backdrop-blur-sm px-0.5 rounded`}>
-													<ChuniRating rating={+item.rating * 100} className="-my-0.5">
-													{item.rating.slice(0, item.rating.indexOf('.') + 3)}
-												</ChuniRating>
-											</div>}
+                          <ChuniRating rating={+item.rating * 100} className="-my-0.5">
+														{item.rating.slice(0, item.rating.indexOf('.') + 3)}
+                          </ChuniRating>
+                      </div>}
 											<ChuniLevelBadge className={`${size === 'lg' ? 'h-14' : 'w-14'} absolute bottom-px right-px`} music={item} />
 
 											<Button isIconOnly className={`absolute top-0 left-0 pt-1 bg-gray-600/25 ${item.favorite ? 'text-red-500': ''}`}
@@ -143,7 +148,7 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 										<div className="px-0.5 mb-1 flex">
 											{size === 'lg' && <div className="h-full w-1/3 mr-0.5">
 												{item.isSuccess ? <ChuniLampSuccessBadge success={item.isSuccess} /> : null}
-											</div>}
+                      </div>}
 
 											<div className={`h-full ${size === 'lg' ? 'w-1/3' : 'w-1/2'}`}>
 												{item.scoreRank !== null && <ChuniScoreBadge variant={getVariantFromRank(item.scoreRank)} className="h-full">
@@ -160,11 +165,12 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 											<Ticker hoverOnly noDelay>{item.title}</Ticker>
 										</Link>
 										<Ticker className={`${size === 'lg' ? 'text-medium mb-1.5' : 'text-xs mb-0.5' } text-center px-1 drop-shadow-2xl text-white`} hoverOnly noDelay>{item.artist}</Ticker>
-									</ChuniDifficultyContainer>
+									</ChuniDifficultyContainer>}
+								</TickerHoverProvider>
 							</div>)}
 						</div>} />)
 				}}
-			</AutoSizer>)}
+			</AutoSizer>), [music, fullMusicList, pendingFavorite, itemWidth])}
 	</WindowScroller>);
 };
 

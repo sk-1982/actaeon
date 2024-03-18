@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 const BACKGROUNDS = [
 	['bg-[#02a076]'],
@@ -17,10 +17,10 @@ export type ChuniDifficultyContainerProps = {
 	className?: string,
 	difficulty: number,
 	containerClassName?: string
-};
+} & React.HTMLAttributes<HTMLDivElement>;
 
-export const ChuniDifficultyContainer = ({ children, className, difficulty, containerClassName }: ChuniDifficultyContainerProps) => {
-	return (<div className={`relative ${className ?? ''}`}>
+export const ChuniDifficultyContainer = ({ children, className, difficulty, containerClassName, ...props }: ChuniDifficultyContainerProps) => {
+	return (<div className={`relative ${className ?? ''}`} {...props}>
 		{BACKGROUNDS[difficulty].map((className, i) => <div className={`${className} w-full h-full absolute inset-0 z-0 rounded`} key={i} />)}
 		<div className={`z-0 relative w-full h-full ${containerClassName ?? ''}`}>{children}</div>
 	</div>)

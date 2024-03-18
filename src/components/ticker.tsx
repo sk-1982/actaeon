@@ -1,4 +1,6 @@
-import { ReactNode } from 'react';
+'use client';
+
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import './ticker.scss';
 
 export type TickerProps = {
@@ -8,12 +10,37 @@ export type TickerProps = {
 	noDelay?: boolean
 }
 
+const TickerHoverContext = createContext<boolean | null>(null);
+
+type TickerHoverProviderProps = {
+	children: (setHover: (hovering: boolean) => void) => ReactNode
+};
+
+export const TickerHoverProvider = ({ children }: TickerHoverProviderProps) => {
+	const [hovering, setHovering] = useState(false);
+
+	return <TickerHoverContext.Provider value={hovering}>
+		{ children(setHovering) }
+	</TickerHoverContext.Provider>;
+};
+
+
 export const Ticker = ({ children, hoverOnly, className, noDelay }: TickerProps) => {
-	const hoverClass = hoverOnly ? '[&:hover_*]:[animation-play-state:running] [&_*]:[animation-play-state:paused]' : '[&:hover_*]:[animation-play-state:paused]';
 	const outerAnimation = noDelay ? 'animate-[outer-overflow-nodelay_15s_linear_infinite_alternate]' : 'animate-[outer-overflow_15s_linear_infinite_alternate]';
 	const innerAnimation = noDelay ? 'animate-[inner-overflow-nodelay_15s_linear_infinite_alternate]' : 'animate-[inner-overflow_15s_linear_infinite_alternate]';
+	const hoverContext = useContext(TickerHoverContext);
+	const [textHovering, setTextHovering] = useState(false);
+	const hovering = (hoverContext !== null && hoverContext) || textHovering;
 
-	return (<div className={`text-nowrap whitespace-nowrap overflow-hidden w-full ${hoverClass} ${className ?? ''}`}>
+	const hoverClass = !hoverOnly && hovering ? '[&:hover_*]:[animation-play-state:paused]' : '';
+
+	if (hoverOnly && !hovering)
+		return (<div className={`text-nowrap whitespace-nowrap overflow-hidden w-full ${className ?? ''}`}
+			onMouseEnter={() => setTextHovering(true)}>
+			{ children }
+		</div>);
+
+	return (<div className={`text-nowrap whitespace-nowrap overflow-hidden w-full ${hoverClass} ${className ?? ''}`} onMouseLeave={() => setTextHovering(false)}>
 		<div className={`${outerAnimation} ticker max-w-full inline-block`}>
 			<div className={`${innerAnimation} ticker inline-block`}>
 				{ children }
