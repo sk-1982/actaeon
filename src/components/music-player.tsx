@@ -2,7 +2,8 @@
 
 import { Button, Card, CardBody, Slider } from '@nextui-org/react';
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { useAudio } from '@/helpers/use-audio';
 
 export type MusicPlayerProps = {
 	audio: string,
@@ -22,42 +23,24 @@ export const MusicPlayer = ({ audio, image, children, className }: MusicPlayerPr
 	const [duration, setDuration] = useState(NaN);
 	const [progress, setProgress] = useState(NaN);
 	const [playing, setPlaying] = useState(false);
-	const audioRef = useRef<HTMLAudioElement | null>(null);
 
-	useEffect(() => {
-		const audio = audioRef.current;
-		if (!audio) return;
-
+	const audioRef = useAudio(audio, {
+		loadedmetadata() {
+			if (this.duration !== undefined)
+				setDuration(this.duration);
+			setProgress(0);
+		},
+		timeupdate() {
+			if (this.currentTime !== undefined)
+				setProgress(this.currentTime);
+		},
+		ended: () => setPlaying(false)
+	}, audio => {
 		if (!Number.isNaN(audio.duration)) {
 			setDuration(audio.duration)
 			setProgress(0);
 		}
-
-		const metadata = () => {
-			if (audio.duration !== undefined)
-				setDuration(audio.duration);
-			setProgress(0);
-		};
-		audio.addEventListener('loadedmetadata', metadata);
-
-		const timeupdate = () => {
-			if (audio.currentTime !== undefined)
-				setProgress(audio.currentTime);
-		};
-		audio.addEventListener('timeupdate', timeupdate);
-
-		const ended = () => {
-			setPlaying(false);
-		}
-		audio.addEventListener('ended', ended);
-
-		return () => {
-			audio.removeEventListener('loadedmetadata', metadata);
-			audio.removeEventListener('timeupdate', timeupdate);
-			audio.removeEventListener('ended', ended);
-			audio.pause();
-		};
-	}, []);
+	});
 
 	useEffect(() => {
 		if (playing)
@@ -70,8 +53,6 @@ export const MusicPlayer = ({ audio, image, children, className }: MusicPlayerPr
 
 	return (<Card isBlurred radius="none" className={`border-none shadow-lg sm:rounded-2xl w-full max-w-full sm:max-w-[48rem] ${className ?? ''}`}>
 		<CardBody className="sm:rounded-2xl sm:p-4 bg-content1 sm:bg-content2">
-			<audio src={audio} ref={audioRef} />
-
 			<div className="grid grid-cols-12">
 				<div className="col-span-full sm:col-span-4 h-full flex items-center justify-center sm:justify-start">
 					<img src={image} alt="" className="aspect-square rounded-md shadow-2xl max-w-56 w-full border border-gray-500 sm:border-0" />

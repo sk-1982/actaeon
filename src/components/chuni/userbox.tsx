@@ -12,6 +12,8 @@ import { ChuniAvatar } from '@/components/chuni/avatar';
 import { CHUNI_VOICE_LINES } from '@/helpers/chuni/voice';
 import { PlayIcon, StopIcon } from '@heroicons/react/24/solid';
 import { SaveIcon } from '@/components/save-icon';
+import { useAudio } from '@/helpers/use-audio';
+import { useIsMounted } from 'usehooks-ts';
 
 export type ChuniUserboxProps = {
 	profile: ChuniUserData,
@@ -44,11 +46,19 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 			.find(i => ('id' in i ? i.id : i.avatarAccessoryId) === profile?.[profileKey])])) as EquippedItem);
 	const [equipped, setEquipped] = useState<EquippedItem>(initialEquipped.current);
 	const [saved, setSaved] = useState<SavedItem>(Object.fromEntries(Object.keys(ITEM_KEYS).map(k => [k, true])) as any);
-	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [playingVoice, setPlayingVoice] = useState(false);
 	const [selectedLine, setSelectedLine] = useState(new Set(['0035']));
-	const [playPreviews, setPlayPreviews] = useState(true);
+	const [playPreviews, _setPlayPreviews] = useState(true);
 	const [selectingVoice, setSelectingVoice] = useState<EquippedItem['systemVoice'] | null>(null);
+
+	const setPlayPreviews = (play: boolean) => {
+		_setPlayPreviews(play);
+		localStorage.setItem('chuni-userbox-play-previews', play ? '1' : '');
+	}
+
+	useEffect(() => {
+		_setPlayPreviews(!!(localStorage.getItem('chuni-userbox-play-previews') ?? 1));
+	}, []);
 
 	const equipItem = <K extends keyof RequiredUserbox>(k: K, item: RequiredUserbox[K][number] | undefined | null) => {
 		if (!item || equipped[k] === item) return;
@@ -63,28 +73,11 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 				.entries(initialEquipped.current).filter(([k]) => items.includes(k as any))) }))
 	};
 
-	useEffect(() => {
-		const audio = audioRef.current;
-		if (!audio) return;
-		audio.volume = 0.25;
-
-		const setPlay = () => {
-			setPlayingVoice(true);
-		};
-		const setStop = () => {
-			setPlayingVoice(false);
-		};
-		audio.addEventListener('play', setPlay);
-		audio.addEventListener('ended', setStop);
-		audio.addEventListener('pause', setStop)
-
-		return () => {
-			audio.removeEventListener('play', setPlay);
-			audio.removeEventListener('ended', setStop);
-			audio.removeEventListener('pause', setStop);
-			audio.pause();
-		};
-	}, []);
+	const audioRef = useAudio({
+		play: () => setPlayingVoice(true),
+		ended: () => setPlayingVoice(false),
+		pause: () => setPlayingVoice(false)
+	}, audio => audio.volume = 0.25);
 
 	const play = (src: string) => {
 		if (!audioRef.current || !playPreviews) return;
@@ -202,8 +195,6 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 
 			{/* begin system voice */}
 			<div className="flex flex-col p-4 w-full col-span-full xl:col-span-6 sm:bg-content2 rounded-lg sm:shadow-inner items-center">
-				<audio ref={audioRef} />
-
 				<div className="text-2xl font-semibold mb-4 px-2 flex w-full h-10">
 					Voice
 
