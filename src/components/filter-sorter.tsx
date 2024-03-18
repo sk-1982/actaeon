@@ -1,7 +1,7 @@
 'use client';
 
 import { Accordion, AccordionItem, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Pagination, Select, SelectItem, Slider, Spinner, Switch, Tooltip } from '@nextui-org/react';
-import React, { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Awaitable } from '@auth/core/types';
 import { XMarkIcon } from '@heroicons/react/16/solid';
 import { ArrowLongUpIcon } from '@heroicons/react/24/solid';
@@ -56,6 +56,12 @@ type FilterSorterProps<D, M extends string, N extends string, S extends string> 
 	children: (displayMode: M, data: D[]) => React.ReactNode
 };
 
+const debounceOptions = {
+	leading: false,
+	trailing: true,
+	maxWait: 100
+} as const;
+
 const FilterSorterComponent = <D, M extends string, N extends string, S extends string>({ defaultData, filterers, data, pageSizes, sorters, displayModes, searcher, className, children }: FilterSorterProps<D, M, N, S> & { defaultData: any }) => {
 	const defaultFilterState: Record<N, any> = {} as any;
 	filterers.forEach(filter => {
@@ -88,7 +94,10 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 	const dataRemote = !Array.isArray(data);
 	const pageSizeNum = +[...pageSize][0];
 
-	const onChange = useDebounceCallback(() => {
+	const deps = dataRemote ? [data, filterers, filterState, pageSize, query, currentPage, ascending, searcher, sorters, sorter, mounted] :
+		[data, filterers, filterState, query, ascending, searcher, sorters, sorter, mounted];
+
+	const onChange = useDebounceCallback(useCallback(() => {
 		if (!mounted()) return;
 
 		let page = currentPage;
@@ -126,14 +135,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 					setTotalCount(d.total);
 				}
 			});
-	}, 100, {
-		maxWait: 100,
-		leading: false,
-		trailing: true
-	});
-
-	const deps = dataRemote ? [data, filterers, filterState, pageSize, query, currentPage, ascending, searcher, sorters, sorter, mounted, onChange] :
-		[data, filterers, filterState, query, ascending, searcher, sorters, sorter, mounted, onChange];
+	}, deps), 100, debounceOptions);
 
 	useEffect(() => {
 		onChange();
@@ -145,7 +147,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 			prevNonce.current = 1;
 			onChange.cancel();
 		}
-	}, deps);
+	}, [data, filterers, filterState, pageSize, query, currentPage, ascending, searcher, sorters, sorter]);
 
 	useEffect(() => {
 		const cb = (ev: KeyboardEvent) => {
