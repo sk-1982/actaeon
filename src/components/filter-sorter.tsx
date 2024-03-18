@@ -252,9 +252,9 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 				<div className="grid grid-cols-12 gap-2 overflow-hidden">
 					{filterers.map(filter => {
 						if (filter.type === 'slider')
-							return <Slider key={filter.name} defaultValue={filterState[filter.name] as any} label={filter.label}
+							return <Slider key={filter.name} value={filterState[filter.name] as any} label={filter.label}
 								className={filter.className}
-								onChangeEnd={v => {
+								onChange={v => {
 									if (Array.isArray(v) && v.length === 1) v = v[0];
 									setFilterState(f => ({ ...f, [filter.name]: v }));
 								}} size="md" {...filter.props as any} />;
