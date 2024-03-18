@@ -167,7 +167,7 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 		</AutoSizer>)
 	}, [displayMode, filteredItems, colSize, rowSize, selected, isOpen, gridRowCount, gap, onSelectionChanged]);
 
-	return (<Modal size={modalSize} onClose={() => {
+	return (<Modal classNames={{ wrapper: 'overflow-hidden' }} size={modalSize} onClose={() => {
 		onSelected(outputSelected.current);
 	}} isOpen={isOpen}
 		className={`!rounded-2xl !max-h-[90dvh] sm:!max-h-[85dvh] ${modalSize === 'full' ? 'md:max-w-[90dvw]' : ''}`}>
@@ -228,7 +228,7 @@ export const SelectModalButton = <T extends 'grid' | 'list', D extends { name?: 
 			}} />
 		<Button {...(props as object)} onClick={() => {
 			setOpen(true);
-			router.push(`#modal-${modalId}`);
+			router.push(`#modal-${modalId}`,{ scroll: false });
 		}} />
 	</>);
 };

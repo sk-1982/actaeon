@@ -1,6 +1,6 @@
 'use client';
 
-import { ChuniUserData, getUserData } from '@/actions/chuni/profile';
+import { ChuniUserData, getUserData, ProfileUpdate, updateProfile } from '@/actions/chuni/profile';
 import { UserboxItems } from '@/actions/chuni/userbox';
 import { ChuniNameplate } from '@/components/chuni/nameplate';
 import { avatar, Button, ButtonGroup, Checkbox, Divider, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Select, SelectItem, user } from '@nextui-org/react';
@@ -14,6 +14,8 @@ import { PlayIcon, StopIcon } from '@heroicons/react/24/solid';
 import { SaveIcon } from '@/components/save-icon';
 import { useAudio } from '@/helpers/use-audio';
 import { useIsMounted } from 'usehooks-ts';
+import { Entries } from 'type-fest';
+import { useErrorModal } from '@/components/error-modal';
 
 export type ChuniUserboxProps = {
 	profile: ChuniUserData,
@@ -50,6 +52,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 	const [selectedLine, setSelectedLine] = useState(new Set(['0035']));
 	const [playPreviews, _setPlayPreviews] = useState(true);
 	const [selectingVoice, setSelectingVoice] = useState<EquippedItem['systemVoice'] | null>(null);
+	const setError = useErrorModal();
 
 	const setPlayPreviews = (play: boolean) => {
 		_setPlayPreviews(play);
@@ -71,6 +74,24 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 		setSaved(s => ({ ...s, ...Object.fromEntries(items.map(i => [i, true])) }));
 		setEquipped(e => ({ ...e, ...Object.fromEntries(Object
 				.entries(initialEquipped.current).filter(([k]) => items.includes(k as any))) }))
+	};
+
+	const save = <K extends keyof RequiredUserbox>(...items: K[]) => {
+		if (!items.length)
+			items = Object.keys(ITEM_KEYS) as any;
+
+		const update: Partial<ProfileUpdate> = Object.fromEntries((Object.entries(equipped) as Entries<typeof equipped>)
+			.filter(([k]) => items.includes(k as any))
+			.map(([k, v]) => [ITEM_KEYS[k], 'id' in v ? v.id : v.avatarAccessoryId]));
+
+		setSaved(s => ({ ...s, ...Object.fromEntries(items.map(i => [i, true])) }));
+
+		updateProfile(update)
+			.then(({ error, message }) => {
+				if (!error) return;
+				setError(`Failed to set item: ${message}`);
+				setSaved(s => ({ ...s, ...Object.fromEntries(items.map(i => [i, false])) }));
+			});
 	};
 
 	const audioRef = useAudio({
@@ -117,17 +138,22 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 		<div className="grid grid-cols-12 justify-items-center max-w-[50rem] xl:max-w-[100rem] gap-2 flex-grow relative">
 
 			{/* begin nameplate and trophy */}
-			<div className="flex items-center justify-center w-full col-span-full xl:col-span-7">
-				<div className="flex flex-col items-center h-full w-full xl:max-w-none py-2 sm:p-4 sm:bg-content2 rounded-lg sm:shadow-inner">
-					<div className="text-2xl font-semibold mb-4 mr-auto px-2 flex w-full h-10">
-						Profile
-						{(!saved.namePlate || !saved.trophy) && <>
-	              <Button className="ml-auto" color="danger" variant="light" onPress={() => reset('namePlate', 'trophy')}>
-	                  Reset
-	              </Button>
-	              <Button className="ml-2" color="primary">Save</Button>
-	          </>}
-					</div>
+			<div className="flex flex-col items-center justify-center w-full sm:bg-content1 col-span-full rounded-lg overflow-hidden xl:col-span-7 sm:shadow-inner">
+				<div className="text-2xl font-semibold mr-auto p-3 flex w-full h-16 min-h-16 items-center">
+					<span className="sm:ml-2">Profile</span>
+					{(!saved.namePlate || !saved.trophy) && <>
+              <Button className="ml-auto" color="danger" variant="light" onPress={() => reset('namePlate', 'trophy')}>
+                  Reset
+              </Button>
+              <Button className="ml-2" color="primary" onPress={() => save('namePlate', 'trophy')}>
+		              Save
+							</Button>
+          </>}
+				</div>
+
+				<Divider className="mb-2 hidden sm:block" />
+
+				<div className="flex flex-col items-center h-full w-full xl:max-w-none sm:px-2 sm:pb-4">
 					<div className="w-full max-w-full">
 						<ChuniNameplate profile={profile ? {
 							...profile,
@@ -155,20 +181,23 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 			</div>
 			{/* end nameplate and trophy */}
 
-			<Divider className="sm:hidden mt-2 col-span-full" />
+			<Divider className="sm:hidden mt-2 -mb-2 col-span-full" />
 
 			{/* begin avatar */}
-			<div className="col-span-full xl:col-span-5 flex flex-col w-full py-2 sm:pl-3 sm:pr-6 rounded-lg sm:shadow-inner sm:bg-content2">
-				<div className="text-2xl font-semibold px-2 mt-2 -mb-3 flex h-12">
-					Avatar
+			<div className="col-span-full xl:col-span-5 flex flex-col w-full rounded-lg sm:shadow-inner sm:bg-content1">
+				<div className="text-2xl font-semibold p-3 flex h-16 min-h-16 items-center">
+					<span className="sm:ml-2">Avatar</span>
 					{AVATAR_KEYS.some(k => !saved[k]) && <>
 	            <Button className="ml-auto" color="danger" variant="light" onPress={() => reset(...AVATAR_KEYS)}>
 	                Reset
 	            </Button>
-	            <Button className="ml-2" color="primary">Save</Button>
+	            <Button className="ml-2" color="primary" onPress={() => save(...AVATAR_KEYS)}>
+			            Save
+							</Button>
 	        </>}
 				</div>
-				<div className="flex flex-col sm:flex-row h-full w-full items-center ">
+				<Divider className="mb-2 hidden sm:block" />
+				<div className="flex flex-col sm:flex-row h-full w-full items-center sm:pl-3 sm:pr-6 sm:pb-2">
 					<div className="w-full max-w-96">
 						<ChuniAvatar className="w-full sm:w-auto sm:h-96"
 							wear={equipped.avatarWear.texturePath}
@@ -191,29 +220,33 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 			</div>
 			{/* end avatar */}
 
-			<Divider className="sm:hidden mt-2 col-span-full" />
+			<Divider className="sm:hidden mt-2 -mb-2 col-span-full" />
 
 			{/* begin system voice */}
-			<div className="flex flex-col p-4 w-full col-span-full xl:col-span-6 sm:bg-content2 rounded-lg sm:shadow-inner items-center">
-				<div className="text-2xl font-semibold mb-4 px-2 flex w-full h-10">
-					Voice
+			<div className="flex flex-col  w-full col-span-full xl:col-span-6 sm:bg-content1 rounded-lg sm:shadow-inner items-center">
+				<div className="text-2xl font-semibold p-3 w-full h-16 min-h-16 flex items-center">
+					<span className="sm:ml-2">Voice</span>
 
 					{!saved.systemVoice && <>
               <Button className="ml-auto" color="danger" variant="light" onPress={() => reset('systemVoice')}>
                   Reset
               </Button>
-              <Button className="ml-2" color="primary">Save</Button>
+              <Button className="ml-2" color="primary" onPress={() => save('systemVoice')}>
+		              Save
+							</Button>
           </>}
 				</div>
 
-				<div className="flex w-full flex-col sm:flex-row items-center">
+				<Divider className="mb-4 hidden sm:block" />
+
+				<div className="flex w-full flex-col sm:flex-row items-center px-2 sm:px-4 sm:pb-4 h-full">
 					<div className="flex flex-col">
 						<img className="w-80 max-w-full"
 							alt={equipped.systemVoice.name ?? ''} src={getImageUrl(`chuni/system-voice-icon/${equipped.systemVoice.imagePath}`)} />
 						<span className="text-center">{ equipped.systemVoice.name }</span>
 					</div>
 
-					<div className="flex flex-col flex-grow w-full mt-3 sm:-mt-5 sm:w-auto gap-2">
+					<div className="flex flex-col flex-grow w-fullmt-3 sm:-mt-5 sm:w-auto gap-2 w-full">
 						<Checkbox isSelected={playPreviews} onValueChange={setPlayPreviews} size="lg" className="text-nowrap">
 							<span className="text-sm">Enable Previews</span>
 						</Checkbox>
@@ -245,34 +278,42 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 			</div>
 			{/*	end system voice */}
 
-			<Divider className="sm:hidden mt-2 col-span-full" />
+			<Divider className="sm:hidden mt-2 -mb-2 col-span-full" />
 
 			{/*	begin map icon*/}
-			<div className="flex flex-col p-4 w-full col-span-full xl:col-span-6 sm:bg-content2 rounded-lg sm:shadow-inner items-center">
-				<div className="text-2xl font-semibold mb-4 px-2 flex w-full h-10">
-					Map Icon
+			<div className="flex flex-col w-full col-span-full xl:col-span-6 sm:bg-content1 rounded-lg sm:shadow-inner items-center">
+				<div className="text-2xl font-semibold p-3 flex items-center w-full h-16 min-h-16">
+					<span className="sm:ml-2">Map Icon</span>
 
 					{!saved.mapIcon && <>
               <Button className="ml-auto" color="danger" variant="light" onPress={() => reset('mapIcon')}>
                   Reset
               </Button>
-              <Button className="ml-2" color="primary">Save</Button>
+              <Button className="ml-2" color="primary" onPress={() => save('mapIcon')}>
+		              Save
+							</Button>
           </>}
 				</div>
 
-				<img className="w-52 max-w-full -mt-4 sm:-mt-12"
+				<Divider className="mb-4 hidden sm:block" />
+
+
+				<img className="w-52 max-w-full -mt-2"
 					alt={equipped.mapIcon.name ?? ''} src={getImageUrl(`chuni/map-icon/${equipped.mapIcon.imagePath}`)} />
 				<span className="text-center mb-2">{ equipped.mapIcon.name }</span>
-				<SelectModalButton onSelected={i => i && equipItem('mapIcon', i)} selectedItem={equipped.mapIcon}
-					displayMode="grid" modalSize="full" rowSize={210} colSize={175} items={userboxItems.mapIcon} gap={6}
-					className="w-full sm:w-auto" modalId="map-icon"
-					renderItem={i => renderItem(i, getImageUrl(`chuni/map-icon/${i.imagePath}`))}>
-					Change Map Icon
-				</SelectModalButton>
+				<div className="px-2 w-full flex justify-center">
+					<SelectModalButton onSelected={i => i && equipItem('mapIcon', i)} selectedItem={equipped.mapIcon}
+						displayMode="grid" modalSize="full" rowSize={210} colSize={175} items={userboxItems.mapIcon} gap={6}
+						className="w-full sm:w-auto mb-4" modalId="map-icon"
+						renderItem={i => renderItem(i, getImageUrl(`chuni/map-icon/${i.imagePath}`))}>
+						Change Map Icon
+					</SelectModalButton>
+				</div>
 			</div>
 			{/* end map icon	*/}
 
-			{Object.values(saved).some(x => !x) && <Button className="fixed bottom-3 right-3 hidden sm:flex" color="primary" radius="full" startContent={<SaveIcon className="h-6" />}>
+			{Object.values(saved).some(x => !x) && <Button className="fixed bottom-3 right-3 hidden sm:flex" color="primary" radius="full"
+					startContent={<SaveIcon className="h-6" />} onPress={() => save()}>
 				Save All
 			</Button>}
 
@@ -281,7 +322,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 					<div className="flex sm:hidden fixed z-40 items-center font-semibold bottom-0 left-0 w-full p-3 bg-content1 gap-2 flex-wrap ">
 	          You have unsaved changes
 
-	          <Button className="ml-auto" color="primary">
+	          <Button className="ml-auto" color="primary" onPress={() => save()}>
 	              Save All
 	          </Button>
 	      </div>
