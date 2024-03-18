@@ -1,7 +1,10 @@
-import { getUser } from '@/actions/auth';
+'use server';
+
+import { getUser, requireUser } from '@/actions/auth';
 import { db } from '@/db';
 import { chuniRating } from '@/helpers/chuni/rating';
 import { CHUNI_MUSIC_PROPERTIES } from '@/helpers/chuni/music';
+import { UserPayload } from '@/types/user';
 
 export const getMusic = async (musicId?: number) => {
 	const user = await getUser();
@@ -12,8 +15,16 @@ export const getMusic = async (musicId?: number) => {
 				.onRef('music.chartId', '=', 'score.level')
 				.on('score.user', '=', user?.id!)
 		)
-		.select([...CHUNI_MUSIC_PROPERTIES, 'score.isFullCombo', 'score.isAllJustice', 'score.isSuccess',
-			'score.scoreRank', 'score.scoreMax', chuniRating()])
+		.leftJoin('chuni_item_favorite as favorite', join =>
+			join.onRef('music.songId', '=', 'favorite.favId')
+				.onRef('music.version', '=', 'favorite.version')
+				.on('favorite.favKind',  '=', 1)
+				.on('favorite.user', '=', user?.id!)
+		)
+		.select(({ fn }) => [...CHUNI_MUSIC_PROPERTIES,
+			'score.isFullCombo', 'score.isAllJustice', 'score.isSuccess', 'score.scoreRank', 'score.scoreMax',
+			fn<boolean>('NOT ISNULL', ['favorite.favId']).as('favorite'),
+			chuniRating()])
 		.where(({ selectFrom, eb, and, or }) => and([
 			eb('music.version', '=', selectFrom('chuni_static_music')
 				.select(({ fn }) => fn.max('version').as('latest'))),
@@ -27,3 +38,61 @@ export const getMusic = async (musicId?: number) => {
 		.orderBy(['music.songId asc', 'music.chartId asc'])
 		.execute();
 };
+
+const getMusicById = async (user: UserPayload, musicId: number) => {
+	if (isNaN(musicId))
+		return { error: true, message: 'Invalid music ID.' };
+
+	const music = await db.selectFrom('chuni_static_music as music')
+		.select('music.version')
+		.where(({ selectFrom, eb }) => eb('music.version', '=', selectFrom('chuni_static_music')
+			.select(({ fn }) => fn.max('version').as('latest'))))
+		.executeTakeFirst();
+
+	if (!music)
+		return { error: true, message: `Unknown music ID ${musicId}.` };
+
+	return { error: false, music };
+}
+
+export const addFavoriteMusic = async (musicId: number) => {
+	const user = await requireUser();
+	const data = await getMusicById(user, musicId);
+	if (data.error) return data;
+
+	const existingFavorite = await db.selectFrom('chuni_item_favorite')
+		.where(({ eb, and }) => and([
+			eb('version', '=', data.music?.version!),
+			eb('user', '=', user.id),
+			eb('favId', '=', musicId),
+			eb('favKind', '=', 1)
+		]))
+		.select('favId')
+		.executeTakeFirst();
+
+	if (existingFavorite) return;
+
+	await db.insertInto('chuni_item_favorite')
+		.values({
+			version: data.music?.version!,
+			user: user.id,
+			favId: musicId,
+			favKind: 1
+		})
+		.executeTakeFirst();
+};
+
+export const removeFavoriteMusic = async (musicId: number) => {
+	const user = await requireUser();
+	const data = await getMusicById(user, musicId);
+	if (data.error) return data;
+
+	await db.deleteFrom('chuni_item_favorite')
+		.where(({ eb, and }) => and([
+			eb('version', '=', data.music?.version!),
+			eb('user', '=', user.id),
+			eb('favId', '=', musicId),
+			eb('favKind', '=', 1)
+		]))
+		.executeTakeFirst();
+}
