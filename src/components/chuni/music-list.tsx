@@ -61,7 +61,11 @@ const searcher = (query: string, data: ChuniMusicListProps['music'][number]) => 
 	return data.title?.toLowerCase().includes(query) || data.artist?.toLowerCase().includes(query);
 };
 
-const MusicGrid = ({ music, size, setMusicList }: ChuniMusicListProps & { size: 'sm' | 'lg' | 'xs', setMusicList: (m: typeof music) => void }) => {
+const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListProps & {
+	size: 'sm' | 'lg' | 'xs',
+	setMusicList: (m: typeof music) => void,
+	fullMusicList: ChuniMusicListProps['music']
+}) => {
 	let itemWidth = 0;
 	let itemHeight = 0;
 	let itemClass = '';
@@ -114,7 +118,7 @@ const MusicGrid = ({ music, size, setMusicList }: ChuniMusicListProps & { size: 
 												onPress={() => {
 													if (pendingFavorite) return;
 													const favorite = item.favorite;
-													setMusicList(music.map(m => {
+													setMusicList(fullMusicList.map(m => {
 														if (m.songId !== item.songId)
 															return m;
 														return { ...m, favorite: !favorite };
@@ -123,7 +127,7 @@ const MusicGrid = ({ music, size, setMusicList }: ChuniMusicListProps & { size: 
 													(item.favorite ? removeFavoriteMusic : addFavoriteMusic)(item.songId!)
 														.then(res => {
 															if (res?.error) {
-																setMusicList(music.map(m => {
+																setMusicList(fullMusicList.map(m => {
 																	if (m.songId !== item.songId)
 																		return m;
 																	return { ...m, favorite };
@@ -198,7 +202,7 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			name: 'difficulty',
 			label: 'Difficulty',
 			value: new Set<string>(),
-			className: 'col-span-6 md:col-span-3 5xl:col-span-1',
+			className: 'col-span-6 md:col-span-3 lg:col-span-2 5xl:col-span-1',
 			props: {
 				children: CHUNI_DIFFICULTIES.map((name, i) => <SelectItem key={i.toString()} value={i.toString()}>
 					{name}
@@ -211,7 +215,7 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			name: 'genre',
 			label: 'Genre',
 			value: new Set<string>(),
-			className: 'col-span-6 md:col-span-3 5xl:col-span-1',
+			className: 'col-span-6 md:col-span-3 lg:col-span-2 5xl:col-span-1',
 			props: {
 				children: [...genres].sort()
 					.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>),
@@ -264,7 +268,7 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			name: 'score',
 			label: 'Score',
 			value: new Set<string>(),
-			className: 'col-span-full sm:col-span-6 md:col-span-4 lg:col-span-2 xl:col-span-2 5xl:col-span-1',
+			className: 'col-span-6 sm:col-span-6 md:col-span-3 lg:col-span-2 xl:col-span-2 2xl:col-span-3 5xl:col-span-1',
 			props: {
 				children: CHUNI_SCORE_RANKS
 					.map((s, i) => <SelectItem key={i.toString()} value={i.toString()}>{s}</SelectItem>)
@@ -273,11 +277,18 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			},
 			filter: (val: Set<string>, data) => !val.size || val.has(data.scoreRank?.toString()!)
 		}, {
+			type: 'switch',
+			name: 'favorite',
+			label: 'Favorites',
+			value: false,
+			className: 'justify-self-end col-span-6 md:col-span-3 md:col-start-10 lg:col-span-2 lg:col-start-auto 2xl:col-span-1 5xl:col-start-12',
+			filter: (val: boolean, data) => !val || data.favorite
+		}, {
 			type: 'slider',
 			name: 'worldsEndStars',
 			label: 'World\'s End Stars',
 			value: [1, 5],
-			className: 'col-span-full sm:col-span-6 md:col-span-4 5xl:col-span-2',
+			className: 'col-span-full md:col-span-6 md:col-start-4 md:row-start-2 lg:row-start-auto lg:col-start-auto lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-6',
 			filter: ([a, b]: number[], val) => {
 				if (!val.worldsEndTag) return true;
 				const stars = Math.ceil(val.level! / 2);
@@ -296,7 +307,7 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			name: 'level',
 			label: 'Level',
 			value: [0, 90],
-			className: 'col-span-full md:col-span-4 5xl:col-span-2',
+			className: 'col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-8',
 			filter: ([a, b]: number[], val) => {
 				if (val.worldsEndTag) return true;
 				a = getLevelValFromStop(a);
@@ -314,7 +325,7 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			name: 'rating',
 			label: 'Rating',
 			value: [0, 17.55],
-			className: 'col-span-full md:col-span-full lg:col-span-4 5xl:col-span-3',
+			className: 'col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-10',
 			filter: ([a, b]: number[], val) => {
 				if (val.worldsEndTag) return true;
 				return +val.rating >= a && +val.rating <= b;
@@ -333,7 +344,8 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 		<FilterSorter className="flex-grow" data={localMusic} sorters={sorters} filterers={filterers} pageSizes={perPage}
 			displayModes={DISPLAY_MODES} searcher={searcher}>
 			{(displayMode, data) => <div className="w-full flex-grow my-2">
-				<MusicGrid music={data} size={DISPLAY_IDS[displayMode as keyof typeof DISPLAY_IDS]} setMusicList={setLocalMusic} />
+				<MusicGrid music={data} size={DISPLAY_IDS[displayMode as keyof typeof DISPLAY_IDS]}
+					fullMusicList={localMusic} setMusicList={setLocalMusic} />
 			</div>}
 		</FilterSorter>);
 };

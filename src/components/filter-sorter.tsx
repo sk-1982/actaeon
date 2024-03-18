@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, AccordionItem, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Pagination, Select, SelectItem, Slider, Spinner, Tooltip } from '@nextui-org/react';
+import { Accordion, AccordionItem, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Pagination, Select, SelectItem, Slider, Spinner, Switch, Tooltip } from '@nextui-org/react';
 import React, { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Awaitable } from '@auth/core/types';
 import { XMarkIcon } from '@heroicons/react/16/solid';
@@ -12,12 +12,14 @@ import { SearchIcon } from '@nextui-org/shared-icons';
 
 type ValueType = {
 	slider: React.ComponentProps<typeof Slider>['value'],
-	select: React.ComponentProps<typeof Select>['selectedKeys']
+	select: React.ComponentProps<typeof Select>['selectedKeys'],
+	switch: React.ComponentProps<typeof Switch>['isSelected']
 };
 
 type FilterTypes = {
 	select: typeof Select,
-	slider: typeof Slider
+	slider: typeof Slider,
+	switch: typeof Switch
 };
 
 type FilterField<D, T extends keyof FilterTypes, N extends string> = {
@@ -263,6 +265,11 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 									<XMarkIcon className="h-full p-2" />
 								</Button>
 							</div>;
+						else if (filter.type === 'switch')
+							return <Switch key={filter.name} className={filter.className} isSelected={filterState[filter.name]}
+								onValueChange={selected => setFilterState(f => ({ ...f, [filter.name]: selected }))}>
+								{filter.label}
+							</Switch>
 					})}
 					<div className="flex mt-0.5 gap-2 flex-wrap sm:flex-nowrap flex-col-reverse sm:flex-row col-span-12">
 						<div className="flex gap-2 flex-grow">
