@@ -26,13 +26,13 @@ export const TickerHoverProvider = ({ children }: TickerHoverProviderProps) => {
 
 
 export const Ticker = ({ children, hoverOnly, className, noDelay }: TickerProps) => {
-	const outerAnimation = noDelay ? 'animate-[outer-overflow-nodelay_15s_linear_infinite_alternate]' : 'animate-[outer-overflow_15s_linear_infinite_alternate]';
-	const innerAnimation = noDelay ? 'animate-[inner-overflow-nodelay_15s_linear_infinite_alternate]' : 'animate-[inner-overflow_15s_linear_infinite_alternate]';
+	const outerAnimation = noDelay ? 'animate-[outer-overflow-nodelay_10s_linear_infinite_alternate]' : 'animate-[outer-overflow_10s_linear_infinite_alternate]';
+	const innerAnimation = noDelay ? 'animate-[inner-overflow-nodelay_10s_linear_infinite_alternate]' : 'animate-[inner-overflow_10s_linear_infinite_alternate]';
 	const hoverContext = useContext(TickerHoverContext);
 	const [textHovering, setTextHovering] = useState(false);
 	const hovering = (hoverContext !== null && hoverContext) || textHovering;
 
-	const hoverClass = !hoverOnly && hovering ? '[&:hover_*]:[animation-play-state:paused]' : '';
+	const hoverClass = (!hoverOnly && hovering) ? '[&_*]:[animation-play-state:paused]' : '';
 
 	if (hoverOnly && !hovering)
 		return (<div className={`text-nowrap whitespace-nowrap overflow-hidden w-full ${className ?? ''}`}
@@ -40,7 +40,9 @@ export const Ticker = ({ children, hoverOnly, className, noDelay }: TickerProps)
 			{ children }
 		</div>);
 
-	return (<div className={`text-nowrap whitespace-nowrap overflow-hidden w-full ${hoverClass} ${className ?? ''}`} onMouseLeave={() => setTextHovering(false)}>
+	return (<div className={`text-nowrap whitespace-nowrap overflow-hidden w-full ${hoverClass} ${className ?? ''}`}
+		onMouseLeave={() => setTextHovering(false)}
+		onMouseEnter={() => setTextHovering(true)}>
 		<div className={`${outerAnimation} ticker max-w-full inline-block`}>
 			<div className={`${innerAnimation} ticker inline-block`}>
 				{ children }
