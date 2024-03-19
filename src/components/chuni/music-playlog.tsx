@@ -68,6 +68,9 @@ export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) =>
 					{data.scoreMax ? <div className="ml-2 text-center flex-grow sm:flex-grow-0">
 						<span className="font-semibold">High Score: </span>{data.scoreMax.toLocaleString()}
 					</div> : null}
+					{data.maxComboCount ? <div className="ml-2 text-center flex-grow sm:flex-grow-0">
+						<span className="font-semibold">Max Combo: </span>{data.maxComboCount.toLocaleString()}
+					</div> : null}
 				</div>
 				{badges.length ? <div className={`flex-grow lg:flex-grow-0 ml-auto mr-auto sm:ml-0 lg:ml-auto lg:mr-0 mt-2 flex gap-0.5 flex-wrap justify-center sm:justify-start ${data.playlog.length ? 'cursor-pointer' : ''}`} onClick={toggleExpanded}>
 					{badges}

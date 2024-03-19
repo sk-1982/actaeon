@@ -23,6 +23,7 @@ export const getMusic = async (musicId?: number) => {
 		)
 		.select(({ fn }) => [...CHUNI_MUSIC_PROPERTIES,
 			'score.isFullCombo', 'score.isAllJustice', 'score.isSuccess', 'score.scoreRank', 'score.scoreMax',
+			'score.maxComboCount',
 			fn<boolean>('NOT ISNULL', ['favorite.favId']).as('favorite'),
 			chuniRating()])
 		.where(({ selectFrom, eb, and, or }) => and([
