@@ -31,6 +31,7 @@
     "next-client-cookies": "^1.1.0",
     "next-themes": "^0.2.1",
     "react": "^18",
+    "react-day-picker": "^8.10.0",
     "react-dom": "^18",
     "react-virtualized": "^9.22.5",
     "sass": "^1.71.1",

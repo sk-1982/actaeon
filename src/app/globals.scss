@@ -18,6 +18,26 @@
 	container-type: size;
 }
 
+.rdp {
+	--rdp-accent-color: theme('colors.primary') !important;
+	--rdp-background-color: theme('colors.primary') !important;
+}
+
+.rdp-button.rdp-button {
+	@apply transition-colors;
+	&:hover:not(.rdp-day_selected) {
+		@apply text-white;
+	}
+}
+
+.rdp-day_today.rdp-day_today:not(.rdp-day_selected) {
+	@apply bg-secondary bg-opacity-25 font-semibold;
+}
+
+.dark .rdp :is(select, option) {
+	background-color: black;
+}
+
 
 @layer base {
 	:root {

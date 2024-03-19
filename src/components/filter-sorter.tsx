@@ -8,21 +8,24 @@ import { ArrowLongUpIcon } from '@heroicons/react/24/solid';
 import { useDebounceCallback, useIsMounted } from 'usehooks-ts';
 import { usePathname } from 'next/navigation';
 import { SearchIcon } from '@nextui-org/shared-icons';
+import { DateSelect } from '@/components/date-select';
 
 
 type ValueType = {
 	slider: React.ComponentProps<typeof Slider>['value'],
 	select: React.ComponentProps<typeof Select>['selectedKeys'],
-	switch: React.ComponentProps<typeof Switch>['isSelected']
+	switch: React.ComponentProps<typeof Switch>['isSelected'],
+	dateSelect: React.ComponentProps<typeof DateSelect>['range']
 };
 
 type FilterTypes = {
 	select: typeof Select,
 	slider: typeof Slider,
-	switch: typeof Switch
+	switch: typeof Switch,
+	dateSelect: typeof DateSelect
 };
 
-type FilterField<D, T extends keyof FilterTypes, N extends string> = {
+export type FilterField<D, T extends keyof FilterTypes, N extends string> = {
 	type: T,
 	name: N,
 	label: string,
@@ -82,6 +85,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 	const [totalCount, setTotalCount] = useState(Array.isArray(data) ? data.length : -1);
 	const [currentPage, _setCurrentPage] = useState(defaultCurrentPage ?? 1);
 	const [selectedKeys, setSelectedKeys] = useState(new Set(['1']));
+	const [loadingRemoteData, setLoadingRemoteData] = useState(false);
 	const pathname = usePathname();
 	const prevNonce = useRef(1);
 	const resetPage = useRef(false);
@@ -105,6 +109,8 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 			setCurrentPage(1);
 			resetPage.current = false;
 			page = 1;
+			if (dataRemote)
+				setTotalCount(-1);
 		}
 
 		const sort = sorters.find(s => sorter.has(s.name))!;
@@ -128,13 +134,15 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 
 		const nonce = Math.random();
 		prevNonce.current = nonce;
+		setLoadingRemoteData(true);
 		Promise.resolve(data({ filters: filterState, sort: sort.name, pageSize: pageSizeNum, search: query, currentPage: page }))
 			.then(d => {
 				if (nonce === prevNonce.current) {
 					setProcessedData(d.data);
 					setTotalCount(d.total);
 				}
-			});
+			})
+			.finally(() => setLoadingRemoteData(false));
 	}, deps), 100, debounceOptions);
 
 	useEffect(() => {
@@ -272,6 +280,16 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 								onValueChange={selected => setFilterState(f => ({ ...f, [filter.name]: selected }))}>
 								{filter.label}
 							</Switch>
+						else if (filter.type === 'dateSelect')
+							return <div className={`${filter.className ?? ''} flex w-full`} key={filter.name}>
+								<DateSelect range={filterState[filter.name] as any} label={filter.label} radius="none" className="rounded-l-lg overflow-hidden flex-grow"
+									onChange={v => setFilterState(f => ({ ...f, [filter.name]: v }))} size="sm"
+									{...filter.props as any} />
+								<Button isIconOnly={true} color="danger" className="rounded-l-none rounded-r-lg h-full" onClick={() =>
+									setFilterState(f => ({ ...f, [filter.name]: filter.value }))}>
+									<XMarkIcon className="h-full p-2" />
+								</Button>
+							</div>;
 					})}
 					<div className="flex mt-0.5 gap-2 flex-wrap sm:flex-nowrap flex-col-reverse sm:flex-row col-span-12">
 						<div className="flex gap-2 flex-grow">
@@ -318,7 +336,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
           </Dropdown>
       </div>}
 
-			{renderedData === null ? <Spinner className="m-auto" /> : renderedData}
+			{(renderedData === null || loadingRemoteData) ? <Spinner className="m-auto" /> : renderedData}
 
 			{totalCount !== -1 && !Number.isNaN(pageSizeNum) && <div className="mt-auto mb-4" >
           <Pagination total={Math.ceil(totalCount / pageSizeNum)} showControls
