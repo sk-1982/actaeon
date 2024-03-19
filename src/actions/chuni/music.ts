@@ -40,6 +40,8 @@ export const getMusic = async (musicId?: number) => {
 		.execute();
 };
 
+export type ChuniMusic = Awaited<ReturnType<typeof getMusic>>[number];
+
 const getMusicById = async (user: UserPayload, musicId: number) => {
 	if (isNaN(musicId))
 		return { error: true, message: 'Invalid music ID.' };

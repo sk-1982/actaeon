@@ -1,7 +1,7 @@
 'use client';
 
-import { getMusic } from '@/actions/chuni/music';
-import { getPlaylog } from '@/actions/chuni/playlog';
+import { ChuniMusic, getMusic } from '@/actions/chuni/music';
+import { ChuniPlaylog, getPlaylog } from '@/actions/chuni/playlog';
 import { Accordion, AccordionItem } from '@nextui-org/react';
 import { CHUNI_DIFFICULTIES } from '@/helpers/chuni/difficulties';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
@@ -13,8 +13,8 @@ import { ChuniPlaylogCard } from '@/components/chuni/playlog-card';
 import { useState } from 'react';
 
 type ChuniMusicPlaylogProps = {
-	music: Awaited<ReturnType<typeof getMusic>>,
-	playlog: Awaited<ReturnType<typeof getPlaylog>>
+	music: ChuniMusic[],
+	playlog: ChuniPlaylog
 };
 
 export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) => {

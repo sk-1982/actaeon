@@ -37,7 +37,7 @@ export const DateSelect = ({ range, onChange, ...inputProps }: DateSelectProps) 
 		<Popover isOpen={breakpoint !== undefined && open} onOpenChange={setOpen}>
 			<PopoverTrigger className="aria-expanded:scale-1 aria-expanded:opacity-100 select-none">
 				<div className="w-full">
-					<Input value={(range?.from || range?.to) ? `${range?.from?.toLocaleDateString() ?? ''}\u2013${range?.to?.toLocaleDateString() ?? ''}` : undefined}
+					<Input value={(range?.from || range?.to) ? `${range?.from?.toLocaleDateString() ?? ''}\u2013${range?.to?.toLocaleDateString() ?? ''}` : ''}
 						type="text" {...inputProps} isReadOnly />
 				</div>
 			</PopoverTrigger>

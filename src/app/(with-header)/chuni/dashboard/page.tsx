@@ -6,6 +6,8 @@ import { requireUser } from '@/actions/auth';
 import { notFound } from 'next/navigation';
 import { ChuniTopRating } from '@/components/chuni/top-rating';
 import { ChuniTopRatingSidebar } from '@/components/chuni/top-rating-sidebar';
+import { Button } from '@nextui-org/react';
+import Link from 'next/link';
 
 export default async function ChuniDashboard() {
 	const user = await requireUser();
@@ -34,6 +36,13 @@ export default async function ChuniDashboard() {
 				{playlog.data.map((entry, i) => <ChuniPlaylogCard className="w-full h-48"
 					badgeClass="h-5 lg:h-[1.125rem] xl:h-6 2xl:h-[1.125rem] 4xl:h-6 5xl:h-[1.125rem]"
 					playlog={entry} key={i} />)}
+			</div>
+			<div className="w-full mb-3 px-2">
+				<Link href="/chuni/playlog" className="w-full flex justify-center">
+					<Button className="w-full sm:w-96">
+						View More
+					</Button>
+				</Link>
 			</div>
 		</div>
 	</div>);

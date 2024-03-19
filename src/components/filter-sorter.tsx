@@ -9,12 +9,15 @@ import { useDebounceCallback, useIsMounted } from 'usehooks-ts';
 import { usePathname } from 'next/navigation';
 import { SearchIcon } from '@nextui-org/shared-icons';
 import { DateSelect } from '@/components/date-select';
+import { ArrayIndices } from 'type-fest';
+import internal from 'stream';
+import { useBreakpoint } from '@/helpers/use-breakpoint';
 
 
 type ValueType = {
-	slider: React.ComponentProps<typeof Slider>['value'],
-	select: React.ComponentProps<typeof Select>['selectedKeys'],
-	switch: React.ComponentProps<typeof Switch>['isSelected'],
+	slider: [number, number],
+	select: Set<string>,
+	switch: boolean,
 	dateSelect: React.ComponentProps<typeof DateSelect>['range']
 };
 
@@ -35,50 +38,57 @@ export type FilterField<D, T extends keyof FilterTypes, N extends string> = {
 	className?: string
 };
 
-export type Filterers<D, N extends string> = FilterField<D, keyof FilterTypes, N>[];
+export type Filterers<D, N extends string> = readonly FilterField<D, keyof FilterTypes, N>[];
 
 export type Sorter<S extends string, D> = {
-	name: S,
-	sort?: (a: D, b: D) => number
+	readonly name: S,
+	readonly sort?: (a: D, b: D) => number
 };
 
 type FilterSorterProps<D, M extends string, N extends string, S extends string> = {
-	filterers: Filterers<D, N>,
 	className?: string,
-	data: D[] | ((options: {
-		filters: { [A in N]: any },
+	pageSizes?: number[],
+	readonly sorters: Readonly<Sorter<S, D>[]>,
+	displayModes?: { name: M, icon: ReactNode }[],
+	searcher?: (search: string, data: D) => boolean | undefined,
+	children: (displayMode: M, data: D[]) => React.ReactNode,
+	defaultAscending?: boolean
+} & ({
+	filterers: Filterers<D, N>,
+	data: D[]
+} | {
+	filterers: Filterers<any, N>,
+	data: ((options: {
+		filters: { [K in N]: any },
 		sort: S,
 		search: string,
 		pageSize: number,
 		currentPage: number,
+		ascending: boolean
 	}) => Awaitable<{ data: D[], total: number }>),
-	pageSizes?: number[],
-	sorters: Sorter<S, D>[],
-	displayModes?: { name: M, icon: ReactNode }[],
-	searcher?: (search: string, data: D) => boolean | undefined,
-	children: (displayMode: M, data: D[]) => React.ReactNode
-};
+});
 
 const debounceOptions = {
 	leading: false,
 	trailing: true,
-	maxWait: 100
 } as const;
 
-const FilterSorterComponent = <D, M extends string, N extends string, S extends string>({ defaultData, filterers, data, pageSizes, sorters, displayModes, searcher, className, children }: FilterSorterProps<D, M, N, S> & { defaultData: any }) => {
+const queryDebounceOptions = { leading: false, trailing: true };
+
+const FilterSorterComponent = <D, M extends string, N extends string, S extends string>({ defaultData, defaultAscending, filterers, data, pageSizes, sorters, displayModes, searcher, className, children }: FilterSorterProps<D, M, N, S> & { defaultData: any }) => {
 	const defaultFilterState: Record<N, any> = {} as any;
 	filterers.forEach(filter => {
 		defaultFilterState[filter.name] = filter.value;
 	});
 
-	const { sorter: defaultSorter, ascending: defaultAscending, pageSize: defaultPageSize, currentPage: defaultCurrentPage,
+	const { sorter: defaultSorter, ascending: storedAscending, pageSize: defaultPageSize, currentPage: defaultCurrentPage,
 		displayMode: defaultDisplayMode, ...payloadFilterState } = defaultData;
 
 	const [filterState, _setFilterState] = useState<typeof defaultFilterState>(Object.keys(payloadFilterState).length ? payloadFilterState :
 		defaultFilterState);
 	const [pageSize, _setPageSize] = useState(defaultPageSize ?? new Set([(pageSizes?.[0] ?? 25).toString()]));
 	const [sorter, _setSorter] = useState(defaultSorter ?? new Set(sorters.length ? [sorters[0].name] : []));
-	const [ascending, _setAscending] = useState<boolean>(defaultAscending ?? true);
+	const [ascending, _setAscending] = useState<boolean>(storedAscending ?? defaultAscending ?? true);
 	const [displayMode, _setDisplayMode] = useState(defaultDisplayMode ?? new Set([displayModes?.length ? displayModes[0].name : '']));
 	const [query, _setQuery] = useState('');
 	const [processedData, setProcessedData] = useState(Array.isArray(data) ? data : []);
@@ -92,14 +102,15 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 	const flush = useRef(false);
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const mounted = useIsMounted();
+	const breakpoint = useBreakpoint();
 
 	const localStateKey = `filter-sort-${pathname}`;
 
 	const dataRemote = !Array.isArray(data);
 	const pageSizeNum = +[...pageSize][0];
 
-	const deps = dataRemote ? [data, filterers, filterState, pageSize, query, currentPage, ascending, searcher, sorters, sorter, mounted] :
-		[data, filterers, filterState, query, ascending, searcher, sorters, sorter, mounted];
+	const deps = dataRemote ? [data, filterers, pageSize, filterState, currentPage, ascending, searcher, sorters, sorter, mounted, query] :
+		[data, filterers, filterState, ascending, searcher, sorters, sorter, mounted, query];
 
 	const onChange = useDebounceCallback(useCallback(() => {
 		if (!mounted()) return;
@@ -135,7 +146,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 		const nonce = Math.random();
 		prevNonce.current = nonce;
 		setLoadingRemoteData(true);
-		Promise.resolve(data({ filters: filterState, sort: sort.name, pageSize: pageSizeNum, search: query, currentPage: page }))
+		Promise.resolve(data({ ascending, filters: filterState, sort: sort.name, pageSize: pageSizeNum, search: query, currentPage: page }))
 			.then(d => {
 				if (nonce === prevNonce.current) {
 					setProcessedData(d.data);
@@ -143,7 +154,12 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 				}
 			})
 			.finally(() => setLoadingRemoteData(false));
-	}, deps), 100, debounceOptions);
+	}, deps), dataRemote ? 250 : 100, debounceOptions);
+
+	const onQuery = useDebounceCallback(useCallback(() => {
+		onChange();
+		onChange.flush();
+	}, deps), 500)
 
 	useEffect(() => {
 		onChange();
@@ -155,7 +171,29 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 			prevNonce.current = 1;
 			onChange.cancel();
 		}
-	}, [data, filterers, filterState, pageSize, query, currentPage, ascending, searcher, sorters, sorter]);
+	}, [data, filterers, filterState, currentPage, ascending, searcher, sorters, sorter]);
+
+	const initialQuery = useRef(true);
+
+	useEffect(() => {
+		if (initialQuery.current) {
+			initialQuery.current = false;
+			return;
+		}
+
+		onQuery();
+		return () => {
+			prevNonce.current = 1;
+			onQuery.cancel();
+		}
+	}, [query]);
+
+	useEffect(() => {
+		if (dataRemote) {
+			onChange();
+			onChange.flush();
+		}
+	}, [pageSize, dataRemote, currentPage]);
 
 	useEffect(() => {
 		const cb = (ev: KeyboardEvent) => {
@@ -203,9 +241,6 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 		_setCurrentPage(Number.isNaN(newPageNum) ? 1 : newPageNum);
 		_setPageSize(size);
 		updateLocalState({ pageSize: size, currentPage: newPageNum });
-
-		onChange();
-		onChange.flush();
 	};
 
 	const setFilterState = (s: typeof filterState | ((s: typeof filterState) => typeof filterState)) => {
@@ -249,6 +284,9 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 
 		const pageData = dataRemote || Number.isNaN(pageSizeNum) ? processedData :
 			processedData.slice(pageSizeNum * (currentPage - 1), pageSizeNum * currentPage);
+
+		if (!pageData.length)
+			return (<div className="m-auto text-lg text-gray-500">No results found.</div>)
 
 		return children([...displayMode][0] as M, pageData);
 	}, dataRemote ? [processedData, displayMode, currentPage, mounted] :
@@ -338,9 +376,9 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 
 			{(renderedData === null || loadingRemoteData) ? <Spinner className="m-auto" /> : renderedData}
 
-			{totalCount !== -1 && !Number.isNaN(pageSizeNum) && <div className="mt-auto mb-4" >
-          <Pagination total={Math.ceil(totalCount / pageSizeNum)} showControls
-              isCompact siblings={2} page={currentPage} initialPage={1} onChange={setCurrentPage}>
+			{totalCount > 0 && !Number.isNaN(pageSizeNum) && <div className="mt-auto mb-4" >
+          <Pagination total={Math.ceil(totalCount / pageSizeNum)} showControls size={breakpoint ? 'md' : 'sm'}
+              isCompact siblings={breakpoint ? 2 : 1} page={currentPage} initialPage={1} onChange={setCurrentPage}>
           </Pagination>
 			</div> }
 		</div>

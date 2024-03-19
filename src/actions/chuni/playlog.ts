@@ -5,19 +5,33 @@ import { db } from '@/db';
 import { CHUNI_MUSIC_PROPERTIES } from '@/helpers/chuni/music';
 import { chuniRating } from '@/helpers/chuni/rating';
 import { sql } from 'kysely';
+import { PlaylogFilterState } from '@/components/chuni/playlog-list';
+
+const SORT_KEYS = {
+	Date: 'id',
+	Rating: 'rating',
+	Level: 'level',
+	Score: 'score'
+} as const;
+
+const SORT_KEYS_SET = new Set(Object.keys(SORT_KEYS));
 
 export type GetPlaylogOptions = {
-	limit: number
+	limit: number,
+	offset?: number,
+	sort?: keyof typeof SORT_KEYS,
+	ascending?: boolean,
+	search?: string
 } & ({} |
 	{ musicId: number } |
-	{ musicId: number, chartId: number });
-
+	{ musicId: number, chartId: number }) &
+	Partial<PlaylogFilterState>;
 export async function getPlaylog(opts: GetPlaylogOptions) {
 	const user = await requireUser();
 	const musicId = 'musicId' in opts ? +opts.musicId : NaN;
 	const chartId = 'chartId' in opts ? +opts.chartId : NaN;
 
-	const playlog = await db.with('p', db => db
+	const builder = db.with('p', db => db
 		.selectFrom('chuni_score_playlog as playlog')
 		.innerJoin('chuni_static_music as music', join => join
 			.onRef('music.songId', '=', 'playlog.musicId')
@@ -42,25 +56,75 @@ export async function getPlaylog(opts: GetPlaylogOptions) {
 		.orderBy('playlog.id desc')
 	)
 		.selectFrom('p')
-		.where(({ and, eb }) => and([
+		.where(({ and, eb, or, fn }) => and([
 			...(!Number.isNaN(musicId) ? [eb('p.songId', '=', musicId)] : []),
 			...(!Number.isNaN(chartId) ? [eb('p.chartId', '=', chartId)] : []),
+			...(opts.difficulty?.size ? [eb('p.chartId', 'in', [...opts.difficulty].map(x => +x))] : []),
+			...(opts.genre?.size ? [eb('p.genre', 'in', [...opts.genre])] : []),
+			...(opts.lamp?.has('clear') ? [eb('p.isClear', '=', 1)] : []),
+			...((opts.lamp?.has('aj') && opts.lamp?.has('fc')) ? [or([
+					eb('p.isAllJustice', '=', 1),
+					eb('p.isFullCombo', '=', 1)
+				])] : // all justice and full combo selected, return either
+				[]),
+			...((opts.lamp?.has('aj') && !opts.lamp?.has('fc')) ? [eb('p.isAllJustice', '=', 1)] : []),  // return only all justice
+			...((!opts.lamp?.has('aj') && opts.lamp?.has('fc')) ? [
+				eb('p.isAllJustice', '=', 0),
+				eb('p.isFullCombo', '=', 1)
+			] : []),  // return only full combo
+			...(opts.worldsEndTag?.size ? [or([
+				eb('p.worldsEndTag', 'is', null),
+				eb('p.worldsEndTag', 'in', [...opts.worldsEndTag])
+			])] : []),
+			...(opts.score?.size ? [eb('p.rank', 'in', [...opts.score].map(x => +x))] : []),
+			...(opts.worldsEndStars ? [or([
+				eb('p.worldsEndTag', 'is', null),
+				and([
+					eb('p.level', '>=', opts.worldsEndStars[0] * 2 - 1),
+					eb('p.level', '<=', opts.worldsEndStars[1] * 2 - 1),
+				])
+			])] : []),
+			...(opts.level ? [or([
+				eb('p.worldsEndTag', 'is not', null),
+				and([
+					eb('p.level', '>=', opts.level[0]),
+					eb('p.level', '<=', opts.level[1])
+				])
+			])] : []),
+			...(opts.rating ? [or([
+				eb('p.worldsEndTag', 'is not', null),
+				and([
+					eb('p.rating', '>=', opts.rating[0] as any),
+					eb('p.rating', '<=', opts.rating[1] as any)
+				])
+			])] : []),
+			...(opts.search?.length ? [or([
+				eb(fn('lower', ['p.artist']), 'like', `%${opts.search.toLowerCase()}%`),
+				eb(fn('lower', ['p.title']), 'like', `%${opts.search.toLowerCase()}%`)
+			])] : []),
+			...(opts.dateRange?.from ? [
+				eb('sortNumber', '>=', opts.dateRange.from.valueOf() / 1000)
+			] : []),
+			...(opts.dateRange?.to ? [
+				eb('sortNumber', '<=', opts.dateRange.to.valueOf() / 1000)
+			] : [])
 		]))
+		.orderBy(SORT_KEYS_SET.has(opts.sort!) ? `${SORT_KEYS[opts.sort as keyof typeof SORT_KEYS]} ${opts.ascending ? 'asc' : 'desc'}` :
+			'p.id desc');
+
+	const playlog = await builder
 		.selectAll()
-		.limit(+opts.limit)
+		.offset(opts.offset && !Number.isNaN(opts.offset) ? +opts.offset : 0)
+		.limit(Number.isNaN(opts.limit) ? 100 : opts.limit)
 		.execute();
 
-	let remaining = 0;
+	let total = 0;
 	if (playlog.length)
-		remaining = Number((await db.selectFrom('chuni_score_playlog as playlog')
-			.where(({ and, eb }) => and([
-				eb('playlog.user', '=', user.id),
-				eb('playlog.id', '<', playlog.at(-1)!.id),
-				...(!Number.isNaN(musicId) ? [eb('playlog.musicId', '=', musicId)] : []),
-				...(!Number.isNaN(chartId) ? [eb('playlog.level', '=', chartId)] : []),
-			]))
-			.select(({ fn }) => fn.countAll().as('remaining'))
-			.executeTakeFirstOrThrow()).remaining);
+		total = Number((await builder
+			.select(({ fn }) => fn.countAll().as('total'))
+			.executeTakeFirstOrThrow()).total);
 
-	return { data: playlog, remaining };
+	return { data: playlog, total };
 }
+
+export type ChuniPlaylog = Awaited<ReturnType<typeof getPlaylog>>;

@@ -1,7 +1,7 @@
 'use client';
 
-import { addFavoriteMusic, getMusic, removeFavoriteMusic } from '@/actions/chuni/music';
-import { getPlaylog } from '@/actions/chuni/playlog';
+import { addFavoriteMusic, ChuniMusic, getMusic, removeFavoriteMusic } from '@/actions/chuni/music';
+import { ChuniPlaylog, getPlaylog } from '@/actions/chuni/playlog';
 import { MusicPlayer } from '@/components/music-player';
 import { getJacketUrl, getMusicUrl } from '@/helpers/assets';
 import { Ticker } from '@/components/ticker';
@@ -13,8 +13,8 @@ import React, { useState } from 'react';
 import { useErrorModal } from '@/components/error-modal';
 
 type ChuniMusicDetailProps = {
-	music: Awaited<ReturnType<typeof getMusic>>,
-	playlog: Awaited<ReturnType<typeof getPlaylog>>
+	music: ChuniMusic[],
+	playlog: ChuniPlaylog
 };
 
 export const ChuniMusicDetail = ({ music, playlog }: ChuniMusicDetailProps) => {
