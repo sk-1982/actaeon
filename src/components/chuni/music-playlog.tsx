@@ -77,10 +77,11 @@ export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) =>
 				</div> : null}
 				{data.playlog.length ? <Accordion selectedKeys={expanded[i]} onSelectionChange={k => setExpanded(e => ({ ...e, [i]: k as any }))}>
 					<AccordionItem key="1" title="Play History">
-						<div className="grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 5xl:grid-cols-6 6xl:grid-cols-8 gap-2">
+						<div className="grid  grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 4xl:grid-cols-4 5xl:grid-cols-5 6xl:grid-cols-6 gap-2">
 							{data.playlog.map(p => <ChuniPlaylogCard key={p.id}
+								showDetails
 								badgeClass="h-5 sm:h-6 md:h-5 lg:h-[1.125rem] 3xl:h-5"
-								playlog={p} className="h-48" />)}
+								playlog={p} className="h-64 md:h-52" />)}
 						</div>
 					</AccordionItem>
 					</Accordion> : null
