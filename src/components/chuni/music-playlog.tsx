@@ -78,7 +78,9 @@ export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) =>
 				{data.playlog.length ? <Accordion selectedKeys={expanded[i]} onSelectionChange={k => setExpanded(e => ({ ...e, [i]: k as any }))}>
 					<AccordionItem key="1" title="Play History">
 						<div className="grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 5xl:grid-cols-6 6xl:grid-cols-8 gap-2">
-							{data.playlog.map(p => <ChuniPlaylogCard key={p.id} playlog={p} className="h-48" />)}
+							{data.playlog.map(p => <ChuniPlaylogCard key={p.id}
+								badgeClass="h-5 sm:h-6 md:h-5 lg:h-[1.125rem] 3xl:h-5"
+								playlog={p} className="h-48" />)}
 						</div>
 					</AccordionItem>
 					</Accordion> : null

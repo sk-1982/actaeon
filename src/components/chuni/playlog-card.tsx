@@ -12,7 +12,8 @@ import { Ticker, TickerHoverProvider } from '@/components/ticker';
 
 export type ChuniPlaylogCardProps = {
 	playlog: Awaited<ReturnType<typeof getPlaylog>>['data'][number],
-	className?: string
+	className?: string,
+	badgeClass?: string
 };
 
 const getChangeSign = (val: number) => {
@@ -27,7 +28,7 @@ const getChangeColor = (val: number) => {
 	return 'text-blue-500';
 };
 
-export const ChuniPlaylogCard = ({ playlog, className }: ChuniPlaylogCardProps) => {
+export const ChuniPlaylogCard = ({ playlog, className, badgeClass }: ChuniPlaylogCardProps) => {
 	return (<TickerHoverProvider>{setHover => <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
 		className={`rounded-md bg-content1 relative flex flex-col p-2 pt-1 border border-black/25 ${className ?? ''}`}>
 		<div className="flex">
@@ -61,7 +62,7 @@ export const ChuniPlaylogCard = ({ playlog, className }: ChuniPlaylogCardProps) 
 			</div>
 		</div>
 		<div
-			className="h-5 lg:h-[1.125rem] xl:h-6 2xl:h-[1.125rem] 4xl:h-6 5xl:h-[1.125rem] my-auto flex gap-0.5 overflow-hidden">
+			className={`${badgeClass ? badgeClass : 'h-5'} my-auto flex gap-0.5 overflow-hidden`}>
 			<ChuniScoreBadge variant={getVariantFromRank(playlog.rank ?? 0)} className="h-full">
 				{playlog.score?.toLocaleString()}
 			</ChuniScoreBadge>
