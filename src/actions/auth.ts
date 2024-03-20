@@ -6,15 +6,30 @@ import { auth, signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcrypt from 'bcrypt';
 import { db } from '@/db';
+import { UserPermissions } from '@/types/permissions';
+import { requirePermission } from '@/helpers/permissions';
+import { UserPayload } from '@/types/user';
 
 export const getUser = async () => {
 	const session = await auth();
 	return session?.user;
 };
 
-export const requireUser = async () => {
-	return await getUser() ??
-		redirect(`/auth/login?error=1&callbackUrl=${encodeURIComponent(new URL(headers().get('referer') ?? 'http://a/').pathname)}`);
+type RequireUserOptions = {
+	permission?: UserPermissions[] | UserPermissions
+};
+
+export const requireUser = async (opts?: RequireUserOptions): Promise<UserPayload> => {
+	const user = await getUser();
+
+	if (!user) {
+		return redirect(`/auth/login?error=1&callbackUrl=${encodeURIComponent(headers().get('x-path') ?? '/')}`)
+	}
+
+	if (opts?.permission !== undefined)
+		requirePermission(user.permissions, ...(Array.isArray(opts.permission) ? opts.permission : [opts.permission]));
+
+	return user;
 };
 
 type LoginOptions = {
