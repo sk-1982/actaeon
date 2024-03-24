@@ -32,7 +32,11 @@ const nextConfig = {
     },
     sassOptions: {
         additionalData: `$asset-url: "${baseAssetUrl}";`
-    }
+    },
+    experimental: {
+        instrumentationHook: true
+    },
+    productionBrowserSourceMaps: true
 };
 
 export default nextConfig;
