@@ -1,5 +1,3 @@
-import { sql } from 'kysely';
-
 export const CHUNI_MUSIC_PROPERTIES = ['music.songId',
 	'music.chartId',
 	'music.title',

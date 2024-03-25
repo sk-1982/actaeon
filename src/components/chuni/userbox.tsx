@@ -1,9 +1,9 @@
 'use client';
 
-import { ChuniUserData, getUserData, ProfileUpdate, updateProfile } from '@/actions/chuni/profile';
+import { ChuniUserData, ProfileUpdate, updateProfile } from '@/actions/chuni/profile';
 import { UserboxItems } from '@/actions/chuni/userbox';
 import { ChuniNameplate } from '@/components/chuni/nameplate';
-import { avatar, Button, ButtonGroup, Checkbox, Divider, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Select, SelectItem, user } from '@nextui-org/react';
+import { Button, Checkbox, Divider, Select, SelectItem } from '@nextui-org/react';
 import { SelectModalButton } from '@/components/select-modal';
 import { ChuniTrophy } from '@/components/chuni/trophy';
 import { getAudioUrl, getImageUrl } from '@/helpers/assets';
@@ -13,7 +13,6 @@ import { CHUNI_VOICE_LINES } from '@/helpers/chuni/voice';
 import { PlayIcon, StopIcon } from '@heroicons/react/24/solid';
 import { SaveIcon } from '@/components/save-icon';
 import { useAudio } from '@/helpers/use-audio';
-import { useIsMounted } from 'usehooks-ts';
 import { Entries } from 'type-fest';
 import { useErrorModal } from '@/components/error-modal';
 

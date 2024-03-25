@@ -9,6 +9,8 @@ import { db } from '@/db';
 import { UserPermissions } from '@/types/permissions';
 import { requirePermission } from '@/helpers/permissions';
 import { UserPayload } from '@/types/user';
+import { sql } from 'kysely';
+import { EMAIL_REGEX } from '@/helpers/validators';
 
 export const getUser = async () => {
 	const session = await auth();
@@ -63,8 +65,6 @@ export const logout = async (options: { redirectTo?: string, redirect?: boolean 
 	return signOut(options);
 };
 
-const emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/i;
-
 export const register = async (formData: FormData) => {
 	const username = formData.get('username')?.toString()?.trim();
 	const password = formData.get('password')?.toString()?.trim();
@@ -86,7 +86,7 @@ export const register = async (formData: FormData) => {
 		return { error: true, message: 'Password must be at least 8 characters' };
 	if (!/^\d{20}$/.test(accessCode))
 		return { error: true, message: 'Invalid access code format' };
-	if (!emailRegex.test(email))
+	if (!EMAIL_REGEX.test(email))
 		return { error: true, message: 'Invalid email' };
 
 	const hashedPassword = await bcrypt.hash(password, process.env.BCRYPT_ROUNDS ? parseInt(process.env.BCRYPT_ROUNDS) : 12)
@@ -129,6 +129,14 @@ export const register = async (formData: FormData) => {
 		.set('password', hashedPassword)
 		.set('email', email)
 		.execute();
+
+	await db.insertInto('actaeon_user_ext')
+		.values({
+			userId: user.id,
+			uuid: sql`uuid_v4()`,
+			visibility: 0
+		})
+		.executeTakeFirst();
 
 	return { error: false };
 };

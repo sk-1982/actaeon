@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { CookiesProvider } from 'next-client-cookies/server';
 import { auth } from '@/auth';
 import { SessionProvider } from 'next-auth/react';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { ChuniTopRating, ChuniTopRatingProps } from '@/components/chuni/top-rating';
+import { ChuniTopRating } from '@/components/chuni/top-rating';
 import { getUserRating } from '@/actions/chuni/profile';
 import { useState } from 'react';
 import { Button, ButtonGroup } from '@nextui-org/react';

@@ -1,7 +1,7 @@
 'use client';
 
-import { addFavoriteMusic, ChuniMusic, getMusic, removeFavoriteMusic } from '@/actions/chuni/music';
-import { ChuniPlaylog, getPlaylog } from '@/actions/chuni/playlog';
+import { addFavoriteMusic, ChuniMusic, removeFavoriteMusic } from '@/actions/chuni/music';
+import { ChuniPlaylog } from '@/actions/chuni/playlog';
 import { MusicPlayer } from '@/components/music-player';
 import { getJacketUrl, getMusicUrl } from '@/helpers/assets';
 import { Ticker } from '@/components/ticker';
@@ -9,7 +9,7 @@ import { ChuniMusicPlaylog } from '@/components/chuni/music-playlog';
 import { Button } from '@nextui-org/react';
 import { HeartIcon as SolidHeartIcon } from '@heroicons/react/24/solid';
 import { HeartIcon as OutlineHeartIcon } from '@heroicons/react/24/outline';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useErrorModal } from '@/components/error-modal';
 
 type ChuniMusicDetailProps = {

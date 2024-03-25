@@ -1,6 +1,6 @@
 'use client';
 
-import { ChuniPlaylog, getPlaylog } from '@/actions/chuni/playlog';
+import { ChuniPlaylog } from '@/actions/chuni/playlog';
 import { getJacketUrl } from '@/helpers/assets';
 import Link from 'next/link';
 import { ChuniRating } from '@/components/chuni/rating';

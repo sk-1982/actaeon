@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode, HTMLAttributes } from 'react';
 
 const BACKGROUNDS = [
 	['bg-[#02a076]'],
@@ -17,7 +17,7 @@ export type ChuniDifficultyContainerProps = {
 	className?: string,
 	difficulty: number,
 	containerClassName?: string
-} & React.HTMLAttributes<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement>;
 
 export const ChuniDifficultyContainer = ({ children, className, difficulty, containerClassName, ...props }: ChuniDifficultyContainerProps) => {
 	return (<div className={`relative ${className ?? ''}`} {...props}>

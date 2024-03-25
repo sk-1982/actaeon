@@ -1,0 +1,5 @@
+ALTER TABLE actaeon_user_ext
+ADD COLUMN team CHAR(36),
+ADD CONSTRAINT fk_team FOREIGN KEY(team) REFERENCES actaeon_teams(uuid)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+

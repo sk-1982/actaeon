@@ -1,12 +1,12 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, Checkbox, Divider, Input } from '@nextui-org/react';
+import { Button, Card, CardBody, CardHeader, Divider, Input } from '@nextui-org/react';
 import { BackButton } from '@/components/back-button';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useState } from 'react';
 import { login } from '@/actions/auth';
-import { redirect, useSearchParams } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { useUser } from '@/helpers/use-user';
 
 export type LoginCardProps = {

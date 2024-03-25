@@ -1,14 +1,13 @@
 'use client';
 
-import { ChuniMusic, getMusic } from '@/actions/chuni/music';
-import { ChuniPlaylog, getPlaylog } from '@/actions/chuni/playlog';
+import { ChuniMusic } from '@/actions/chuni/music';
+import { ChuniPlaylog } from '@/actions/chuni/playlog';
 import { Accordion, AccordionItem } from '@nextui-org/react';
 import { CHUNI_DIFFICULTIES } from '@/helpers/chuni/difficulties';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import { ChuniRating } from '@/components/chuni/rating';
-import { ChuniLampComboBadge, ChuniLampSuccessBadge, ChuniScoreBadge, getVariantFromLamp, getVariantFromRank } from '@/components/chuni/score-badge';
+import { ChuniLampComboBadge, ChuniLampSuccessBadge, ChuniScoreBadge, getVariantFromRank } from '@/components/chuni/score-badge';
 import { CHUNI_SCORE_RANKS } from '@/helpers/chuni/score-ranks';
-import {  CHUNI_LAMPS } from '@/helpers/chuni/lamps';
 import { ChuniPlaylogCard } from '@/components/chuni/playlog-card';
 import { useState } from 'react';
 

@@ -1,24 +1,22 @@
 'use client';
 
 import { Accordion, AccordionItem, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Pagination, Select, SelectItem, Slider, Spinner, Switch, Tooltip } from '@nextui-org/react';
-import React, { ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Awaitable } from '@auth/core/types';
+import { ComponentProps, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/16/solid';
 import { ArrowLongUpIcon } from '@heroicons/react/24/solid';
 import { useDebounceCallback, useIsMounted } from 'usehooks-ts';
 import { usePathname } from 'next/navigation';
 import { SearchIcon } from '@nextui-org/shared-icons';
 import { DateSelect } from '@/components/date-select';
-import { ArrayIndices } from 'type-fest';
-import internal from 'stream';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
+import { Awaitable } from '@/types/awaitable';
 
 
 type ValueType = {
 	slider: [number, number],
 	select: Set<string>,
 	switch: boolean,
-	dateSelect: React.ComponentProps<typeof DateSelect>['range']
+	dateSelect: ComponentProps<typeof DateSelect>['range']
 };
 
 type FilterTypes = {
@@ -34,7 +32,7 @@ export type FilterField<D, T extends keyof FilterTypes, N extends string> = {
 	label: string,
 	filter?: (val: any, data: D) => boolean,
 	value: ValueType[T],
-	props?: React.ComponentProps<FilterTypes[T]>,
+	props?: ComponentProps<FilterTypes[T]>,
 	className?: string
 };
 
@@ -51,7 +49,7 @@ type FilterSorterProps<D, M extends string, N extends string, S extends string> 
 	readonly sorters: Readonly<Sorter<S, D>[]>,
 	displayModes?: { name: M, icon: ReactNode }[],
 	searcher?: (search: string, data: D) => boolean | undefined,
-	children: (displayMode: M, data: D[]) => React.ReactNode,
+	children: (displayMode: M, data: D[]) => ReactNode,
 	defaultAscending?: boolean
 } & ({
 	filterers: Filterers<D, N>,

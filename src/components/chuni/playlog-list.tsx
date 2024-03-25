@@ -1,9 +1,8 @@
 'use client';
 
-import { CHUNI_FILTER_DIFFICULTY, CHUNI_FILTER_FAVORITE, CHUNI_FILTER_GENRE, CHUNI_FILTER_LAMP, CHUNI_FILTER_LEVEL, CHUNI_FILTER_RATING, CHUNI_FILTER_SCORE, CHUNI_FILTER_WORLDS_END_STARS, CHUNI_FILTER_WORLDS_END_TAG, getLevelValFromStop } from '@/helpers/chuni/filter';
+import { CHUNI_FILTER_DIFFICULTY, CHUNI_FILTER_GENRE, CHUNI_FILTER_LAMP, CHUNI_FILTER_LEVEL, CHUNI_FILTER_RATING, CHUNI_FILTER_SCORE, CHUNI_FILTER_WORLDS_END_STARS, CHUNI_FILTER_WORLDS_END_TAG, getLevelValFromStop } from '@/helpers/chuni/filter';
 import { FilterField, FilterSorter } from '@/components/filter-sorter';
 import { SelectItem } from '@nextui-org/react';
-import React, { useState } from 'react';
 import { ChuniMusic } from '@/actions/chuni/music';
 import { ArrayIndices } from 'type-fest';
 import { ChuniPlaylog, getPlaylog } from '@/actions/chuni/playlog';

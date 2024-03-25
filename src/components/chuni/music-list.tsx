@@ -1,10 +1,9 @@
 'use client'
 
 import { FilterSorter, Sorter } from '@/components/filter-sorter';
-import { WindowScroller, AutoSizer, List } from 'react-virtualized';
-import { Button, SelectItem } from '@nextui-org/react';
+import { Button } from '@nextui-org/react';
 import { addFavoriteMusic, ChuniMusic, removeFavoriteMusic } from '@/actions/chuni/music';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
 import { getJacketUrl } from '@/helpers/assets';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';

@@ -2,7 +2,7 @@
 
 import { Button, Card, CardBody, Slider } from '@nextui-org/react';
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useAudio } from '@/helpers/use-audio';
 
 export type MusicPlayerProps = {

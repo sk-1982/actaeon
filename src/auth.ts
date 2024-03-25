@@ -3,9 +3,10 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { db, GeneratedDB } from '@/db';
 import bcrypt from 'bcrypt';
 import { DBUserPayload } from '@/types/user';
-import React from 'react';
-import { SelectQueryBuilder } from 'kysely';
+import { cache } from 'react';
+import { SelectQueryBuilder, sql } from 'kysely';
 import { AimeUser } from '@/types/db';
+import crypto from 'crypto';
 
 let basePath = process.env.BASE_PATH ?? '';
 if (basePath.endsWith('/')) basePath = basePath.slice(0, -1);
@@ -17,9 +18,14 @@ const selectUserProps = (builder: SelectQueryBuilder<GeneratedDB & { u: AimeUser
 		.selectAll()
 		.as('chuni'),
 	join => join.onRef('chuni.user', '=', 'u.id'))
+	.leftJoin('actaeon_user_ext as ext', 'ext.userId', 'u.id')
 	.select(({ fn }) => [
 		'u.username', 'u.password', 'u.id', 'u.email', 'u.permissions', 'u.created_date', 'u.last_login_date',
 		'u.suspend_expire_time',
+		'ext.uuid',
+		'ext.visibility',
+		'ext.homepage',
+		'ext.team',
 		fn<boolean>('not isnull', ['chuni.id']).as('chuni')
 	])
 	.executeTakeFirst();
@@ -49,6 +55,22 @@ const nextAuth = NextAuth({
 		session({ session, token, user }) {
 			session.user = { ...session.user, ...(token.user as any) };
 			return session;
+		},
+		async signIn({ user }) {
+			if ((user as any).visibility === null) {
+				const uuid = crypto.randomUUID();
+				await db.insertInto('actaeon_user_ext')
+					.values({
+						userId: (user as any).id,
+						uuid,
+						visibility: 0
+					})
+					.executeTakeFirst();
+				(user as any).uuid = uuid;
+				(user as any).visibility = 0;
+			}
+
+			return true;
 		}
 	},
 	providers: [CredentialsProvider({
@@ -68,14 +90,14 @@ const nextAuth = NextAuth({
 			if (!user?.password || !await bcrypt.compare(password.trim(), user.password))
 				return null;
 
-			const { password: _, ...payload } = user satisfies DBUserPayload;
+			const { password: _, ...payload } = user satisfies { [K in keyof DBUserPayload]: DBUserPayload[K] | null };
 
 			return payload as any;
 		}
 	})]
 });
 
-export const auth = React.cache(nextAuth.auth);
+export const auth = cache(nextAuth.auth);
 
 export const {
 	handlers: { GET, POST },

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { ThemeSwitcherDropdown, ThemeSwitcherSwitch } from '@/components/theme-switcher';
 import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/solid';
 import { login, logout } from '@/actions/auth';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { UserPayload } from '@/types/user';
 import { MAIN_ROUTES, ROUTES, UserOnly } from '@/routes';
 import { useUser } from '@/helpers/use-user';

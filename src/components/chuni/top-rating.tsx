@@ -2,7 +2,7 @@ import { getUserRating } from '@/actions/chuni/profile';
 import { getJacketUrl } from '@/helpers/assets';
 import { ChuniRating } from '@/components/chuni/rating';
 import { floorToDp } from '@/helpers/floor-dp';
-import { ChuniScoreBadge, getVariantFromRank, getVariantFromScore } from '@/components/chuni/score-badge';
+import { ChuniScoreBadge, getVariantFromScore } from '@/components/chuni/score-badge';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
 import { Tooltip } from '@nextui-org/react';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
