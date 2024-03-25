@@ -22,7 +22,7 @@
     "db-migrate": "^0.11.14",
     "db-migrate-mysql": "^2.3.2",
     "deep-is": "^0.1.4",
-    "framer-motion": "^11.0.20",
+    "framer-motion": "^10.18.0",
     "jsonwebtoken": "^9.0.2",
     "kysely": "^0.27.3",
     "mysql2": "^3.9.2",
