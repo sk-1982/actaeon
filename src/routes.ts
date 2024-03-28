@@ -1,5 +1,6 @@
 import { UserPayload } from '@/types/user';
 import { UserPermissions } from '@/types/permissions';
+import { hasPermission } from './helpers/permissions';
 
 export type UserOnly = boolean | keyof UserPayload;
 
@@ -68,3 +69,26 @@ export const ROUTES: Route[] = [{
 		userOnly: 'chuni'
 	}]
 }, MAIN_ROUTES];
+
+export const filterRoute = (user: UserPayload | null | undefined, { userOnly, permissions }: { userOnly?: UserOnly, permissions?: (UserPermissions | UserPermissions[])[]; }) => {
+	if (typeof userOnly === 'string' && !user?.[userOnly])
+		return false;
+	if (typeof userOnly === 'boolean' && !user)
+		return false;
+	if (permissions?.length && !hasPermission(user?.permissions, ...permissions))
+		return false;
+	return true;
+};
+
+export const getValidHomepageRoutes = (user: UserPayload) => {
+	const filter = filterRoute.bind(null, user);
+	return [MAIN_ROUTES, ...ROUTES.slice(0, -1)].filter(filter)
+		.map(({ name, routes }) => ({
+			name,
+			routes: routes.filter(filter)
+				.flatMap(r => [r, ...(r.routes?.filter(filter)
+					?.map(d => ({ ...d, name: `${r.name}┃${d.name}` })) ?? [])])
+				.filter(r => !r.url.startsWith('/admin'))
+				.map(({ name, url }) => ({ name, url }))
+		}));
+};

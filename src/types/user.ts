@@ -19,3 +19,14 @@ export const enum UserVisibility {
 	LOGGED_IN = 8,
 	EVERYONE = 16
 }
+
+export const USER_VISIBILITY_NAMES = new Map([
+	[UserVisibility.EVERYONE, 'Everyone'],
+	[UserVisibility.LOGGED_IN, 'Logged-in Users'],
+	[UserVisibility.ARCADE, 'Shared Arcade Members'],
+	[UserVisibility.TEAMMATES, 'Teammates'],
+	[UserVisibility.FRIENDS, 'Friends'],
+]);
+
+export const USER_VISIBILITY_MASK = UserVisibility.FRIENDS | UserVisibility.TEAMMATES |
+	UserVisibility.ARCADE | UserVisibility.LOGGED_IN | UserVisibility.EVERYONE;

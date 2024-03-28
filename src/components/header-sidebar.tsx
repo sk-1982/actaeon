@@ -9,7 +9,7 @@ import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/solid';
 import { login, logout } from '@/actions/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { UserPayload } from '@/types/user';
-import { MAIN_ROUTES, ROUTES, Subroute, UserOnly } from '@/routes';
+import { MAIN_ROUTES, ROUTES, Subroute, UserOnly, filterRoute } from '@/routes';
 import { useUser } from '@/helpers/use-user';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
 import { useCookies } from 'next-client-cookies';
@@ -19,16 +19,6 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 export type HeaderSidebarProps = {
 	children?: React.ReactNode,
-};
-
-const filterRoute = (user: UserPayload | null | undefined, { userOnly, permissions }: { userOnly?: UserOnly, permissions?: (UserPermissions | UserPermissions[])[] }) => {
-	if (typeof userOnly === 'string' && !user?.[userOnly])
-		return false;
-	if (typeof userOnly === 'boolean' && !user)
-		return false;
-	if (permissions?.length && !hasPermission(user?.permissions, ...permissions))
-		return false;
-	return true;
 };
 
 export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
@@ -165,7 +155,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 						{MAIN_ROUTES.routes.filter(filter).map(renderHeaderLink)}
 				  </div>}
 					<div className="hidden md:flex">
-						<Link href={routeGroup === MAIN_ROUTES ? '/settings' : `/settings?from=${encodeURIComponent(routeGroup.title)}`}>
+						<Link href="/settings">
 							{user && <Button isIconOnly variant="bordered" size="sm" className="mr-2">
 				          <AdjustmentsHorizontalIcon className="w-6" />
 				      </Button>}

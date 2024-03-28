@@ -6,6 +6,9 @@ import { USER_PERMISSION_MASK, UserPermissions } from '@/types/permissions';
 import { getUsers } from '@/data/user';
 import { hasPermission } from '@/helpers/permissions';
 import { ActionResult } from '@/types/action-result';
+import { makeValidator } from '@/types/validator-map';
+import { USER_VISIBILITY_MASK, UserPayload } from '@/types/user';
+import { getValidHomepageRoutes } from '@/routes';
 
 export const createUserWithAccessCode = async (code: string) => {
 	await requireUser({ permission: UserPermissions.USERMOD });
@@ -81,5 +84,35 @@ export const setUserPermissions = async (user: number, permissions: number) => {
 				'|',
 				permissions)
 		}))
+		.executeTakeFirst();
+};
+
+export type UserUpdate = Partial<{
+	visibility: number,
+	homepage: string | null
+}>;
+
+const validator = makeValidator<UserUpdate, UserPayload>()
+	.nonNullableKeys('visibility')
+	.withValidator('visibility', val => val & USER_VISIBILITY_MASK)
+	.withValidator('homepage', (val, user) => {
+		const validRoutes = getValidHomepageRoutes(user)
+			.flatMap(r => r.routes)
+			.map(r => r.url);
+		
+		if (!validRoutes.includes(val))
+			throw new Error(`Invalid homepage url ${val}`);
+	});
+
+export const setUserSettings = async (data: UserUpdate) => { 
+	const user = await requireUser();
+	const result = await validator.validate(data, user);
+
+	if (result.error)
+		return result;
+
+	await db.updateTable('actaeon_user_ext')
+		.set(result.value)
+		.where('userId', '=', user.id)
 		.executeTakeFirst();
 };
