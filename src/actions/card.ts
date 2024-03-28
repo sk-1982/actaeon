@@ -4,6 +4,9 @@ import { requireUser } from '@/actions/auth';
 import { db } from '@/db';
 import { UserPermissions } from '@/types/permissions';
 import { requirePermission } from '@/helpers/permissions';
+import { addCardToUser } from '@/data/card';
+import { AdminUser, getUsers } from '@/data/user';
+import { ActionResult } from '@/types/action-result';
 
 export const getCards = async () => {
 	const user = await requireUser();
@@ -38,4 +41,15 @@ export const lockUnlockCard = async (opts: { cardId: number, userId: number, isL
 			eb('user', '=', opts.userId)
 		]))
 		.executeTakeFirst();
+};
+
+export const adminAddCardToUser = async (user: number, code: string): Promise<ActionResult<{ data: AdminUser[] }>> => {
+	await requireUser({ permission: UserPermissions.USERMOD });
+
+	const res = await addCardToUser(user, code);
+
+	if (res.error)
+		return res;
+
+	return { data: await getUsers() };
 };

@@ -14,6 +14,9 @@ export const USER_PERMISSION_NAMES = new Map([
 	[UserPermissions.OWNER, { title: 'Owner', description: 'Can do anything' }]
 ]);
 
+export const USER_PERMISSION_MASK = (1 << UserPermissions.USER) | (1 << UserPermissions.USERMOD) |
+	(1 << UserPermissions.ACMOD) | (1 << UserPermissions.SYSADMIN) | (1 << UserPermissions.OWNER);
+
 export const enum ArcadePermissions {
 	VIEW = 0, // view info and cabs
 	BOOKKEEP = 1, // view bookkeeping info
@@ -29,3 +32,6 @@ export const ARCADE_PERMISSION_NAMES = new Map([
 	[ArcadePermissions.REGISTRAR, { title: 'Registrar', description: 'Can add and edit cabs' }],
 	[ArcadePermissions.OWNER, { title: 'Arcade Owner', description: 'Can do anything' }]
 ]);
+
+export const ARCADE_PERMISSION_MASK = (1 << ArcadePermissions.VIEW) | (1 << ArcadePermissions.BOOKKEEP) |
+	(1 << ArcadePermissions.EDITOR) | (1 << ArcadePermissions.REGISTRAR) | (1 << ArcadePermissions.OWNER);

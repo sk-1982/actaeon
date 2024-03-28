@@ -32,6 +32,6 @@ export const useHashNavigation = (options: UseHashNavigationOptions) => {
 
 	return () => {
 		router.back();
-		options.onClose();
+		setTimeout(() => options.onClose(), 15);
 	};
 };

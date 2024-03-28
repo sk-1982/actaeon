@@ -74,7 +74,8 @@ export const AimeCard = ({ className, card }: AimeCardProps) => {
 		</div>
 
 		<div className="text-sm sm:text-medium">
-			Last Used {card.last_login_date?.toLocaleTimeString(undefined, formatOptions)}
+			{card.last_login_date ? `Last Used ${card.last_login_date.toLocaleTimeString(undefined, formatOptions)}` :
+				'Never Used'}
 		</div>
 
 		{(locked || banned) && <div className="absolute flex items-center justify-center w-full left-0 top-[60%] backdrop-blur h-12 sm:h-16 bg-gray-600/50 font-bold sm:text-2xl">

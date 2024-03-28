@@ -8,6 +8,9 @@ export const choice = <T>(arr: ArrayLike<T>): T => {
 	return arr[randomInt(0, arr.length - 1)];
 }
 
+export const choices = <T>(arr: ArrayLike<T>, k: number): T[] => [...new Array(k)]
+	.map(() => choice(arr));
+
 export const randomString = (length: number) => {
 	return [...Array(length)].map(() => {
 		let l = '';

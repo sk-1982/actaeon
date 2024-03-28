@@ -3,11 +3,11 @@ import { Button, Modal, ModalContent, ModalHeader } from '@nextui-org/react';
 import { ModalBody, ModalFooter } from '@nextui-org/modal';
 import { useHashNavigation } from '@/helpers/use-hash-navigation';
 
-type ConfirmCallback = (message: string, onConfirm: () => void, onCancel?: () => void) => void;
+type ConfirmCallback = (message: ReactNode, onConfirm: () => void, onCancel?: () => void) => void;
 const ConfirmContext = createContext<ConfirmCallback>(() => {});
 
 export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
-	const [message, setMessage] = useState<string | null>(null);
+	const [message, setMessage] = useState<ReactNode | null>(null);
 	const confirmCallback = useRef<() => void>();
 	const cancelCallback = useRef<() => void>();
 
@@ -37,13 +37,15 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
 					<ModalBody>{message}</ModalBody>
 					<ModalFooter className="gap-2">
 						<Button onPress={() => {
-							cancelCallback.current?.();
+							if (cancelCallback.current)
+								setTimeout(cancelCallback.current, 15);
 							onClose();
 						}} >
 							Cancel
 						</Button>
 						<Button onPress={() => {
-							confirmCallback.current?.();
+							if (confirmCallback.current)
+								setTimeout(confirmCallback.current, 15);
 							onClose();
 						}} color="danger">
 							Confirm

@@ -3,6 +3,8 @@ import { hasPermission } from '@/helpers/permissions';
 import { UserPermissions } from '@/types/permissions';
 import { sql } from 'kysely';
 import { db } from '@/db';
+import { jsonObjectArray } from '@/types/json-object-array';
+import { parseJsonResult } from '@/helpers/parse-json-result';
 
 type WithUsersVisibleToOptions = {
 	// ignore targets's visibility settings and always show if they share a team with the user
@@ -69,3 +71,22 @@ export const withUsersVisibleTo = (viewingUser: UserPayload | null | undefined, 
 export const userIsVisible = (userKey: string) => {
 	return sql<boolean>`(EXISTS (SELECT id FROM visible WHERE id = ${sql.raw(userKey)}))`;
 }
+
+export const getUsers = async () => {
+	const res = await db.selectFrom('aime_user as u')
+		.leftJoin('actaeon_user_ext as ext', 'u.id', 'ext.userId')
+		.leftJoin('aime_card as c', 'c.user', 'u.id')
+		.groupBy('u.id')
+		.select(eb => [
+			'u.id', 'u.username', 'u.email', 'u.permissions', 'u.created_date', 'u.last_login_date',
+			'ext.uuid', 'ext.visibility', 'ext.team',
+			jsonObjectArray(eb, [
+				'c.id', 'c.access_code', 'c.created_date', 'c.last_login_date', 'c.is_locked', 'c.is_banned', 'c.user'
+			]).as('cards')
+		] as const)
+		.execute();
+
+	return parseJsonResult(res, ['cards']);
+};
+
+export type AdminUser = Awaited<ReturnType<typeof getUsers>>[number];

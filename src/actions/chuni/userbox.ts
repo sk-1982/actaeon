@@ -8,6 +8,7 @@ import { jsonObjectArray } from '@/types/json-object-array';
 import { AvatarCategory } from '@/helpers/chuni/avatar';
 import { DB } from '@/types/db';
 import { ChuniUserData } from '@/actions/chuni/profile';
+import { parseJsonResult } from '@/helpers/parse-json-result';
 
 const ALLOW_EQUIP_UNEARNED = ['true', '1', 'yes'].includes(process.env.CHUNI_ALLOW_EQUIP_UNEARNED?.toLowerCase() ?? '');
 
@@ -39,67 +40,69 @@ export const getUserboxItems = async (user: UserPayload, profile: ChuniUserData)
 	const res = await db
 		.with('map_icons', eb => joinItem(eb.selectFrom('actaeon_chuni_static_map_icon as map_icon'),
 			'map_icon.id', user.id, ItemKind.MAP_ICON, profile?.mapIconId)
-			.select(eb => jsonObjectArray(
-				eb.ref('map_icon.id'),
-				eb.ref('map_icon.name'),
-				eb.ref('map_icon.sortName'),
-				eb.ref('map_icon.imagePath')
-			).as('mapIcon'))
+			.select(eb => jsonObjectArray(eb, [
+				'map_icon.id',
+				'map_icon.name',
+				'map_icon.sortName',
+				'map_icon.imagePath'
+			]).as('mapIcon'))
 		)
 		.with('name_plates', eb => joinItem(eb.selectFrom('actaeon_chuni_static_name_plate as name_plate'),
 			'name_plate.id', user.id, ItemKind.NAME_PLATE, profile?.nameplateId)
-			.select(eb => jsonObjectArray(
-				eb.ref('name_plate.id'),
-				eb.ref('name_plate.name'),
-				eb.ref('name_plate.sortName'),
-				eb.ref('name_plate.imagePath')
-			).as('namePlate')))
+			.select(eb => jsonObjectArray(eb, [
+				'name_plate.id',
+				'name_plate.name',
+				'name_plate.sortName',
+				'name_plate.imagePath'
+			]).as('namePlate')))
 		.with('system_voices', eb => joinItem(eb.selectFrom('actaeon_chuni_static_system_voice as system_voice'),
 			'system_voice.id', user.id, ItemKind.SYSTEM_VOICE, profile?.voiceId)
-			.select(eb => jsonObjectArray(
-				eb.ref('system_voice.id'),
-				eb.ref('system_voice.name'),
-				eb.ref('system_voice.sortName'),
-				eb.ref('system_voice.imagePath'),
-				eb.ref('system_voice.cuePath'),
-			).as('systemVoice')))
+			.select(eb => jsonObjectArray(eb, [
+				'system_voice.id',
+				'system_voice.name',
+				'system_voice.sortName',
+				'system_voice.imagePath',
+				'system_voice.cuePath',
+			]).as('systemVoice')))
 		.with('trophies', eb => joinItem(eb.selectFrom('actaeon_chuni_static_trophies as trophy'),
 			'trophy.id', user.id, ItemKind.TROPHY, profile?.nameplateId)
-			.select(eb => jsonObjectArray(
-				eb.ref('trophy.id'),
-				eb.ref('trophy.name'),
-				eb.ref('trophy.rareType'),
-				eb.ref('trophy.explainText')
-			).as('trophy')))
+			.select(eb => jsonObjectArray(eb, [
+				'trophy.id',
+				'trophy.name',
+				'trophy.rareType',
+				'trophy.explainText'
+			]).as('trophy')))
 		.with('avatars', eb => joinItem(eb.selectFrom('chuni_static_avatar as avatar'),
 			'avatar.avatarAccessoryId', user.id, ItemKind.AVATAR_ACCESSORY, profile?.avatarBack, profile?.avatarFace, profile?.avatarItem,
 			profile?.avatarWear, profile?.avatarFront, profile?.avatarSkin, profile?.avatarHead)
 			.where(({ selectFrom, eb }) => eb('avatar.version', '=', selectFrom('chuni_static_avatar')
 				.select(({ fn }) => fn.max('version').as('latest'))))
 			.groupBy('avatar.category')
-			.select(eb => ['avatar.category', jsonObjectArray(
-				eb.ref('avatar.avatarAccessoryId').as('id'),
-				eb.ref('avatar.name'),
-				eb.ref('avatar.iconPath'),
-				eb.ref('avatar.texturePath')
-			).as('avatar')]))
+			.select(eb => ['avatar.category', jsonObjectArray(eb, [
+				'avatar.avatarAccessoryId as id',
+				'avatar.name',
+				'avatar.iconPath',
+				'avatar.texturePath'
+			]).as('avatar')] as const))
 		.selectFrom(['map_icons', 'name_plates', 'system_voices', 'trophies', 'avatars'])
 		.select(eb => ['map_icons.mapIcon', 'name_plates.namePlate', 'system_voices.systemVoice', 'trophies.trophy',
-			jsonObjectArray(eb.ref('avatars.category'), eb.ref('avatars.avatar')).as('avatar')])
+			jsonObjectArray(eb, [
+				'avatars.category', 'avatars.avatar'
+			]).as('avatar')
+		] as const)
 		.executeTakeFirstOrThrow();
 
-	const data = Object.fromEntries(Object.entries(res)
-		.map(([key, val]) => [key, JSON.parse(val)]));
+	const data = parseJsonResult(res, ['mapIcon', 'namePlate', 'systemVoice', 'trophy', 'avatar']);
 
 	const { avatar, ...output } = data;
 
 	const itemTypes: { [key: number]: any[] } = {};
 	Object.entries(AvatarCategory).forEach(([category, number]) => {
 		const key = `avatar${category[0]}${category.slice(1).toLowerCase()}`;
-		output[key] = itemTypes[number] = [];
+		output[key as keyof typeof output] = itemTypes[number] = [];
 	});
-	(avatar as { category: number, avatar: UserboxItems['avatarBack'] }[])
-		?.forEach(({ category, avatar }) => itemTypes[category].push(...avatar));
+	avatar
+		?.forEach(({ category, avatar }) => itemTypes[category!].push(...avatar));
 
 	output.mapIcon ??= [];
 	output.namePlate ??= [];
