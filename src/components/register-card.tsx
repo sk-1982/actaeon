@@ -18,9 +18,14 @@ export const RegisterCard = ({ callback }: RegisterCardProps) => {
 	const [loading, setLoading] = useState(false);
 	const [success, setSuccess] = useState(false);
 	const user = useUser();
-
-	if (user)
+	
+	if (user) {
+		if (callback?.startsWith(process.env.NEXT_PUBLIC_BASE_PATH!))
+			callback = callback.replace(process.env.NEXT_PUBLIC_BASE_PATH!, '');
+		
 		return redirect(callback ?? '/');
+	}
+
 	const submit = (data: FormData) => {
 		setLoading(true);
 		setError('');

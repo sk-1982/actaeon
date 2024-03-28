@@ -20,8 +20,13 @@ export const LoginCard = ({ initialError, referer, callback }: LoginCardProps) =
 	const [error, setError] = useState(initialError ? 'You must be logged in to do that.' : '');
 	const user = useUser();
 
-	if (user)
+	if (user) {
+		if (callback?.startsWith(process.env.NEXT_PUBLIC_BASE_PATH!))
+			callback = callback.replace(process.env.NEXT_PUBLIC_BASE_PATH!, '');
+
 		return redirect(callback ?? '/');
+	}
+
 	const submit = (form: FormData) => {
 		setLoading(true);
 		setError('');

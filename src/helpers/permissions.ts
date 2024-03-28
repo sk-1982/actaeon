@@ -31,7 +31,7 @@ export const hasPermission = <T extends UserPermissions | ArcadePermissions>(use
  */
 export const requirePermission = <T extends UserPermissions | ArcadePermissions>(userPermission: number | null | undefined, ...requestedPermission: (T | T[])[]) => {
 	if (!hasPermission(userPermission, ...requestedPermission))
-		redirect('/unauthorized');
+		redirect('/forbidden');
 }
 
 /**
@@ -62,5 +62,5 @@ export const hasArcadePermission = (userArcadePermission: number | null | undefi
 export const requireArcadePermission =  (userArcadePermission: number | null | undefined, userPermission: number | null | undefined,
                                          ...requestedPermissions: (ArcadePermissions | ArcadePermissions[])[]) => {
 	if (!hasArcadePermission(userArcadePermission, userPermission, ...requestedPermissions))
-		redirect('/unauthorized');
+		redirect('/forbidden');
 }
