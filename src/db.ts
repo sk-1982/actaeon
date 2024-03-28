@@ -3,6 +3,9 @@ import { createPool } from 'mysql2';
 import { Generated, Kysely, MysqlDialect } from 'kysely';
 
 const createDb = () => {
+	if (process.env.NEXT_RUNTIME === 'edge')
+		return null;
+
 	if ((globalThis as any).db)
 		return (globalThis as any).db as Kysely<GeneratedDB>;
 
@@ -26,4 +29,4 @@ export type GeneratedDB = {
 	}
 };
 
-export const db = createDb();
+export const db = createDb()!;

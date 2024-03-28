@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { db, GeneratedDB } from '@/db';
-import bcrypt from 'bcrypt';
 import { DBUserPayload } from '@/types/user';
 import { cache } from 'react';
 import { SelectQueryBuilder, sql } from 'kysely';
@@ -42,12 +41,15 @@ const nextAuth = NextAuth({
 	callbacks: {
 		async jwt({ token, user  }) {
 			token.user ??= user;
-			const dbUser = await selectUserProps(db.selectFrom('aime_user as u')
-				.where('u.id', '=', (token.user as any).id));
 
-			if (dbUser) {
-				const { password, ...payload } = dbUser;
-				token.user = { ...(token.user as any), ...payload };
+			if (db) {
+				const dbUser = await selectUserProps(db.selectFrom('aime_user as u')
+					.where('u.id', '=', (token.user as any).id));
+
+				if (dbUser) {
+					const { password, ...payload } = dbUser;
+					token.user = { ...(token.user as any), ...payload };
+				}
 			}
 
 			return token;
@@ -70,6 +72,13 @@ const nextAuth = NextAuth({
 				(user as any).visibility = 0;
 			}
 
+			const now = new Date();
+			(user as any).last_login_date = now;
+			await db.updateTable('aime_user')
+				.set({ last_login_date: now })
+				.where('id', '=', (user as any).id)
+				.executeTakeFirst();
+
 			return true;
 		}
 	},
@@ -80,6 +89,8 @@ const nextAuth = NextAuth({
 			password: { label: 'Password', type: 'password' }
 		},
 		async authorize({ username, password }, req) {
+			const bcrypt = await import('bcrypt');
+
 			if (typeof username !== 'string' || typeof password !== 'string')
 				return null;
 
@@ -97,10 +108,11 @@ const nextAuth = NextAuth({
 	})]
 });
 
-export const auth = cache(nextAuth.auth);
+export const auth = process.env.NEXT_RUNTIME !== 'edge' ? cache(nextAuth.auth) : (null as never);
 
 export const {
 	handlers: { GET, POST },
 	signIn,
-	signOut
+	signOut,
+	auth: uncachedAuth
 } = nextAuth;

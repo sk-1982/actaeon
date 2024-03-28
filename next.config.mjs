@@ -17,10 +17,6 @@ const nextConfig = {
             permanent: false,
             basePath: false
         }] : []), {
-            source: '/',
-            destination: '/dashboard',
-            permanent: false
-        }, {
             source: '/chuni',
             destination: '/chuni/dashboard',
             permanent: false
@@ -36,7 +32,11 @@ const nextConfig = {
     experimental: {
         instrumentationHook: true
     },
-    productionBrowserSourceMaps: true
+    productionBrowserSourceMaps: true,
+    webpack: config => {
+        config.externals = [...config.externals, 'bcrypt'];
+        return config;
+    }
 };
 
 export default nextConfig;

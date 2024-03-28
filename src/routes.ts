@@ -1,18 +1,22 @@
 import { UserPayload } from '@/types/user';
+import { UserPermissions } from '@/types/permissions';
 
 export type UserOnly = boolean | keyof UserPayload;
 
-type Subroute = {
+export type Subroute = {
 	url: string,
 	name: string,
-	userOnly?: UserOnly
+	userOnly?: UserOnly,
+	permissions?: (UserPermissions | UserPermissions[])[],
+	routes?: Omit<Subroute, 'routes'>[]
 };
 
-type Route = {
+export type Route = {
 	url: string,
 	name: string,
 	title: string,
 	userOnly?: UserOnly,
+	permissions?: (UserPermissions | UserPermissions[])[],
 	routes: Subroute[]
 };
 
@@ -26,6 +30,19 @@ export const MAIN_ROUTES: Route = {
 	}, {
 		url: '/arcade',
 		name: 'Arcades'
+	}, {
+		url: '/admin',
+		name: 'Admin',
+		permissions: [[UserPermissions.USERMOD, UserPermissions.SYSADMIN]],
+		routes: [{
+			url: '/admin/users',
+			name: 'Users',
+			permissions: [UserPermissions.USERMOD]
+		}, {
+			url: '/admin/system-config',
+			name: 'System Config',
+			permissions: [UserPermissions.SYSADMIN]
+		}]
 	}]
 };
 

@@ -14,3 +14,12 @@ declare module 'next-auth' {
 		}
 	}
 }
+
+declare module 'next/server' {
+	interface NextRequest {
+		auth: {
+			user: UserPayload,
+			expires: string
+		} | null
+	}
+}
