@@ -6,7 +6,7 @@ import { getValidHomepageRoutes } from '@/routes';
 import { USER_VISIBILITY_NAMES, UserVisibility } from '@/types/user';
 import { Button, Checkbox, CheckboxGroup, Divider, Select, SelectItem, SelectSection } from '@nextui-org/react';
 import { useState } from 'react';
-import { useErrorModal } from './error-modal';
+import { useErrorModal } from '@/components/error-modal';
 
 export const UserSettings = () => {
 	const user = useUser({ required: true });

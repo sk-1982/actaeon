@@ -1,7 +1,7 @@
 import { getUser } from '@/actions/auth';
 import { getArcadeCabs, getArcadeInviteLinks, getArcades, getArcadeUsers } from '@/data/arcade';
 import { notFound } from 'next/navigation';
-import { ArcadeDetail } from '@/components/arcade';
+import { ArcadeDetail } from './arcade';
 import { PrivateVisibilityError } from '@/components/private-visibility-error';
 
 export default async function ArcadeDetailPage({ params }: { params: { arcadeId: string }}) {

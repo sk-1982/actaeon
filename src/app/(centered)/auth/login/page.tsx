@@ -1,6 +1,6 @@
 import { PageProps } from '@/types/page';
 import { headers } from 'next/headers';
-import { LoginCard } from '@/components/login-card';
+import { LoginCard } from './login-card';
 
 export default async function LoginPage({ searchParams }: PageProps) {
 	const referer = headers().get('referer');

@@ -1,5 +1,5 @@
 import { getMusic } from '@/actions/chuni/music';
-import { ChuniMusicList } from '@/components/chuni/music-list';
+import { ChuniMusicList } from './music-list';
 
 
 export default async function ChuniMusicPage() {

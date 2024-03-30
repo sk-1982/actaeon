@@ -1,6 +1,6 @@
 import { requireUser } from '@/actions/auth';
 import { UserPermissions } from '@/types/permissions';
-import { AdminUserList } from '@/components/admin-user-list';
+import { AdminUserList } from './admin-user-list';
 import { getUsers } from '@/data/user';
 
 export default async function AdminUsersPage() {

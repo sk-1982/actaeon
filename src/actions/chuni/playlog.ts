@@ -1,11 +1,11 @@
 'use server';
 
 import { requireUser } from '@/actions/auth';
+import { PlaylogFilterState } from '@/app/(with-header)/chuni/playlog/page';
 import { db } from '@/db';
 import { CHUNI_MUSIC_PROPERTIES } from '@/helpers/chuni/music';
 import { chuniRating } from '@/helpers/chuni/rating';
 import { sql } from 'kysely';
-import { PlaylogFilterState } from '@/components/chuni/playlog-list';
 
 const SORT_KEYS = {
 	Date: 'id',

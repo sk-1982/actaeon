@@ -2,7 +2,7 @@ import { getMusic } from '@/actions/chuni/music';
 import { notFound } from 'next/navigation';
 import { getPlaylog } from '@/actions/chuni/playlog';
 
-import { ChuniMusicDetail } from '@/components/chuni/music-detail';
+import { ChuniMusicDetail } from './music-detail';
 
 export default async function ChuniMusicDetailPage({ params }: { params: { musicId: string } }) {
 	const musicId = parseInt(params.musicId);

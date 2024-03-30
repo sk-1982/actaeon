@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, Tooltip } from '@nextui-org/react';
-import { usePromptModal } from './prompt-modal';
-import { useErrorModal } from './error-modal';
+import { usePromptModal } from '@/components/prompt-modal';
+import { useErrorModal } from '@/components/error-modal';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useUser } from '@/helpers/use-user';
 import { createTeam } from '@/actions/team';

@@ -1,7 +1,7 @@
 import { getCards } from '@/actions/card';
 import { Divider } from '@nextui-org/react';
 import { AimeCard } from '@/components/aime-card';
-import { UserSettings } from '@/components/user-settings';
+import { UserSettings } from './user-settings';
 
 export default async function SettingsPage() {
 	const card = await getCards();

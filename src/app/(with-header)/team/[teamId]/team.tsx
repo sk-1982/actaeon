@@ -2,18 +2,18 @@
 
 import { useRef, useState } from 'react';
 import { Team, TeamUser } from '@/data/team';
-import { VisibilityDropdown } from './visibility-dropdown';
+import { VisibilityDropdown } from '@/components/visibility-dropdown';
 import { Button, Divider, Input, Select, SelectItem, Tooltip } from '@nextui-org/react';
 import { JoinPrivacy } from '@/types/privacy-visibility';
 import { LinkIcon, PencilIcon, UserMinusIcon, UserPlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useUser } from '@/helpers/use-user';
 import { createTeamLink, deleteTeam, deleteTeamLink, joinPublicTeam, modifyTeam, removeUserFromTeam } from '@/actions/team';
-import { useErrorModal } from './error-modal';
+import { useErrorModal } from '@/components/error-modal';
 import { UserPermissions } from '@/types/permissions';
 import { hasPermission } from '@/helpers/permissions';
-import { useConfirmModal } from './confirm-modal';
+import { useConfirmModal } from '@/components/confirm-modal';
 import { DB } from '@/types/db';
-import { JoinLinksModal } from './join-links-modal';
+import { JoinLinksModal } from '@/components/join-links-modal';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 

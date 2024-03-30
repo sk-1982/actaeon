@@ -3,7 +3,7 @@ import { getUser } from '@/actions/auth';
 import { Divider, Tooltip } from '@nextui-org/react';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { CreateArcadeButton } from '@/components/create-arcade-button';
+import { CreateArcadeButton } from './create-arcade-button';
 import { VisibilityIcon } from '@/components/visibility-icon';
 
 const getLocation = (arcade: Arcade) => {

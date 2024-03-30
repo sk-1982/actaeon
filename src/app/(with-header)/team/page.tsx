@@ -1,5 +1,5 @@
 import { getUser } from '@/actions/auth';
-import { CreateTeamButton } from '@/components/create-team-button';
+import { CreateTeamButton } from './create-team-button';
 import { VisibilityIcon } from '@/components/visibility-icon';
 import { getTeams } from '@/data/team';
 import { UserGroupIcon } from '@heroicons/react/24/outline';

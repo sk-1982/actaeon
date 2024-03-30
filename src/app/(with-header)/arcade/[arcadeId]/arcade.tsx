@@ -1,9 +1,9 @@
 'use client';
 
 import { Arcade, ArcadeCab, ArcadeLink, ArcadeUser } from '@/data/arcade';
-import { JoinPrivacy, Visibility } from '@/types/privacy-visibility';
-import { Autocomplete, AutocompleteItem, Button, Divider, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Select, SelectItem, Tooltip } from '@nextui-org/react';
-import { ChevronDownIcon, GlobeAltIcon, LinkIcon, LockClosedIcon, PencilIcon, PencilSquareIcon, PlusIcon, UserMinusIcon, UserPlusIcon } from '@heroicons/react/24/outline';
+import { JoinPrivacy } from '@/types/privacy-visibility';
+import { Autocomplete, AutocompleteItem, Button, Divider, Input, Select, SelectItem, Tooltip } from '@nextui-org/react';
+import { LinkIcon, PencilIcon, PencilSquareIcon, PlusIcon, UserMinusIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { useRef, useState } from 'react';
 import { useUser } from '@/helpers/use-user';
 import { hasArcadePermission, hasPermission } from '@/helpers/permissions';
@@ -13,15 +13,14 @@ import { COUNTRY_CODES } from '@/types/country';
 import { ArcadeUpdate, createArcadeLink, deleteArcade, deleteArcadeLink, joinPublicArcade, removeUserFromArcade, setUserArcadePermissions, updateArcade } from '@/actions/arcade';
 import { useErrorModal } from '@/components/error-modal';
 import { Entries } from 'type-fest';
-import { Cab } from '@/components/cab';
+import { Cab } from './cab';
 import Link from 'next/link';
 import { useConfirmModal } from '@/components/confirm-modal';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { JoinLinksModal } from '@/components/join-links-modal';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PermissionEditModal, PermissionEditModalUser } from '@/components/permission-edit-modal';
-import { VisibilityIcon } from './visibility-icon';
-import { VisibilityDropdown } from './visibility-dropdown';
+import { VisibilityDropdown } from '@/components/visibility-dropdown';
 
 export type ArcadeProps = {
 	arcade: Arcade,

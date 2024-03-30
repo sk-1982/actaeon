@@ -8,13 +8,10 @@ import { ThemeSwitcherDropdown, ThemeSwitcherSwitch } from '@/components/theme-s
 import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/solid';
 import { login, logout } from '@/actions/auth';
 import { usePathname, useRouter } from 'next/navigation';
-import { UserPayload } from '@/types/user';
 import { MAIN_ROUTES, ROUTES, Subroute, UserOnly, filterRoute } from '@/routes';
 import { useUser } from '@/helpers/use-user';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
 import { useCookies } from 'next-client-cookies';
-import { UserPermissions } from '@/types/permissions';
-import { hasPermission } from '@/helpers/permissions';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 export type HeaderSidebarProps = {

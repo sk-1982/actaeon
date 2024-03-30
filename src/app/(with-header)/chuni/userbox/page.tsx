@@ -1,7 +1,7 @@
 import { requireUser } from '@/actions/auth';
 import { getUserData } from '@/actions/chuni/profile';
 import { getUserboxItems } from '@/actions/chuni/userbox';
-import { ChuniUserbox } from '@/components/chuni/userbox';
+import { ChuniUserbox } from './userbox';
 import { Viewport } from 'next';
 
 export const viewport: Viewport = {

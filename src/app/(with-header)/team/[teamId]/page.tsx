@@ -2,7 +2,7 @@ import { getUser } from '@/actions/auth';
 import { getTeamInviteLinks, getTeams, getTeamUsers } from '@/data/team';
 import { notFound } from 'next/navigation';
 import { PrivateVisibilityError } from '@/components/private-visibility-error';
-import { TeamDetail } from '@/components/team';
+import { TeamDetail } from './team';
 
 export default async function TeamDetailPage({ params }: { params: { teamId: string }}) {
 	const user = await getUser();

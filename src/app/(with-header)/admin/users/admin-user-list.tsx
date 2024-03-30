@@ -1,23 +1,23 @@
 'use client';
 
 import { createUserWithAccessCode, deleteUser, setUserPermissions } from '@/actions/user';
-import { PermissionEditModal } from './permission-edit-modal';
+import { PermissionEditModal } from '@/components/permission-edit-modal';
 import { useState } from 'react';
 import { USER_PERMISSION_NAMES, UserPermissions } from '@/types/permissions';
 import { Button, Divider, Tooltip, Input, Accordion, AccordionItem, Link, Spacer } from '@nextui-org/react';
 import { ChevronDownIcon, CreditCardIcon, PencilSquareIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { usePromptModal } from './prompt-modal';
+import { usePromptModal } from '@/components/prompt-modal';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { generateAccessCode } from '@/helpers/access-code';
 import { useUser } from '@/helpers/use-user';
 import { TbBrandAppleArcade, TbCrown, TbFileSettings, TbUserShield } from 'react-icons/tb';
 import { hasPermission } from '@/helpers/permissions';
-import { AimeCard } from './aime-card';
-import { useErrorModal } from './error-modal';
+import { AimeCard } from '@/components/aime-card';
+import { useErrorModal } from '@/components/error-modal';
 import { AdminUser } from '@/data/user';
 import { adminAddCardToUser } from '@/actions/card';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import { useConfirmModal } from './confirm-modal';
+import { useConfirmModal } from '@/components/confirm-modal';
 
 const PERMISSION_ICONS = new Map([
 	[UserPermissions.USERMOD, TbUserShield],
