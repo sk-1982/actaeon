@@ -29,6 +29,9 @@ export const MAIN_ROUTES: Route = {
 		url: '/dashboard',
 		name: 'Overview'
 	}, {
+		url: '/team',
+		name: 'Teams'
+	}, {
 		url: '/arcade',
 		name: 'Arcades'
 	}, {

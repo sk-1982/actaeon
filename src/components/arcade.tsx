@@ -20,6 +20,8 @@ import { XMarkIcon } from '@heroicons/react/20/solid';
 import { JoinLinksModal } from '@/components/join-links-modal';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PermissionEditModal, PermissionEditModalUser } from '@/components/permission-edit-modal';
+import { VisibilityIcon } from './visibility-icon';
+import { VisibilityDropdown } from './visibility-dropdown';
 
 export type ArcadeProps = {
 	arcade: Arcade,
@@ -136,17 +138,6 @@ export const ArcadeDetail = ({ arcade: initialArcade, users: initialUsers, cabs:
 			onChange={ev => setArcade(a => ({ ...a, [k]: ev.target.value }))} />);
 	};
 
-	const visibilityIcon = (<>
-		{arcade.visibility === Visibility.PUBLIC && <Tooltip content="Public">
-			<GlobeAltIcon className="h-8" />
-		</Tooltip>}
-		{arcade.visibility === Visibility.UNLISTED && <Tooltip content="Unlisted">
-			<LinkIcon className="h-8" />
-		</Tooltip>}
-		{arcade.visibility === Visibility.PRIVATE && <Tooltip content="Private">
-			<LockClosedIcon className="h-8" />
-		</Tooltip>}</>);
-
 	return (<main className="w-full flex flex-col mt-2">
 			<JoinLinksModal links={links} prefix={`/arcade/${arcade.uuid}/join/`}
 				onDelete={id => deleteArcadeLink(arcade.id, id)}
@@ -163,42 +154,18 @@ export const ArcadeDetail = ({ arcade: initialArcade, users: initialUsers, cabs:
 					setUserArcadePermissions({ arcadeUser: user, permissions, arcade: arcade.id });
 				}} />
 			<header className="font-bold text-5xl self-center flex gap-3 items-center">
-				{editing ?
-					<>
-						<Dropdown isDisabled={loading}>
-							<DropdownTrigger>
-								<Button isIconOnly variant="light" size="lg" className="ml-2 w-20">
-									{visibilityIcon}
-									<ChevronDownIcon className="w-7" />
-								</Button>
-							</DropdownTrigger>
-							<DropdownMenu selectionMode="single" selectedKeys={new Set([arcade.visibility.toString()])}
-								onSelectionChange={s => typeof s !== 'string' && s.size && setArcade(
-									a => ({ ...a, visibility: +[...s][0] }))}>
-								<DropdownItem key={Visibility.PRIVATE} description="Visible only to arcade members"
-									startContent={<LockClosedIcon className="h-6" />}>
-									Private
-								</DropdownItem>
-								<DropdownItem key={Visibility.UNLISTED}
-									description="Visible to those who have the link to this page"
-									startContent={<LinkIcon className="h-6" />}>
-									Unlisted
-								</DropdownItem>
-								<DropdownItem key={Visibility.PUBLIC} description="Visible to everyone"
-									startContent={<GlobeAltIcon className="h-6" />}>
-									Public
-								</DropdownItem>
-							</DropdownMenu>
-						</Dropdown>
-						<Input aria-label="Name" size="lg" className="font-normal mr-2" labelPlacement="outside-left" type="text"
-							isDisabled={loading} isRequired placeholder="Name"
-							value={arcade.name ?? ''} onChange={ev => setArcade(a => ({ ...a, name: ev.target.value }))}
-							classNames={{
-								input: 'text-4xl leading-none',
-								inputWrapper: 'h-24'
-							}} />
-					</> :
-					<>{visibilityIcon} {arcade.name}</>}
+			<VisibilityDropdown visibility={arcade.visibility} editing={editing} loading={loading}
+				onVisibilityChange={v => setArcade(a => ({ ...a, visibility: v }))} />
+			{editing ?
+				<Input aria-label="Name" size="lg" className="font-normal mr-2" labelPlacement="outside-left" type="text"
+					isDisabled={loading} isRequired placeholder="Name"
+					value={arcade.name ?? ''} onChange={ev => setArcade(a => ({ ...a, name: ev.target.value }))}
+					classNames={{
+						input: 'text-4xl leading-none',
+						inputWrapper: 'h-24'
+					}} />
+				:
+				arcade.name}
 			</header>
 			{editing ? <section
 					className="grid px-2 sm:px-0 grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5 5xl:grid-cols-9 gap-2 flex-wrap mt-3">
@@ -271,7 +238,7 @@ export const ArcadeDetail = ({ arcade: initialArcade, users: initialUsers, cabs:
 				<header className="py-4 pl-4 sm:pl-0 flex items-center text-2xl font-semibold">
 					<span className="mr-auto">Users</span>
 
-					{arcade.joinPrivacy === JoinPrivacy.PUBLIC && !arcade.permissions && <Tooltip content="Join this arcade">
+					{(arcade.joinPrivacy === JoinPrivacy.PUBLIC || hasPermission(user?.permissions, UserPermissions.ACMOD)) && !arcade.permissions && <Tooltip content="Join this arcade">
 						<Button className="mr-2" isIconOnly size="lg" onPress={() => joinPublicArcade(arcade.id)
 							.then(() => location.reload())}>
 							<UserPlusIcon className="h-1/2" />

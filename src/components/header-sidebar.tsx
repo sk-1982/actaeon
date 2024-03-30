@@ -151,7 +151,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					<div className="mr-auto mt-1 hidden md:flex text-lg">
 						{routeGroup.routes?.filter(filter).map(renderHeaderLink)}
 					</div>
-					{routeGroup !== MAIN_ROUTES && <div className="mr-4 mt-1 hidden [@media(min-width:1080px)]:flex text-lg">
+					{routeGroup !== MAIN_ROUTES && <div className="mr-4 mt-1 hidden [@media(min-width:1175px)]:flex text-lg">
 						{MAIN_ROUTES.routes.filter(filter).map(renderHeaderLink)}
 				  </div>}
 					<div className="hidden md:flex">

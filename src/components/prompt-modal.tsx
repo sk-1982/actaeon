@@ -56,7 +56,7 @@ export const PromptProvider = ({ children }: { children: ReactNode }) => {
 						</Button>
 						<Button onPress={() => {
 							if (confirmCallback.current)
-								setTimeout(confirmCallback.current, 15, value ?? '');
+								setTimeout(confirmCallback.current, 100, value ?? '');
 							onClose();
 						}} color="primary">
 							Confirm

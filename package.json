@@ -8,9 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate:up": "dotenvx run -f .env.local -- db-migrate up",
+    "migrate:up": "dotenvx run -f .env.local -- node db-migrate.cjs up",
     "migrate": "npm run migrate:up",
-    "migrate:down": "dotenvx run -f .env.local -- db-migrate down",
+    "migrate:down": "dotenvx run -f .env.local -- node db-migrate.cjs down",
     "migrate:create": "dotenvx run -f .env.local -- db-migrate create",
     "db:export": "dotenvx run -f .env.local -- kysely-codegen --exclude-pattern cozynet* --exclude-pattern alembic_version --exclude-pattern actaeon_migrations --out-file src/types/db.d.ts && node process-db.js"
   },

@@ -34,7 +34,7 @@ const nextConfig = {
     },
     productionBrowserSourceMaps: true,
     webpack: config => {
-        config.externals = [...config.externals, 'bcrypt'];
+        config.externals = [...config.externals, 'bcrypt', 'mysql2'];
         return config;
     }
 };

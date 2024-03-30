@@ -1,10 +1,10 @@
 import { Arcade, getArcades } from '@/data/arcade';
 import { getUser } from '@/actions/auth';
 import { Divider, Tooltip } from '@nextui-org/react';
-import { GlobeAltIcon, LinkIcon, LockClosedIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { Visibility } from '@/types/privacy-visibility';
+import { UserGroupIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { CreateArcadeButton } from '@/components/create-arcade-button';
+import { VisibilityIcon } from '@/components/visibility-icon';
 
 const getLocation = (arcade: Arcade) => {
 	let out = [arcade.city, arcade.state, arcade.country].filter(x => x).join(', ');
@@ -28,15 +28,7 @@ export default async function ArcadePage() {
 
 			{arcades.map(arcade => <article key={arcade.uuid}
 				className="flex p-4 bg-content1 rounded gap-2 items-center flex-wrap text-xs sm:text-sm md:text-medium">
-				{arcade.visibility === Visibility.PUBLIC && <Tooltip content="Public">
-					<GlobeAltIcon className="h-6" />
-				</Tooltip>}
-				{arcade.visibility === Visibility.UNLISTED && <Tooltip content="Unlisted">
-					<LinkIcon className="h-6" />
-				</Tooltip>}
-				{arcade.visibility === Visibility.PRIVATE && <Tooltip content="Private">
-					<LockClosedIcon className="h-6" />
-				</Tooltip>}
+				<VisibilityIcon visibility={arcade.visibility} className="h-6" />
 				<header className="text-lg font-semibold">
 					{arcade.uuid ? <Link href={`/arcade/${arcade.uuid}`}
 						className="hover:text-secondary transition">{arcade.name}</Link> : arcade.name}

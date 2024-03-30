@@ -38,14 +38,14 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
 					<ModalFooter className="gap-2">
 						<Button onPress={() => {
 							if (cancelCallback.current)
-								setTimeout(cancelCallback.current, 15);
+								setTimeout(cancelCallback.current, 100);
 							onClose();
 						}} >
 							Cancel
 						</Button>
 						<Button onPress={() => {
 							if (confirmCallback.current)
-								setTimeout(confirmCallback.current, 15);
+								setTimeout(confirmCallback.current, 100);
 							onClose();
 						}} color="danger">
 							Confirm
