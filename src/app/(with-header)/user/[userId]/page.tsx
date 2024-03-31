@@ -16,23 +16,32 @@ export default async function UserProfilePage({ params }: { params: { userId: st
 			'u.id',
 			'ext.uuid',
 			'u.permissions',
+			'created_date',
+			'last_login_date',
 			userIsVisible('u.id').as('visible')
 		])
 		.executeTakeFirst();
 	
 	if (!user)
 		return notFound();
-
-	const isFriend = !!(await db.selectFrom('actaeon_user_friends')
-		.where('user1', '=', user.id)
-		.where('user2', '=', viewingUser?.id!)
-		.select('user1')
-		.executeTakeFirst());
+	
+	const [friend, pendingFriend] = await Promise.all([
+		db.selectFrom('actaeon_user_friends')
+			.where('user1', '=', user.id)
+			.where('user2', '=', viewingUser?.id!)
+			.select('chuniRival')
+			.executeTakeFirst(),
+		db.selectFrom('actaeon_friend_requests')
+			.where('user', '=', user.id)
+			.where('friend', '=', viewingUser?.id!)
+			.select('user')
+			.executeTakeFirst()
+	]);
 	
 	if (!user.visible)
-		return (<UserProfile isFriend={isFriend} user={user as UserProfile<false>}/>);
+		return (<UserProfile friend={friend} pendingFriend={!!pendingFriend} user={user as UserProfile<false>}/>);
 	
 	const chuniProfile = await getChuniUserData(user);
 	
-	return (<UserProfile isFriend={isFriend} user={user as UserProfile<true>} chuniProfile={chuniProfile} />);
+	return (<UserProfile friend={friend} pendingFriend={!!pendingFriend} user={user as UserProfile<true>} chuniProfile={chuniProfile} />);
 }

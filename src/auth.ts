@@ -6,6 +6,8 @@ import { cache } from 'react';
 import { SelectQueryBuilder, sql } from 'kysely';
 import { AimeUser } from '@/types/db';
 import crypto from 'crypto';
+import { createActaeonTeamsFromExistingTeams } from './data/team';
+import { createActaeonFriendsFromExistingFriends } from './data/friend';
 
 let basePath = process.env.BASE_PATH ?? '';
 if (basePath.endsWith('/')) basePath = basePath.slice(0, -1);
@@ -26,7 +28,7 @@ const selectUserProps = (builder: SelectQueryBuilder<GeneratedDB & { u: AimeUser
 		'ext.homepage',
 		'ext.team',
 		fn<boolean>('not isnull', ['chuni.id']).as('chuni')
-	])
+	] as const)
 	.executeTakeFirst();
 
 const nextAuth = NextAuth({
@@ -70,6 +72,11 @@ const nextAuth = NextAuth({
 					.executeTakeFirst();
 				(user as any).uuid = uuid;
 				(user as any).visibility = 0;
+
+				await Promise.all([
+					createActaeonTeamsFromExistingTeams().catch(console.error),
+					createActaeonFriendsFromExistingFriends().catch(console.error)
+				]);
 			}
 
 			const now = new Date();

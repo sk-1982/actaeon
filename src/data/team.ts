@@ -7,7 +7,7 @@ import { UserPayload } from '@/types/user';
 import { hasPermission } from '@/helpers/permissions';
 import { UserPermissions } from '@/types/permissions';
 
-const createActaeonTeamsFromExistingTeams = async () => {
+export const createActaeonTeamsFromExistingTeams = async () => {
 	await db.transaction().execute(async trx => {
 		const chuniTeams = (await trx.selectFrom('chuni_profile_team as chuni')
 			.leftJoin('actaeon_teams as teams', 'teams.chuniTeam', 'chuni.id')

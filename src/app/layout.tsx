@@ -16,7 +16,7 @@ export default async function RootLayout({children}: LayoutProps) {
 				<link rel="preload" href={getAssetUrl('/fonts/FOT-RodinProN-UB-en.woff2')} as="font" type="font/woff2" crossOrigin="anonymous" />
 				<link rel="preload" href={getAssetUrl('/fonts/HelveticaNowDisplay-ExtraBold.woff2')} as="font" type="font/woff2" crossOrigin="anonymous" />
 			</head>
-				<body className="h-full">
+			<body className="h-full">
 				<Providers>
 					{children}
 				</Providers>

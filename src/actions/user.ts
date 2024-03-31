@@ -68,6 +68,11 @@ export const deleteUser = async (user: number): Promise<ActionResult> => {
 		.where('id', '=', user)
 		.executeTakeFirst();
 	
+	await db.deleteFrom('chuni_item_favorite')
+		.where('favKind', '=', 2)
+		.where('favId', '=', user)
+		.executeTakeFirst();
+	
 	return {};
 };
 

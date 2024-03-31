@@ -8,6 +8,14 @@ export async function register() {
 			const DBMigrate = await eval('imp' + 'ort("db-migrate")');
 			const dbmigrate = DBMigrate.getInstance(true);
 			await dbmigrate.up();
+
+			const { createActaeonTeamsFromExistingTeams } = await import('./data/team');
+			const { createActaeonFriendsFromExistingFriends } = await import('./data/friend');
+
+			await Promise.all([
+				createActaeonTeamsFromExistingTeams().catch(console.error),
+				createActaeonFriendsFromExistingFriends().catch(console.error)
+			]);
 		}
 	} else if (process.env.NEXT_RUNTIME === 'edge') {
 		(globalThis as any).bcrypt = {};

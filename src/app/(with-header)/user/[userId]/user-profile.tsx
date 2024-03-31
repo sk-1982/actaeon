@@ -6,30 +6,51 @@ import { ChuniNameplate } from '@/components/chuni/nameplate';
 import { hasPermission } from '@/helpers/permissions';
 import { useUser } from '@/helpers/use-user';
 import { USER_PERMISSION_NAMES, UserPermissions } from '@/types/permissions';
-import { UserPayload } from '@/types/user';
+import { DBUserPayload, UserPayload } from '@/types/user';
 import { ArrowUpRightIcon } from '@heroicons/react/16/solid';
 import { UserIcon, UserMinusIcon, UserPlusIcon } from '@heroicons/react/24/outline';
-import { Button, Divider, Tooltip } from '@nextui-org/react';
+import { Button, Divider, Tooltip, user } from '@nextui-org/react';
 import Link from 'next/link';
 import { PermissionIcon } from '@/components/permission-icon';
+import { sendFriendRequest, unfriend } from '@/actions/friend';
+import { useState } from 'react';
+import { useConfirmModal } from '@/components/confirm-modal';
+import { useRouter } from 'next/navigation';
+import { ChuniPenguinIcon } from '@/components/chuni/chuni-penguin-icon';
 
-export type UserProfile<V extends boolean> = Pick<UserPayload, 'username' | 'id' | 'uuid' | 'permissions'> & { visible: V; };
+export type UserProfile<V extends boolean> = Pick<UserPayload, 'username' | 'id' | 'uuid' | 'permissions'> & Pick<DBUserPayload, 'created_date' | 'last_login_date'> & { visible: V; };
+type UserFriend = Pick<DB['actaeon_user_friends'], 'chuniRival'> | null | undefined;
 
 export type UserProfileProps<T extends boolean> = T extends false ? {
 	user: UserProfile<false>,
-	isFriend: boolean
+	friend: UserFriend,
+	pendingFriend: boolean;
 } : {
 	user: UserProfile<true>,
 	chuniProfile: ChuniUserData,
-	isFriend: boolean
+	friend: UserFriend,
+	pendingFriend: boolean
 };
+
+const FORMAT = {
+	month: 'numeric',
+	day: 'numeric',
+	year: '2-digit',
+	hour: 'numeric',
+	minute: '2-digit'
+} as const;
 
 export const UserProfile = <T extends boolean>(props: UserProfileProps<T>) => {
 	const viewingUser = useUser();
+	const [pendingFriend, setPendingFriend] = useState(props.pendingFriend);
+	const confirm = useConfirmModal();
 
 	const header = (<>
 		<header className="flex flex-wrap w-full text-4xl font-bold mt-4 px-4 sm:mt-12 max-w-4xl mx-auto items-center gap-3">
-			<div className="flex items-center mx-auto sm:mx-0">
+			<div className="flex items-center mx-auto sm:mx-0 flex-wrap gap-y-2">
+				{props.friend?.chuniRival && <Tooltip content="Chunithm Rival">
+					<div><ChuniPenguinIcon className="h-8 mr-3 md:-ml-8 ml-2" /></div>
+				</Tooltip>}
 				<span>{props.user.username}</span>
 				{[...USER_PERMISSION_NAMES].filter(([permission]) => props.user.permissions! & (1 << permission))
 					.map(([permission]) => <PermissionIcon permission={permission} className="ml-2.5 h-7 w-7" />)}
@@ -45,23 +66,36 @@ export const UserProfile = <T extends boolean>(props: UserProfileProps<T>) => {
 					</Tooltip>
 				</Link>}
 
-				{props.isFriend ? <Tooltip content={<span className="text-danger">Unfriend</span>}>
-					<Button isIconOnly size="lg" color="danger" variant="flat">
+				{viewingUser?.id !== props.user.id && <>{props.friend ? <Tooltip content={<span className="text-danger">Unfriend</span>}>
+					<Button isIconOnly size="lg" color="danger" variant="flat" onPress={() => confirm(`Do you want to unfriend ${props.user.username}?`, () => {
+						unfriend(props.user.id)
+							.then(() => location.reload());
+					})}>
 						<UserMinusIcon className="h-1/2" />
 					</Button>
-				</Tooltip> : <Tooltip content="Send friend request">
-					<Button isIconOnly size="lg">
-						<UserPlusIcon className="h-1/2" />
-					</Button>
-				</Tooltip>}
+				</Tooltip> : <Tooltip content={pendingFriend ? 'Friend request pending' : 'Send friend request'}>
+					<div>
+						<Button isIconOnly size="lg" isDisabled={pendingFriend} onPress={() => {
+							setPendingFriend(true);
+							sendFriendRequest(props.user.id);
+						}}>
+							<UserPlusIcon className="h-1/2" />
+						</Button>
+					</div>
+				</Tooltip>}</>}
 			</div>
 		</header>
-		<Divider className="sm:mt-12 sm:mb-12 my-4 max-w-7xl mx-auto" />
+		<div className="max-w-4xl mx-auto w-full flex mt-4 px-2">
+			<span>Joined {props.user.created_date?.toLocaleDateString()}</span>
+			<span className="ml-auto text-right">Last Seen {props.user.last_login_date?.toLocaleDateString(undefined, FORMAT)}</span>
+		</div>
+		<Divider className="sm:mt-8 sm:mb-12 my-4 max-w-7xl mx-auto" />
 	</>);
 	
 	if (!props.user.visible)
-		return (<main>
-			{ header }
+		return (<main className="flex flex-col">
+			{header}
+			<div className="italic text-gray-500 mx-auto max-w-7xl w-full text-xl font-light pl-6">This profile is private</div>
 		</main>)
 	
 	const { chuniProfile } = props as UserProfileProps<true>;

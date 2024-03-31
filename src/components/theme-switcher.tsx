@@ -1,9 +1,10 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Switch } from '@nextui-org/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Switch, SwitchProps } from '@nextui-org/react';
 import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
 import { useIsMounted } from 'usehooks-ts';
+import { useEffect, useState } from 'react';
 
 const THEME_SWITCHER_STYLE = { zIndex: 99999999999 } as const;
 
@@ -30,12 +31,19 @@ export function ThemeSwitcherDropdown() {
 	</Dropdown>);
 }
 
-export function ThemeSwitcherSwitch() {
-	const { setTheme, theme } = useTheme();
-	const mounted = useIsMounted();
-	if (!mounted()) return null;
+type ThemeSwitcherSwitchProps = {
+	size?: SwitchProps['size'],
+	className?: string
+};
 
-	return (<Switch size="lg" isSelected={theme === 'dark'} thumbIcon={({ isSelected, className }) => isSelected ?
+export function ThemeSwitcherSwitch({ size, className }: ThemeSwitcherSwitchProps) {
+	const { setTheme, theme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => setMounted(true), []);
+
+	if (!mounted) return null;
+
+	return (<Switch size={size ?? 'lg'} className={className} isSelected={theme === 'dark'} thumbIcon={({ isSelected, className }) => isSelected ?
 		<MoonIcon className={className} /> :
-		<SunIcon className={className} /> } onChange={ev => setTheme(ev.target.checked ? 'dark' : 'light')} />);
+		<SunIcon className={className} /> } onValueChange={checked => setTheme(checked ? 'dark' : 'light')} />);
 }

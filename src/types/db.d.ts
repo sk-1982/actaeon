@@ -43,6 +43,13 @@ export interface ActaeonChuniStaticTrophies {
   rareType: number | null;
 }
 
+export interface ActaeonFriendRequests {
+  createdDate: Date;
+  friend: number;
+  user: number;
+  uuid: string;
+}
+
 export interface ActaeonTeamJoinKeys {
   id: string;
   remainingUses: number | null;
@@ -68,6 +75,7 @@ export interface ActaeonUserExt {
 }
 
 export interface ActaeonUserFriends {
+  chuniRival: number | null;
   user1: number;
   user2: number;
 }
@@ -3332,6 +3340,7 @@ export interface DB {
   actaeon_chuni_static_name_plate: ActaeonChuniStaticNamePlate;
   actaeon_chuni_static_system_voice: ActaeonChuniStaticSystemVoice;
   actaeon_chuni_static_trophies: ActaeonChuniStaticTrophies;
+  actaeon_friend_requests: ActaeonFriendRequests;
   actaeon_team_join_keys: ActaeonTeamJoinKeys;
   actaeon_teams: ActaeonTeams;
   actaeon_user_ext: ActaeonUserExt;

@@ -5,13 +5,20 @@
 @import 'font';
 @import 'scrollbar';
 
+$header-height: 5.5rem;
+
 // offsets for header size of 5.5rem
 .h-fixed {
-	height: calc(100% - 5.5rem);
+	height: calc(100% - #{$header-height});
 }
 
 .pt-fixed {
-	padding-top: 5.5rem;
+	padding-top: $header-height;
+}
+
+.h-header {
+	height: $header-height;
+	max-height: $header-height;
 }
 
 .\@container-size {

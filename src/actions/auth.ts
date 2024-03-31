@@ -11,6 +11,8 @@ import { requirePermission } from '@/helpers/permissions';
 import { UserPayload } from '@/types/user';
 import { sql } from 'kysely';
 import { EMAIL_REGEX } from '@/helpers/validators';
+import { createActaeonTeamsFromExistingTeams } from '@/data/team';
+import { createActaeonFriendsFromExistingFriends } from '@/data/friend';
 
 export const getUser = async () => {
 	const session = await auth();
@@ -137,6 +139,11 @@ export const register = async (formData: FormData) => {
 			visibility: 0
 		})
 		.executeTakeFirst();
+
+	await Promise.all([
+		createActaeonTeamsFromExistingTeams().catch(console.error),
+		createActaeonFriendsFromExistingFriends().catch(console.error)
+	]);
 
 	return { error: false };
 };
