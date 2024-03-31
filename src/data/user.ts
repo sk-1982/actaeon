@@ -5,6 +5,8 @@ import { sql } from 'kysely';
 import { db } from '@/db';
 import { jsonObjectArray } from '@/types/json-object-array';
 import { parseJsonResult } from '@/helpers/parse-json-result';
+import { getUser } from '@/actions/auth';
+import { CHUNI_NAMEPLATE_PROFILE_KEYS } from '@/components/chuni/nameplate';
 
 type WithUsersVisibleToOptions = {
 	// ignore targets's visibility settings and always show if they share a team with the user

@@ -9,7 +9,9 @@ import { UserPayload } from '@/types/user';
 import { ItemKind } from '@/helpers/chuni/items';
 import { AvatarCategory } from '@/helpers/chuni/avatar';
 import { UserboxItems } from '@/actions/chuni/userbox';
-import { requireUser } from '@/actions/auth';
+import { getUser, requireUser } from '@/actions/auth';
+import { Entries } from 'type-fest';
+import { CHUNI_NAMEPLATE_PROFILE_KEYS } from '@/components/chuni/nameplate';
 
 type RecentRating = {
 	scoreMax: string,
@@ -23,7 +25,7 @@ const avatarNames = ['avatarBack', 'avatarFace', 'avatarItem', 'avatarWear', 'av
 
 const ALLOW_EQUIP_UNEARNED = ['true', '1', 'yes'].includes(process.env.CHUNI_ALLOW_EQUIP_UNEARNED?.toLowerCase() ?? '');
 
-export async function getUserData(user: UserPayload) {
+export async function getUserData(user: { id: number }) {
 	const res = await db.selectFrom('chuni_profile_data as p')
 		.leftJoin('actaeon_chuni_static_name_plate as nameplate', 'p.nameplateId', 'nameplate.id')
 		.leftJoin('actaeon_chuni_static_trophies as trophy', 'p.trophyId', 'trophy.id')
@@ -67,6 +69,13 @@ export async function getUserData(user: UserPayload) {
 		]))
 		.executeTakeFirst();
 
+	const requestingUser = await getUser();
+	if (requestingUser?.id !== user.id && res)
+		(Object.entries(res) as Entries<typeof res>).forEach(([key, val]) => {
+			if (!CHUNI_NAMEPLATE_PROFILE_KEYS.includes(key as any) && !avatarNames.find(n => key.startsWith(n)))
+				res[key] = null;
+		});
+	
 	return res;
 }
 

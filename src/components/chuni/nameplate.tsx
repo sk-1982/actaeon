@@ -1,12 +1,16 @@
 import { ChuniUserData } from '@/actions/chuni/profile';
-import {  getImageUrl } from '@/helpers/assets';
+import { getImageUrl } from '@/helpers/assets';
 import { ChuniTrophy } from '@/components/chuni/trophy';
 import { PickNullable } from '@/types/pick-nullable';
 import { ChuniRating } from '@/components/chuni/rating';
 import { formatJst } from '@/helpers/format-jst';
 
-export type Profile = PickNullable<ChuniUserData,
-	'trophyName' | 'trophyRareType' | 'nameplateImage' | 'nameplateName' | 'teamName' | 'characterId' | 'level' | 'userName' | 'overPowerRate' | 'overPowerPoint' | 'lastPlayDate' | 'playerRating' | 'highestRating'>;
+export const CHUNI_NAMEPLATE_PROFILE_KEYS = [
+	'trophyName', 'trophyRareType', 'nameplateImage', 'nameplateName', 'teamName', 'characterId', 'level',
+	'userName', 'overPowerRate', 'overPowerPoint', 'lastPlayDate', 'playerRating', 'highestRating'
+] as const;
+
+export type Profile = PickNullable<ChuniUserData, (typeof CHUNI_NAMEPLATE_PROFILE_KEYS)[number]>;
 
 export type ChuniNameplateProps = {
 	className?: string,
