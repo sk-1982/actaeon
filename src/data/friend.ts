@@ -81,3 +81,14 @@ export const syncUserFriends = async (user: number, builder: Kysely<GeneratedDB>
 		})
 		.executeTakeFirst();
 };
+
+export const getFriends = async (user: number) => {
+	return db.selectFrom('actaeon_user_friends as friend')
+		.where('friend.user1', '=', user)
+		.innerJoin('aime_user as u', 'u.id', 'friend.user2')
+		.innerJoin('actaeon_user_ext as ext', 'ext.userId', 'u.id')
+		.select(['friend.user2 as id', 'friend.chuniRival', 'u.username', 'ext.uuid'])
+		.execute();
+};
+
+export type Friend = Awaited<ReturnType<typeof getFriends>>[number];

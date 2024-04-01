@@ -4,7 +4,7 @@ import { Avatar, Badge, Button, Divider, Dropdown, DropdownItem, DropdownMenu, D
 import { Bars3Icon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ThemeSwitcherSwitch } from '@/components/theme-switcher';
+import { ThemeSwitcherDropdown, ThemeSwitcherSwitch } from '@/components/theme-switcher';
 import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/solid';
 import { login, logout } from '@/actions/auth';
 import { usePathname, useRouter } from 'next/navigation';
@@ -12,7 +12,7 @@ import { MAIN_ROUTES, ROUTES, Subroute, UserOnly, filterRoute } from '@/routes';
 import { useUser } from '@/helpers/use-user';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
 import { useCookies } from 'next-client-cookies';
-import { BellIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, BellIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useTheme } from 'next-themes';
 import { BellAlertIcon } from '@heroicons/react/24/solid';
 import { FriendRequest, acceptFriendRequest, getFriendRequests, rejectFriendRequest } from '@/actions/friend';
@@ -248,7 +248,23 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					</Button>
 				</header>
 
-				<Divider className="my-4" />
+				<Divider className="mt-4" />
+
+				<Link href="/settings" className="font-semibold text-2xl p-3 pl-4 flex items-center" onClick={() => setNotificationsOpen(false)}>
+					Settings
+
+					<ChevronRightIcon className="ml-auto h-6" />
+				</Link>
+
+				<Divider />
+
+				<Link href="/friends" className="font-semibold text-2xl p-3 pl-4 flex items-center" onClick={() => setNotificationsOpen(false)}>
+					Friends
+
+					<ChevronRightIcon className="ml-auto h-6" />
+				</Link>
+
+				<Divider className="mb-4" />
 
 				<section className="px-2 flex flex-col flex-auto overflow-y-auto mb-3">
 					<header className="font-semibold text-2xl px-2 mb-3">Notifications</header>
@@ -320,12 +336,17 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 								<DropdownItem showDivider className="p-0">
 									<Link className="text-lg font-semibold block w-full h-full px-2 py-1.5" href={`/user/${user.uuid}`}>{user.username}</Link>
 								</DropdownItem>
-								<DropdownItem className="p-0 mt-1">
+								<DropdownItem className="p-0 mt-0.5">
 									<Link href="/settings" className="w-full h-full block px-2 py-1.5">
 										Settings
 									</Link>
 								</DropdownItem>
-								<DropdownItem className="p-0 mt-1" showDivider closeOnSelect={false}>
+								<DropdownItem className="p-0 mt-0.5">
+									<Link href="/friends" className="w-full h-full block px-2 py-1.5">
+										Friends
+									</Link>
+								</DropdownItem>
+								<DropdownItem className="p-0 mt-0.5" showDivider closeOnSelect={false}>
 									<div className="w-full flex pl-2 h-8 items-center" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
 										Dark Theme
 
@@ -340,10 +361,12 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 							</DropdownMenu>
 						</Dropdown>
 					</> :
-						
-					<Button size="sm" className="ml-2" color="primary" onClick={() => login()}>
-						Login
-					</Button>
+						<>
+							<ThemeSwitcherDropdown />
+							<Button size="sm" className="ml-2" color="primary" onClick={() => login()}>
+								Login
+							</Button>
+						</>
 					}
 				</div>
 			</Navbar>

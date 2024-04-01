@@ -1,9 +1,9 @@
 'use server';
 
-import { db } from '@/db';
+import { GeneratedDB, db } from '@/db';
 import { getUser, requireUser } from './auth';
 import { notFound } from 'next/navigation';
-import { CompiledQuery, sql } from 'kysely';
+import { CompiledQuery, Transaction, sql } from 'kysely';
 import { syncUserFriends, withChuniRivalCount } from '@/data/friend';
 import { SqlBool } from 'kysely';
 import { Exact } from 'type-fest';
@@ -130,4 +130,59 @@ export const rejectFriendRequest = async (id: string) => {
 		.where('user', '=', user.id)
 		.where('uuid', '=', id)
 		.executeTakeFirst();
+};
+
+const setRivalStatus = (user1: number, user2: number, chuniRival: number, trx: Transaction<GeneratedDB>) => {
+	return trx.updateTable('actaeon_user_friends')
+		.where(({ and, eb, or }) => or([
+			and([
+				eb('user1', '=', user1),
+				eb('user2', '=', user2)
+			]),
+			and([
+				eb('user2', '=', user1),
+				eb('user1', '=', user2)
+			]),
+		]))
+		.set({ chuniRival })
+		.execute();
+}
+
+export const addFriendAsRival = async (friend: number) => {
+	const user = await requireUser();
+
+	const rivalCount = await withChuniRivalCount()
+		.selectFrom('chuni_rival_count')
+		.where(({ or, eb }) => or([
+			eb('user', '=', user.id),
+			eb('user', '=', friend)
+		]))
+		.select(['user', 'rivalCount'])
+		.execute();
+
+	const userRivalCount = Number(rivalCount.find(r => r.user === user.id)?.rivalCount ?? 0);
+	const friendRivalCount = Number(rivalCount.find(r => r.user === friend)?.rivalCount ?? 0);
+	
+	if (userRivalCount >= 4)
+		return { error: true, message: 'You already have 4 rivals. You must remove a rival before adding a new one.' };
+	if (friendRivalCount >= 4)
+		return { error: true, message: 'This user already has 4 rivals. They must remove a rival before you can add them as a rival.' };
+
+	await db.transaction().execute(async trx => {
+		await setRivalStatus(user.id, friend, 1, trx);
+
+		await syncUserFriends(user.id, trx);
+		await syncUserFriends(friend, trx);
+	});
+};
+
+export const removeFriendAsRival = async (friend: number) => {
+	const user = await requireUser();
+
+	await db.transaction().execute(async trx => {
+		await setRivalStatus(user.id, friend, 0, trx);
+		
+		await syncUserFriends(user.id, trx);
+		await syncUserFriends(friend, trx);
+	});
 };
