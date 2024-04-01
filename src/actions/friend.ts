@@ -84,36 +84,25 @@ export const acceptFriendRequest = async (id: string) => {
 	if (!request) return notFound();
 
 	await db.transaction().execute(async trx => {
-		const COLUMNS = ['user1', 'user2', 'chuniRival'] as const;
-		const insertSql = trx.insertInto('actaeon_user_friends')
-			.columns(COLUMNS).compile();
-
 		const selectSql = withChuniRivalCount(trx)
 			.with('insert_users', db => db.selectNoFrom(({ lit }) => [lit(user.id).as('u1'), lit(request.friend).as('u2')])
 				.union(db.selectNoFrom(({ lit }) => [lit(request.friend).as('u1'), lit(user.id).as('u2')])))
 			.selectFrom('insert_users')
-				.select(({ eb, fn, lit, selectFrom }) => [
-					'insert_users.u1 as user1', 'insert_users.u2 as user2',
-					eb(fn<number>('coalesce', [selectFrom('chuni_max_rival_count')
-						.whereRef('chuni_max_rival_count.user1', '=', 'insert_users.u1')
-						.whereRef('chuni_max_rival_count.user2', '=', 'insert_users.u2')
-						.select('maxRivalCount'), lit(0)
-					]), '<', lit(4))
-						.as('chuniRival')
-				] as const)
-			.compile();
+			.select(({ eb, fn, lit, selectFrom }) => [
+				'insert_users.u1 as user1', 'insert_users.u2 as user2',
+				eb(fn<number>('coalesce', [selectFrom('chuni_max_rival_count')
+					.whereRef('chuni_max_rival_count.user1', '=', 'insert_users.u1')
+					.whereRef('chuni_max_rival_count.user2', '=', 'insert_users.u2')
+					.select('maxRivalCount'), lit(0)
+				]), '<', lit(4))
+					.as('chuniRival')
+			] as const);
 		
-		// mariadb needs insert into before cte's but kysely puts it after :(
-		
-		// if any of these have a type error, then the insert and select statements are not compatible
-		type SelectVals = (typeof selectSql) extends CompiledQuery<infer R> ? { [K in keyof R]: R[K] extends SqlBool ? number : R[K] } : never;
-		// verify same number of selections in select as insert
-		const _: Exact<{ [K in (typeof COLUMNS)[number]]: SelectVals[K] }, SelectVals> = {} as SelectVals;
-		// verify data types are insertable
-		if (false) db.insertInto('actaeon_user_friends').values({} as SelectVals);
-		
-		await sql.raw(`${insertSql.sql}\n${selectSql.sql}`).execute(trx);
-
+		await trx.insertInto('actaeon_user_friends')
+			.columns(['user1', 'user2', 'chuniRival'])
+			.expression(selectSql)
+			.execute();
+	
 		await trx.deleteFrom('actaeon_friend_requests')
 			.where('uuid', '=', id)
 			.executeTakeFirst();
