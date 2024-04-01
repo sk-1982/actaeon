@@ -13,27 +13,54 @@ import { makeValidator } from '@/types/validator-map';
 import { DB } from '@/types/db';
 import { randomString } from '@/helpers/random';
 
+const validator = makeValidator<TeamUpdate, DB['actaeon_teams'] | null>()
+	.nonNullableKeys('name', 'joinPrivacy', 'visibility')
+	.withValidator('name', async (val, team) => {
+		val = val.trim();
+
+		if (!val)
+			throw new Error('Team name cannot be empty');
+
+		const existingTeam = await db.selectFrom('actaeon_teams')
+			.where(({ fn, eb, and }) => and([
+				eb(fn('lower', ['name']), '=', val.toLowerCase()),
+				...(team ? [eb('uuid', '!=', team.uuid)] : [])
+			]))
+			.select('uuid')
+			.executeTakeFirst();
+
+		if (existingTeam)
+			throw new Error('A team with that name already exists');
+
+		return val;
+	})
+	.withValidator('joinPrivacy', val => {
+		if (!PRIVACY_VALUES.has(val))
+			throw new Error('Invalid privacy value');
+	})
+	.withValidator('visibility', val => {
+		if (!VISIBILITY_VALUES.has(val))
+			throw new Error('Invalid visibility value');
+	});
+
+
 export const createTeam = async (name: string): Promise<ActionResult> => {
 	const user = await requireUser();
 
 	if (user.team)
 		return { error: true, message: 'You are already part of a team' };
 
-	name = name.trim();
-	const existingTeam = await db.selectFrom('actaeon_teams')
-		.where(({ fn, eb }) => eb(fn('lower', ['name']), '=', name.toLowerCase()))
-		.select('name')
-		.executeTakeFirst();
-	
-	if (existingTeam)
-		return { error: true, message: 'A team with that name already exists' };
+	const data = await validator.validate({ name }, null);
+
+	if (data.error)
+		return data;
 
 	const uuid = crypto.randomUUID();
 	
 	await db.transaction().execute(async trx => {
 		const chuniTeam = Number((await db.insertInto('chuni_profile_team')
 			.values({
-				teamName: name,
+				teamName: data.value.name,
 				teamPoint: 0
 			})
 			.executeTakeFirst()).insertId);
@@ -41,7 +68,7 @@ export const createTeam = async (name: string): Promise<ActionResult> => {
 		await db.insertInto('actaeon_teams')
 			.values({
 				uuid,
-				name,
+				name: data.value.name,
 				visibility: Visibility.PRIVATE,
 				joinPrivacy: JoinPrivacy.INVITE_ONLY,
 				owner: user.id!,
@@ -91,33 +118,6 @@ export type TeamUpdate = Partial<{
 	visibility: Visibility
 }>;
 
-const validator = makeValidator<TeamUpdate, DB['actaeon_teams'] | null>()
-	.nonNullableKeys('name', 'joinPrivacy', 'visibility')
-	.withValidator('name', async (val, team) => {
-		val = val.trim();
-
-		const existingTeam = await db.selectFrom('actaeon_teams')
-			.where(({ fn, eb, and }) => and([
-				eb(fn('lower', ['name']), '=', val.toLowerCase()),
-				...(team ? [eb('uuid', '!=', team.uuid)] : [])
-			]))
-			.select('uuid')
-			.executeTakeFirst();
-		
-		if (existingTeam)
-			throw new Error('A team with that name already exists');
-
-		return val;
-	})
-	.withValidator('joinPrivacy', val => {
-		if (!PRIVACY_VALUES.has(val))
-			throw new Error('Invalid privacy value');
-	})
-	.withValidator('visibility', val => {
-		if (!VISIBILITY_VALUES.has(val))
-			throw new Error('Invalid visibility value');
-	});
-
 export const modifyTeam = async (team: string, update: TeamUpdate): Promise<ActionResult<{}>> => {
 	const teamData = await requireOwner({ team });
 	const res = await validator.validate(update, teamData);
@@ -125,8 +125,14 @@ export const modifyTeam = async (team: string, update: TeamUpdate): Promise<Acti
 
 	await db.updateTable('actaeon_teams')
 		.where('uuid', '=', team)
-		.set(update)
+		.set(res.value)
 		.executeTakeFirst();
+	
+	if (res.value.name)
+		await db.updateTable('chuni_profile_team')
+			.where('id', '=', teamData.chuniTeam)
+			.set({ teamName: res.value.name })
+			.executeTakeFirst()
 
 	return {};
 };
