@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { useConfirmModal } from '@/components/confirm-modal';
 import { useRouter } from 'next/navigation';
 import { ChuniPenguinIcon } from '@/components/chuni/chuni-penguin-icon';
+import { DB } from '@/types/db';
 
 export type UserProfile<V extends boolean> = Pick<UserPayload, 'username' | 'id' | 'uuid' | 'permissions'> & Pick<DBUserPayload, 'created_date' | 'last_login_date'> & { visible: V; };
 type UserFriend = Pick<DB['actaeon_user_friends'], 'chuniRival'> | null | undefined;
@@ -53,7 +54,7 @@ export const UserProfile = <T extends boolean>(props: UserProfileProps<T>) => {
 				</Tooltip>}
 				<span>{props.user.username}</span>
 				{[...USER_PERMISSION_NAMES].filter(([permission]) => props.user.permissions! & (1 << permission))
-					.map(([permission]) => <PermissionIcon permission={permission} className="ml-2.5 h-7 w-7" />)}
+					.map(([permission]) => <PermissionIcon key={permission}  permission={permission} className="ml-2.5 h-7 w-7" />)}
 			</div>
 
 			<div className="ml-auto flex gap-2">

@@ -146,7 +146,7 @@ export const AdminUserList = ({ users: initialUsers }: { users: AdminUser[]; }) 
 						}
 
 						{[...USER_PERMISSION_NAMES].filter(([permission]) => userEntry.permissions! & (1 << permission))
-							.map(([permission]) => <PermissionIcon className="w-6 h-6 ml-2" permission={permission} />)}
+							.map(([permission]) => <PermissionIcon className="w-6 h-6 ml-2" permission={permission} key={permission} />)}
 
 						<Spacer className="flex-grow" />
 
