@@ -96,7 +96,6 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					{route.routes.filter(filter)
 						.map(route => (<DropdownItem key={route.url} className="[&:hover_*]:text-secondary p-0"
 							onPress={() => {
-								router.push(route.url);
 								cookies.set('actaeon-navigated-from', routeGroup.title);
 							}}>
 							<Link href={route.url}
@@ -191,7 +190,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 										className={`text-xl`}>
 										{subroute.name}
 										<div className="flex flex-col ml-1.5 pl-3 border-l border-gray-500/25 mt-0.5">
-											{subroute.routes.filter(filter).map(route => (<Link href={route.url} key={route.url}
+											{subroute.routes.filter(filter).map(route => (<Link href={route.url} key={route.url} onClick={() => setMenuOpen(false)}
 												className={`text-[1.075rem] transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
 												{route.name}
 											</Link>))}

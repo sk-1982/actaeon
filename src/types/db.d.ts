@@ -50,6 +50,11 @@ export interface ActaeonFriendRequests {
   uuid: string;
 }
 
+export interface ActaeonGlobalConfig {
+  key: string;
+  value: string;
+}
+
 export interface ActaeonTeamJoinKeys {
   id: string;
   remainingUses: number | null;
@@ -3341,6 +3346,7 @@ export interface DB {
   actaeon_chuni_static_system_voice: ActaeonChuniStaticSystemVoice;
   actaeon_chuni_static_trophies: ActaeonChuniStaticTrophies;
   actaeon_friend_requests: ActaeonFriendRequests;
+  actaeon_global_config: ActaeonGlobalConfig;
   actaeon_team_join_keys: ActaeonTeamJoinKeys;
   actaeon_teams: ActaeonTeams;
   actaeon_user_ext: ActaeonUserExt;
