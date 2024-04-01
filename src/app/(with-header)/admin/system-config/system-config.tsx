@@ -61,7 +61,7 @@ export const SystemConfig = ({ config: initialConfig }: SystemConfigProps) => {
 				onValueChange={v => setConfigKey('user_max_card', (!v || +v < 1) ? null : +v)} />
 
 			<span className="w-full mt-2 text-xs sm:text-sm text-gray-500">
-				If "Allow users to add cards" is enabled, this controls the max card count per user. Note that user moderators can exceed this count.
+				If &ldquo;Allow users to add cards&rdquo; is enabled, this controls the max card count per user. Note that user moderators can exceed this count.
 			</span>
 		</label>
 		<Divider className="bg-divider/5" />
@@ -76,7 +76,7 @@ export const SystemConfig = ({ config: initialConfig }: SystemConfigProps) => {
 					.map(p => p.toString()))}
 				onSelectionChange={s => typeof s !== 'string' && setConfigKey('chuni_allow_equip_unearned',
 					([...s] as number[]).reduce((t, x) => +t | (1 << +x), 0))}>
-				{[[UserPermissions.USER, { title: 'User' }] as const, ...USER_PERMISSION_NAMES]
+				{[[UserPermissions.USER, { title: 'All Users' }] as const, ...USER_PERMISSION_NAMES]
 					.map(([permission, { title }]) => (<SelectItem key={permission?.toString()}>
 					{title}
 				</SelectItem>)) }
