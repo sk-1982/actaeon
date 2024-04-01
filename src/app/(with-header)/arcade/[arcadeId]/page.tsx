@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { ArcadeDetail } from './arcade';
 import { PrivateVisibilityError } from '@/components/private-visibility-error';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ArcadeDetailPage({ params }: { params: { arcadeId: string }}) {
 	const user = await getUser();
 	const arcade = (await getArcades({ user, uuids: [params.arcadeId], includeUnlisted: true }))[0];

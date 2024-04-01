@@ -7,6 +7,7 @@ import { CompiledQuery, Transaction, sql } from 'kysely';
 import { syncUserFriends, withChuniRivalCount } from '@/data/friend';
 import { SqlBool } from 'kysely';
 import { Exact } from 'type-fest';
+import { revalidatePath } from 'next/cache';
 
 export const getFriendRequests = async () => {
 	const user = await getUser();
@@ -48,6 +49,9 @@ export const sendFriendRequest = async (toUser: number) => {
 			uuid: sql`uuid_v4()`
 		})
 		.executeTakeFirst();
+	
+	revalidatePath('/user/[userId]', 'page');
+	revalidatePath('/friends', 'page');
 }
 
 export const unfriend = async (friend: number) => {
@@ -71,6 +75,9 @@ export const unfriend = async (friend: number) => {
 		await syncUserFriends(user.id, trx);
 		await syncUserFriends(friend, trx);
 	});
+
+	revalidatePath('/user/[userId]', 'page');
+	revalidatePath('/friends', 'page');
 };
 
 export const acceptFriendRequest = async (id: string) => {
@@ -110,6 +117,9 @@ export const acceptFriendRequest = async (id: string) => {
 		await syncUserFriends(user.id, trx);
 		await syncUserFriends(request.friend, trx);
 	});
+
+	revalidatePath('/user/[userId]', 'page');
+	revalidatePath('/friends', 'page');
 };
 
 export const rejectFriendRequest = async (id: string) => {
@@ -163,6 +173,9 @@ export const addFriendAsRival = async (friend: number) => {
 		await syncUserFriends(user.id, trx);
 		await syncUserFriends(friend, trx);
 	});
+
+	revalidatePath('/user/[userId]', 'page');
+	revalidatePath('/friends', 'page');
 };
 
 export const removeFriendAsRival = async (friend: number) => {
@@ -174,4 +187,7 @@ export const removeFriendAsRival = async (friend: number) => {
 		await syncUserFriends(user.id, trx);
 		await syncUserFriends(friend, trx);
 	});
+
+	revalidatePath('/user/[userId]', 'page');
+	revalidatePath('/friends', 'page');
 };

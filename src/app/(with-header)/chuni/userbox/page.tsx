@@ -10,6 +10,8 @@ export const viewport: Viewport = {
 	interactiveWidget: 'resizes-content'
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ChuniUserboxPage() {
 	const user = await requireUser();
 	const profile = await getUserData(user);

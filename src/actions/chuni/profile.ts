@@ -13,6 +13,7 @@ import { getUser, requireUser } from '@/actions/auth';
 import { Entries } from 'type-fest';
 import { CHUNI_NAMEPLATE_PROFILE_KEYS } from '@/components/chuni/nameplate';
 import { getGlobalConfig } from '@/config';
+import { revalidatePath } from 'next/cache';
 
 type RecentRating = {
 	scoreMax: string,
@@ -222,6 +223,11 @@ export const updateProfile = async (data: ProfileUpdate) => {
 		]))
 		.set(update)
 		.execute();
+	
+	revalidatePath('/chuni/dashboard', 'page');
+	revalidatePath('/chuni/userbox', 'page');
+	revalidatePath('/', 'page');
+	revalidatePath(`/user/${user.uuid}`, 'page')
 
 	return { error: false };
 };

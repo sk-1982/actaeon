@@ -7,6 +7,7 @@ import { requireUser } from '@/actions/auth';
 import { requireArcadePermission } from '@/helpers/permissions';
 import { ArcadePermissions } from '@/types/permissions';
 import type { Entries } from 'type-fest';
+import { revalidatePath } from 'next/cache';
 
 export type CabUpdate = Omit<ArcadeCab, 'id' | 'arcade'>;
 
@@ -91,6 +92,9 @@ export const deleteMachine = async (arcade: number, machine: number) => {
 		.where('arcade', '=', arcade)
 		.where('id', '=', machine)
 		.executeTakeFirst();
+	
+	revalidatePath('/arcade', 'page');
+	revalidatePath('/arcade/[arcadeId]', 'page');
 };
 
 const validateUpdate = async (update: CabUpdate, cab: number | null) => {
@@ -129,6 +133,9 @@ export const updateMachine = async ({ arcade, machine, update }: { arcade: numbe
 		.where('machine.arcade', '=', arcade)
 		.set(update)
 		.executeTakeFirst();
+	
+	revalidatePath('/arcade', 'page');
+	revalidatePath('/arcade/[arcadeId]', 'page');
 };
 
 export const createMachine = async ({ arcade, update }: { arcade: number, update: CabUpdate }) => {
@@ -146,6 +153,9 @@ export const createMachine = async ({ arcade, update }: { arcade: number, update
 			arcade
 		})
 		.executeTakeFirst();
+	
+	revalidatePath('/arcade', 'page');
+	revalidatePath('/arcade/[arcadeId]', 'page');
 
 	return { error: false, message: '', data: await getArcadeCabs({ arcade, user, permissions: arcadePermissions }) };
 }

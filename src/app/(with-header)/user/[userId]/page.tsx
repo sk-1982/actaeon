@@ -5,6 +5,8 @@ import { getUserData as getChuniUserData } from '@/actions/chuni/profile';
 import { UserProfile } from './user-profile';
 import { db } from '@/db';
 
+export const dynamic = 'force-dynamic';
+
 export default async function UserProfilePage({ params }: { params: { userId: string; }; }) {
 	const viewingUser = await getUser();
 	const user = await withUsersVisibleTo(viewingUser)

@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache';
 import { db } from './db';
 
 export type GlobalConfig = {
@@ -65,6 +66,9 @@ export const setGlobalConfig = async (update: Partial<GlobalConfig>) => {
 		else
 			(CONFIG as any)[key] = res?.value ?? value;		
 	}
+
+	if ('chuni_allow_equip_unearned' in update)
+		revalidatePath('/chuni/userbox', 'page');
 
 	await db.transaction().execute(async trx => { 
 		for (const [key, value] of Object.entries(update)) {

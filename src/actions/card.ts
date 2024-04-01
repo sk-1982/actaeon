@@ -7,6 +7,7 @@ import { requirePermission } from '@/helpers/permissions';
 import { addCardToUser } from '@/data/card';
 import { AdminUser, getUsers } from '@/data/user';
 import { ActionResult } from '@/types/action-result';
+import { revalidatePath } from 'next/cache';
 
 export const getCards = async () => {
 	const user = await requireUser();
@@ -27,6 +28,9 @@ export const banUnbanCard = async (opts: { cardId: number, userId: number, isBan
 			eb('user', '=', opts.userId)
 		]))
 		.executeTakeFirst();
+	
+	revalidatePath('/settings', 'page');
+	revalidatePath('/admin/users', 'page');
 };
 
 export const lockUnlockCard = async (opts: { cardId: number, userId: number, isLock: boolean }) => {
@@ -41,6 +45,9 @@ export const lockUnlockCard = async (opts: { cardId: number, userId: number, isL
 			eb('user', '=', opts.userId)
 		]))
 		.executeTakeFirst();
+	
+	revalidatePath('/settings', 'page');
+	revalidatePath('/admin/users', 'page');
 };
 
 export const adminAddCardToUser = async (user: number, code: string): Promise<ActionResult<{ data: AdminUser[] }>> => {
@@ -50,6 +57,9 @@ export const adminAddCardToUser = async (user: number, code: string): Promise<Ac
 
 	if (res.error)
 		return res;
+
+	revalidatePath('/settings', 'page');
+	revalidatePath('/admin/users', 'page');
 
 	return { data: await getUsers() };
 };

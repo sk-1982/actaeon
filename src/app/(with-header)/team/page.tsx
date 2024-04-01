@@ -7,6 +7,8 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { Divider, Tooltip } from '@nextui-org/react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function TeamPage() {
 	const user = await getUser();
 	const teams = (await getTeams({ user }))

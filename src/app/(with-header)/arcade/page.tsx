@@ -13,6 +13,8 @@ const getLocation = (arcade: Arcade) => {
 	return out;
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ArcadePage() {
 	const user = await getUser();
 	const arcades = (await getArcades({ user })).filter(a => a.visible);

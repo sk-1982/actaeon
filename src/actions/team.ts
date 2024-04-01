@@ -12,6 +12,7 @@ import { hasPermission, requirePermission } from '@/helpers/permissions';
 import { makeValidator } from '@/types/validator-map';
 import { DB } from '@/types/db';
 import { randomString } from '@/helpers/random';
+import { revalidatePath } from 'next/cache';
 
 const validator = makeValidator<TeamUpdate, DB['actaeon_teams'] | null>()
 	.nonNullableKeys('name', 'joinPrivacy', 'visibility')
@@ -84,6 +85,8 @@ export const createTeam = async (name: string): Promise<ActionResult> => {
 		await syncUserTeams(user.id, { chuniTeam }, trx);
 	});
 
+	revalidatePath('/team', 'page');
+
 	redirect(`/team/${uuid}`);
 };
 
@@ -134,6 +137,9 @@ export const modifyTeam = async (team: string, update: TeamUpdate): Promise<Acti
 			.set({ teamName: res.value.name })
 			.executeTakeFirst()
 
+	revalidatePath('/team', 'page');
+	revalidatePath(`/team/${team}`, 'page');
+	
 	return {};
 };
 
@@ -161,6 +167,9 @@ export const joinPublicTeam = async (team: string) => {
 		
 		await syncUserTeams(user.id, teamData, trx);
 	});
+
+	revalidatePath('/team', 'page');
+	revalidatePath(`/team/${team}`, 'page');
 };
 
 export const removeUserFromTeam = async (team: string, userId?: number) => {
@@ -189,6 +198,9 @@ export const removeUserFromTeam = async (team: string, userId?: number) => {
 		
 		await syncUserTeams(userId, null, trx);
 	});
+
+	revalidatePath('/team', 'page');
+	revalidatePath(`/team/${team}`, 'page');
 };
 
 export const deleteTeam = async (team: string) => {
@@ -203,6 +215,9 @@ export const deleteTeam = async (team: string) => {
 			.where('uuid', '=', teamData.uuid)
 			.executeTakeFirst();
 	});
+
+	revalidatePath('/team', 'page');
+	revalidatePath(`/team/${team}`, 'page');
 };
 
 export const deleteTeamLink = async (team: string, link: string) => {
@@ -211,6 +226,8 @@ export const deleteTeamLink = async (team: string, link: string) => {
 		.where('teamId', '=', teamData.uuid)
 		.where('id', '=', link)
 		.executeTakeFirst();
+	
+	revalidatePath(`/team/${team}`, 'page');
 };
 
 export const createTeamLink = async (team: string, remainingUses: number | null) => {
@@ -225,6 +242,8 @@ export const createTeamLink = async (team: string, remainingUses: number | null)
 			totalUses: 0
 		})
 		.executeTakeFirst();
+	
+	revalidatePath(`/team/${team}`, 'page');
 	
 	return id;
 };

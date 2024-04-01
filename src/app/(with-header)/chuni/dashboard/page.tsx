@@ -8,6 +8,8 @@ import { ChuniTopRatingSidebar } from './top-rating-sidebar';
 import { Button } from '@nextui-org/react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ChuniDashboard() {
 	const user = await requireUser();
 	const [profile, rating, playlog] = await Promise.all([

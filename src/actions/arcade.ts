@@ -14,6 +14,7 @@ import { randomString } from '@/helpers/random';
 import crypto from 'crypto';
 
 import type { Entries } from 'type-fest';
+import { revalidatePath } from 'next/cache';
 
 export type ArcadeUpdate = Partial<Pick<Arcade, 'visibility' | 'joinPrivacy' | 'name' | 'nickname' | 'country' | 'country_id' |
 	'state' | 'city' | 'region_id' | 'timezone' | 'ip'>>;
@@ -89,20 +90,23 @@ export const updateArcade = async (id: number, update: ArcadeUpdate) => {
 				.where('arcadeId', '=', id)
 				.executeTakeFirst();
 	});
+
+	revalidatePath('/arcade', 'page');
+	revalidatePath('/arcade/[arcadeId]', 'page');
 };
 
 export const joinPublicArcade = async (arcade: number) => {
 	const user = await requireUser();
-	const arcadePrivacy = await db.selectFrom('arcade')
+	const arcadeData = await db.selectFrom('arcade')
 		.innerJoin('actaeon_arcade_ext as ext', 'ext.arcadeId', 'arcade.id')
 		.where('arcade.id', '=', arcade)
-		.select('ext.joinPrivacy')
+		.select(['ext.joinPrivacy', 'ext.uuid'])
 		.executeTakeFirst();
 
-	if (!arcadePrivacy)
+	if (!arcadeData)
 		return notFound();
 
-	if (arcadePrivacy.joinPrivacy !== JoinPrivacy.PUBLIC)
+	if (arcadeData.joinPrivacy !== JoinPrivacy.PUBLIC)
 		requirePermission(user.permissions, UserPermissions.ACMOD);
 
 	await db.insertInto('arcade_owner')
@@ -112,6 +116,9 @@ export const joinPublicArcade = async (arcade: number) => {
 			permissions: 1
 		})
 		.executeTakeFirst();
+	
+	revalidatePath('/arcade', 'page');
+	revalidatePath(`/arcade/${arcadeData.uuid}`, 'page');
 }
 
 export const removeUserFromArcade = async (arcade: number, userId?: number) => {
@@ -127,6 +134,9 @@ export const removeUserFromArcade = async (arcade: number, userId?: number) => {
 		.where('arcade', '=', arcade)
 		.where('user', '=', userId)
 		.executeTakeFirst();
+	
+	revalidatePath('/arcade', 'page');
+	revalidatePath('/arcade/[arcadeId]', 'page');
 }
 
 export const createArcadeLink = async (arcade: number, remainingUses: number | null) => {
@@ -142,6 +152,7 @@ export const createArcadeLink = async (arcade: number, remainingUses: number | n
 			totalUses: 0
 		})
 		.executeTakeFirst();
+	revalidatePath('/arcade/[arcadeId]', 'page');
 	return id;
 };
 
@@ -153,6 +164,7 @@ export const deleteArcadeLink = async (arcade: number, link: string) => {
 		.where('arcadeId', '=', arcade)
 		.where('id', '=', link)
 		.executeTakeFirst();
+	revalidatePath('/arcade/[arcadeId]', 'page');
 };
 
 export const createArcade = async (name: string) => {
@@ -182,6 +194,7 @@ export const createArcade = async (name: string) => {
 			.executeTakeFirst();
 	});
 
+	revalidatePath('/arcade', 'page');
 	redirect('/arcade/' + uuid);
 };
 
@@ -194,6 +207,7 @@ export const deleteArcade = async (id: number) => {
 		.where('id', '=', id)
 		.executeTakeFirst();
 
+	revalidatePath('/arcade', 'page');
 	redirect('/arcade');
 }
 
@@ -208,4 +222,6 @@ export const setUserArcadePermissions = async ({ arcadeUser, arcade, permissions
 		.where('user', '=', arcadeUser)
 		.where('arcade', '=', arcade)
 		.executeTakeFirst();
+	revalidatePath('/arcade', 'page');
+	revalidatePath('/arcade/[arcadeId]', 'page');
 };

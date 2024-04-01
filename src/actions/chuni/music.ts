@@ -5,6 +5,7 @@ import { db } from '@/db';
 import { chuniRating } from '@/helpers/chuni/rating';
 import { CHUNI_MUSIC_PROPERTIES } from '@/helpers/chuni/music';
 import { UserPayload } from '@/types/user';
+import { revalidatePath } from 'next/cache';
 
 export const getMusic = async (musicId?: number) => {
 	const user = await getUser();
@@ -83,6 +84,9 @@ export const addFavoriteMusic = async (musicId: number) => {
 			favKind: 1
 		})
 		.executeTakeFirst();
+	
+	revalidatePath('/chuni/music', 'page');
+	revalidatePath(`/chuni/music/${musicId}`, 'page');
 };
 
 export const removeFavoriteMusic = async (musicId: number) => {
@@ -98,4 +102,7 @@ export const removeFavoriteMusic = async (musicId: number) => {
 			eb('favKind', '=', 1)
 		]))
 		.executeTakeFirst();
+	
+	revalidatePath('/chuni/music', 'page');
+	revalidatePath(`/chuni/music/${musicId}`, 'page');
 }
