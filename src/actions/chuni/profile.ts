@@ -12,6 +12,7 @@ import { UserboxItems } from '@/actions/chuni/userbox';
 import { getUser, requireUser } from '@/actions/auth';
 import { Entries } from 'type-fest';
 import { CHUNI_NAMEPLATE_PROFILE_KEYS } from '@/components/chuni/nameplate';
+import { getGlobalConfig } from '@/config';
 
 type RecentRating = {
 	scoreMax: string,
@@ -22,8 +23,6 @@ type RecentRating = {
 
 const avatarNames = ['avatarBack', 'avatarFace', 'avatarItem', 'avatarWear', 'avatarFront', 'avatarSkin',
 	'avatarHead'] as const;
-
-const ALLOW_EQUIP_UNEARNED = ['true', '1', 'yes'].includes(process.env.CHUNI_ALLOW_EQUIP_UNEARNED?.toLowerCase() ?? '');
 
 export async function getUserData(user: { id: number }) {
 	const res = await db.selectFrom('chuni_profile_data as p')
@@ -126,7 +125,7 @@ export async function getUserRating(user: UserPayload) {
 	return { recent, top };
 }
 
-const validators = new Map<keyof GeneratedDB['chuni_profile_data'], (user: number, profile: NonNullable<ChuniUserData>, value: any) => Promise<any>>();
+const validators = new Map<keyof GeneratedDB['chuni_profile_data'], (user: UserPayload, profile: NonNullable<ChuniUserData>, value: any) => Promise<any>>();
 
 const itemValidators = [
 	['mapIconId', 'actaeon_chuni_static_map_icon as map_icon', 'map_icon.id', ItemKind.MAP_ICON],
@@ -134,6 +133,8 @@ const itemValidators = [
 	['voiceId', 'actaeon_chuni_static_system_voice as system_voice', 'system_voice.id', ItemKind.SYSTEM_VOICE],
 	['trophyId', 'actaeon_chuni_static_trophies as trophy', 'trophy.id', ItemKind.TROPHY]
 ] as const;
+
+const canEquipUnearned = (user: UserPayload) => (getGlobalConfig('chuni_allow_equip_unearned') & user.permissions!);
 
 itemValidators.forEach(([key, table, joinKey, itemKind]) => {
 	validators.set(key, async (user, profile, value) => {
@@ -144,7 +145,7 @@ itemValidators.forEach(([key, table, joinKey, itemKind]) => {
 		const res = await db.selectFrom(table)
 			.leftJoin('chuni_item_item as item', join => join
 				.onRef('item.itemId', '=', joinKey as any)
-				.on('item.user', '=', user)
+				.on('item.user', '=', user.id)
 				.on('item.itemKind', '=', itemKind))
 			.where(joinKey as any, '=', value)
 			.select('item.itemId')
@@ -153,7 +154,7 @@ itemValidators.forEach(([key, table, joinKey, itemKind]) => {
 		if (!res)
 			throw new Error(`Item with id ${value} does not exist.`);
 
-		if (res.itemId === null && value !== profile[key] && !ALLOW_EQUIP_UNEARNED)
+		if (res.itemId === null && value !== profile[key] && !canEquipUnearned(user))
 			throw new Error(`You do not own that item.`);
 
 		return value;
@@ -170,7 +171,7 @@ Object.entries(AvatarCategory).forEach(([category, number]) => {
 		const res = await db.selectFrom('chuni_static_avatar as avatar')
 			.leftJoin('chuni_item_item as item', join => join
 				.onRef('item.itemId', '=', 'avatar.avatarAccessoryId')
-				.on('item.user', '=', user)
+				.on('item.user', '=', user.id)
 				.on('item.itemKind', '=', ItemKind.AVATAR_ACCESSORY))
 			.where(({ eb, and, selectFrom }) => and([
 				eb('avatar.version', '=', selectFrom('chuni_static_avatar')
@@ -184,7 +185,7 @@ Object.entries(AvatarCategory).forEach(([category, number]) => {
 		if (!res)
 			throw new Error(`Item with id ${value} does not exist.`);
 
-		if (res.itemId === null && value !== profile[key as keyof ChuniUserData] && !ALLOW_EQUIP_UNEARNED)
+		if (res.itemId === null && value !== profile[key as keyof ChuniUserData] && !canEquipUnearned(user))
 			throw new Error(`You do not own that item.`);
 
 		return value;
@@ -207,7 +208,7 @@ export const updateProfile = async (data: ProfileUpdate) => {
 			return { error: true, message: `Unknown key "${key}"` };
 
 		try {
-			update[key as keyof ProfileUpdate] = ((await (validators.get(key as any)!(user.id, profile, value))) ?? value) as any;
+			update[key as keyof ProfileUpdate] = ((await (validators.get(key as any)!(user, profile, value))) ?? value) as any;
 		} catch (e: any) {
 			return { error: true, message: e?.message ?? 'Unknown error occurred.' };
 		}

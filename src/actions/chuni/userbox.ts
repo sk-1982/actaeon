@@ -9,16 +9,17 @@ import { AvatarCategory } from '@/helpers/chuni/avatar';
 import { DB } from '@/types/db';
 import { ChuniUserData } from '@/actions/chuni/profile';
 import { parseJsonResult } from '@/helpers/parse-json-result';
+import { getGlobalConfig } from '@/config';
 
-const ALLOW_EQUIP_UNEARNED = ['true', '1', 'yes'].includes(process.env.CHUNI_ALLOW_EQUIP_UNEARNED?.toLowerCase() ?? '');
-
-const joinItem = <DB extends GeneratedDB, TB extends keyof DB, O>(builder: SelectQueryBuilder<DB, TB, O>, joinKey: any, user: number, itemKind: ItemKind, ...equipped: (number | null | undefined)[]) => {
+const joinItem = <DB extends GeneratedDB, TB extends keyof DB, O>(builder: SelectQueryBuilder<DB, TB, O>, joinKey: any, user: UserPayload, itemKind: ItemKind, ...equipped: (number | null | undefined)[]) => {
+	const canEquipUnearned = (getGlobalConfig('chuni_allow_equip_unearned') & user.permissions!);
+	
 	return (builder.leftJoin('chuni_item_item', join =>
 		join.onRef('chuni_item_item.itemId' as any, '=', joinKey)
-			.on('chuni_item_item.user' as any, '=', user)
+			.on('chuni_item_item.user' as any, '=', user.id)
 			.on('chuni_item_item.itemKind' as any, '=', itemKind)
 	) as any)
-		.where((eb: ExpressionBuilder<any, any>) => eb.or(ALLOW_EQUIP_UNEARNED ? [eb.lit(true)] : [
+		.where((eb: ExpressionBuilder<any, any>) => eb.or(canEquipUnearned ? [eb.lit(true)] : [
 			eb('chuni_item_item.itemId', 'is not', null), // owned item
 			...equipped.map(id => eb(joinKey, '=', id ?? -1)) // equipped but not owned
 		])) as SelectQueryBuilder<DB, TB, O>;
@@ -39,7 +40,7 @@ export type UserboxItems = {
 export const getUserboxItems = async (user: UserPayload, profile: ChuniUserData): Promise<UserboxItems> => {
 	const res = await db
 		.with('map_icons', eb => joinItem(eb.selectFrom('actaeon_chuni_static_map_icon as map_icon'),
-			'map_icon.id', user.id, ItemKind.MAP_ICON, profile?.mapIconId)
+			'map_icon.id', user, ItemKind.MAP_ICON, profile?.mapIconId)
 			.select(eb => jsonObjectArray(eb, [
 				'map_icon.id',
 				'map_icon.name',
@@ -48,7 +49,7 @@ export const getUserboxItems = async (user: UserPayload, profile: ChuniUserData)
 			]).as('mapIcon'))
 		)
 		.with('name_plates', eb => joinItem(eb.selectFrom('actaeon_chuni_static_name_plate as name_plate'),
-			'name_plate.id', user.id, ItemKind.NAME_PLATE, profile?.nameplateId)
+			'name_plate.id', user, ItemKind.NAME_PLATE, profile?.nameplateId)
 			.select(eb => jsonObjectArray(eb, [
 				'name_plate.id',
 				'name_plate.name',
@@ -56,7 +57,7 @@ export const getUserboxItems = async (user: UserPayload, profile: ChuniUserData)
 				'name_plate.imagePath'
 			]).as('namePlate')))
 		.with('system_voices', eb => joinItem(eb.selectFrom('actaeon_chuni_static_system_voice as system_voice'),
-			'system_voice.id', user.id, ItemKind.SYSTEM_VOICE, profile?.voiceId)
+			'system_voice.id', user, ItemKind.SYSTEM_VOICE, profile?.voiceId)
 			.select(eb => jsonObjectArray(eb, [
 				'system_voice.id',
 				'system_voice.name',
@@ -65,7 +66,7 @@ export const getUserboxItems = async (user: UserPayload, profile: ChuniUserData)
 				'system_voice.cuePath',
 			]).as('systemVoice')))
 		.with('trophies', eb => joinItem(eb.selectFrom('actaeon_chuni_static_trophies as trophy'),
-			'trophy.id', user.id, ItemKind.TROPHY, profile?.nameplateId)
+			'trophy.id', user, ItemKind.TROPHY, profile?.nameplateId)
 			.select(eb => jsonObjectArray(eb, [
 				'trophy.id',
 				'trophy.name',
@@ -73,7 +74,7 @@ export const getUserboxItems = async (user: UserPayload, profile: ChuniUserData)
 				'trophy.explainText'
 			]).as('trophy')))
 		.with('avatars', eb => joinItem(eb.selectFrom('chuni_static_avatar as avatar'),
-			'avatar.avatarAccessoryId', user.id, ItemKind.AVATAR_ACCESSORY, profile?.avatarBack, profile?.avatarFace, profile?.avatarItem,
+			'avatar.avatarAccessoryId', user, ItemKind.AVATAR_ACCESSORY, profile?.avatarBack, profile?.avatarFace, profile?.avatarItem,
 			profile?.avatarWear, profile?.avatarFront, profile?.avatarSkin, profile?.avatarHead)
 			.where(({ selectFrom, eb }) => eb('avatar.version', '=', selectFrom('chuni_static_avatar')
 				.select(({ fn }) => fn.max('version').as('latest'))))
