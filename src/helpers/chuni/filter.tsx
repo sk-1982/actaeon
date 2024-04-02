@@ -109,7 +109,7 @@ export const CHUNI_FILTER_WORLDS_END_STARS: FilterField<ChuniMusic, 'slider', 'w
 	name: 'worldsEndStars',
 	label: 'World\'s End Stars',
 	value: [1, 5],
-	className: 'col-span-full md:col-span-6 md:col-start-4 md:row-start-2 lg:row-start-auto lg:col-start-auto lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-6',
+	className: 'px-2 col-span-full md:col-span-6 md:col-start-4 md:row-start-2 lg:row-start-auto lg:col-start-auto lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-6',
 	filter: ([a, b]: number[], val) => {
 		if (!val.worldsEndTag) return true;
 		const stars = Math.ceil(val.level! / 2);
@@ -142,7 +142,7 @@ export const CHUNI_FILTER_LEVEL: FilterField<ChuniMusic, 'slider', 'level'> = {
 	name: 'level',
 	label: 'Level',
 	value: [0, 90],
-	className: 'col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-8',
+	className: 'px-2 col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-8',
 	filter: ([a, b]: number[], val) => {
 		if (val.worldsEndTag) return true;
 		a = getLevelValFromStop(a);
@@ -162,7 +162,7 @@ export const CHUNI_FILTER_RATING: FilterField<ChuniMusic, 'slider', 'rating'> = 
 	name: 'rating',
 	label: 'Rating',
 	value: [0, 17.55],
-	className: 'col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-10',
+	className: 'px-2 col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2 5xl:row-start-1 5xl:col-start-10',
 	filter: ([a, b]: number[], val) => {
 		if (val.worldsEndTag) return true;
 		return +val.rating >= a && +val.rating <= b;

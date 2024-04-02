@@ -40,15 +40,15 @@ const FILTERERS = ([
 	} as FilterField<ChuniMusic, 'dateSelect', 'dateRange'>),
 	{
 		...CHUNI_FILTER_WORLDS_END_STARS,
-		className: 'col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2'
+		className: 'px-2 col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2'
 	},
 	{
 		...CHUNI_FILTER_LEVEL,
-		className: 'col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2'
+		className: 'px-2 col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2'
 	},
 	{
 		...CHUNI_FILTER_RATING,
-		className: 'col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2'
+		className: 'px-2 col-span-full md:col-span-6 lg:col-span-4 5xl:col-span-2'
 	}
 ] as const);
 
