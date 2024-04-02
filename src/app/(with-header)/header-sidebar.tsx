@@ -330,17 +330,17 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 								setMenuOpen(false);
 								cookies.remove('actaeon-navigated-from');
 							}}
-								className={`text-2xl transition hover:text-secondary ${route === routeGroup ? 'font-bold' : 'font-semibold'}`}>
+								className={`block py-1 sm:py-0 text-3xl sm:text-2xl transition hover:text-secondary ${route === routeGroup ? 'font-bold' : 'font-semibold'}`}>
 								{route.name}
 							</Link>}
 							<div className="ml-2 mt-2">
 								{route.routes?.filter(filter)?.map(subroute => <div className="mb-1" key={subroute.url}>
 									{subroute.routes?.length ? <div
-										className={`text-xl`}>
-										{subroute.name}
+										className={`text-2xl sm:text-xl`}>
+										<div className="py-1 sm:py-0">{subroute.name}</div>
 										<div className="flex flex-col ml-1.5 pl-3 border-l border-gray-500/25 mt-0.5">
 											{subroute.routes.filter(filter).map(route => (<Link href={route.url} key={route.url} onClick={() => setMenuOpen(false)}
-												className={`text-[1.075rem] transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
+												className={`py-2 sm:py-0 text-xl sm:text-[1.075rem] transition ${path?.startsWith(route.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
 												{route.name}
 											</Link>))}
 										</div>
@@ -348,7 +348,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 										setMenuOpen(false);
 										cookies.remove('actaeon-navigated-from');
 									}}
-										className={`text-xl transition ${path?.startsWith(subroute.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
+										className={`block py-1 sm:py-0 text-2xl sm:text-xl transition ${path?.startsWith(subroute.url) ? 'font-semibold text-primary' : 'hover:text-secondary'}`}>
 										{subroute.name}
 									</Link>}
 								</div>)}
@@ -366,7 +366,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 						</Button>
 					</Link>}
 				</div>
-				<Button color="primary" className="w-full" onClick={() => user ? logout({ redirectTo: '/' }) : login()}>
+				<Button color="primary" className="w-full flex-shrink-0" onClick={() => user ? logout({ redirectTo: '/' }) : login()}>
 					{user ? 'Logout' : 'Login'}
 				</Button>
 			</div>
