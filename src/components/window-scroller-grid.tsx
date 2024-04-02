@@ -23,7 +23,7 @@ export const WindowScrollerGrid = <D extends any>({ rowSize, colSize, items, chi
 
 				return (<List ref={listRef} autoHeight isScrolling={isScrolling} onScroll={onChildScroll} scrollTop={scrollTop}
 					rowCount={rowCount} height={height} rowHeight={rowSize} width={width} rowRenderer={({ index, key, style }) =>
-					(<div key={key} style={{ ...style, height: `${rowSize}px` }} className="max-w-full h-full w-full flex justify-center">
+					(<div key={key} style={{ ...style, height: `${rowSize}px` }} className="max-w-full h-full w-full flex justify-evenly sm:justify-center">
 						{items.slice(index * itemsPerRow, (index + 1) * itemsPerRow).map((item, i) => (<div key={i} style={{ width: `${colSize}px` }} className="h-full max-w-full">
 							{children(item)}
 						</div>))}
