@@ -9,6 +9,8 @@ import { ChuniPlaylog, getPlaylog } from '@/actions/chuni/playlog';
 import { WindowScrollerGrid } from '@/components/window-scroller-grid';
 import { ChuniPlaylogCard } from '@/components/chuni/playlog-card';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
+import { useUser } from '@/helpers/use-user';
+import { ChuniNoProfile } from '@/components/chuni/no-profile';
 
 const FILTERERS = ([
 	CHUNI_FILTER_DIFFICULTY,
@@ -90,6 +92,11 @@ const ChuniPlaylogGrid = ({ items }: { items: ChuniPlaylog['data']; }) => {
 };
 
 export default function ChuniPlaylogList() {
+	const user = useUser();
+
+	if (!user?.chuni)
+		return (<ChuniNoProfile />);
+
 	return (<FilterSorter className="flex-grow"
 		filterers={REMOTE_FILTERERS}
 		defaultAscending={false}

@@ -3,22 +3,24 @@ import { ChuniNameplate } from '@/components/chuni/nameplate';
 import { ChuniPlaylogCard } from '@/components/chuni/playlog-card';
 import { getUserData, getUserRating } from '@/actions/chuni/profile';
 import { requireUser } from '@/actions/auth';
-import { notFound } from 'next/navigation';
 import { ChuniTopRatingSidebar } from './top-rating-sidebar';
 import { Button } from '@nextui-org/react';
 import Link from 'next/link';
+import { ChuniNoProfile } from '@/components/chuni/no-profile';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ChuniDashboard() {
 	const user = await requireUser();
+
+	if (!user.chuni)
+		return (<ChuniNoProfile />);
+
 	const [profile, rating, playlog] = await Promise.all([
 		getUserData(user),
 		getUserRating(user),
 		getPlaylog({ limit: 72 })
 	]);
-
-	if (!profile) return notFound();
 
 	return (<div className="flex h-full flex-col md:flex-row">
 		<div>
