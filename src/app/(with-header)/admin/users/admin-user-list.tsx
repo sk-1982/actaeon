@@ -12,7 +12,7 @@ import { hasPermission } from '@/helpers/permissions';
 import { AimeCard } from '@/components/aime-card';
 import { useErrorModal } from '@/components/error-modal';
 import { AdminUser } from '@/data/user';
-import { adminAddCardToUser } from '@/actions/card';
+import { adminAddCardToUser, deleteCard } from '@/actions/card';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { useConfirmModal } from '@/components/confirm-modal';
 import Link from 'next/link';
@@ -75,7 +75,7 @@ export const AdminUserList = ({ users: initialUsers }: { users: AdminUser[]; }) 
 			onSelectionChange={s => typeof s !== 'string' && setOpenUsers(s)}
 			className="my-1 border-b sm:border-b-0 border-divider sm:bg-content1 sm:rounded-lg sm:px-4 overflow-hidden">
 			
-			{users.map(userEntry => (<AccordionItem key={userEntry.uuid}
+			{users.map(userEntry => (<AccordionItem key={userEntry.uuid ?? userEntry.id}
 				id={userEntry.uuid ?? undefined} indicator={({ isOpen }) => <Tooltip content="Show cards">
 				<div className="flex items-center">
 					<CreditCardIcon className="h-6 w-6 mr-1" />
@@ -142,6 +142,14 @@ export const AdminUserList = ({ users: initialUsers }: { users: AdminUser[]; }) 
 				<section className="flex sm:p-4">
 					<div className="flex-grow flex flex-wrap items-center justify-center gap-2">
 						{userEntry.cards.map(c => <AimeCard key={c.access_code}
+							canDelete
+							onDelete={() => {
+								deleteCard(c.user!, c.id!);
+								setUsers(u => u.map(u => u.id === userEntry.id ? {
+									...u,
+									cards: u.cards.filter(card => card.id !== c.id)
+								} : u));
+							}}
 							card={{
 								...c,
 								created_date: new Date(c.created_date!),

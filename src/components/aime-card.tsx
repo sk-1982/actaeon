@@ -5,22 +5,27 @@ import { useState } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { Button, Tooltip } from '@nextui-org/react';
 import { useUser } from '@/helpers/use-user';
-import { TbHammer, TbHammerOff, TbLock, TbLockOpen } from 'react-icons/tb';
+import { TbHammer, TbHammerOff, TbLock, TbLockOpen, TbTrashX } from 'react-icons/tb';
 import { hasPermission } from '@/helpers/permissions';
 import { UserPermissions } from '@/types/permissions';
 import { banUnbanCard, lockUnlockCard } from '@/actions/card';
+import { useConfirmModal } from './confirm-modal';
 
 type AimeCardProps = {
 	card: DB['aime_card'],
 	className?: string,
+	canDelete?: boolean,
+	onDelete?: () => void
 };
 
-export const AimeCard = ({ className, card }: AimeCardProps) => {
+export const AimeCard = ({ className, card, canDelete, onDelete }: AimeCardProps) => {
 	const [showCode, setShowCode] = useState(false);
 	const user = useUser();
 	const canBan = hasPermission(user?.permissions, UserPermissions.USERMOD);
 	const [locked, setLocked] = useState(!!card.is_locked ?? false);
 	const [banned, setBanned] = useState(!!card.is_banned ?? true);
+	const confirm = useConfirmModal();
+
 	const formatOptions = {
 		year: '2-digit',
 		month: 'numeric',
@@ -73,9 +78,16 @@ export const AimeCard = ({ className, card }: AimeCardProps) => {
 				</>}
 		</div>
 
-		<div className="text-sm sm:text-medium">
+		<div className="text-sm sm:text-medium flex items-end">
 			{card.last_login_date ? `Last Used ${card.last_login_date.toLocaleTimeString(undefined, formatOptions)}` :
 				'Never Used'}
+			
+			{canDelete && <Tooltip content={<span className="text-danger">Delete this card</span>}>
+				<Button className="ml-auto" isIconOnly color="danger" variant="faded" onPress={() => confirm('Do you want to delete this card?',
+					() => onDelete?.())}>
+					<TbTrashX className="w-7 h-7" />
+				</Button>
+			</Tooltip>}
 		</div>
 
 		{(locked || banned) && <div className="absolute flex items-center justify-center w-full left-0 top-[60%] backdrop-blur h-12 sm:h-16 bg-gray-600/50 font-bold sm:text-2xl">

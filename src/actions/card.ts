@@ -12,9 +12,9 @@ import { getGlobalConfig } from '@/config';
 import { UserPayload } from '@/types/user';
 import { DB } from '@/types/db';
 
-export const getCards = async (user: UserPayload) => {
+export const getCards = async (user: number) => {
 	return db.selectFrom('aime_card')
-		.where('user', '=', user.id)
+		.where('user', '=', user)
 		.selectAll()
 		.execute();
 };
@@ -65,11 +65,26 @@ export const adminAddCardToUser = async (user: number, code: string): Promise<Ac
 	return { data: await getUsers() };
 };
 
+export const deleteCard = async (user: number, id: number) => {
+	const requestingUser = await requireUser();
+
+	if (requestingUser.id !== user)
+		requirePermission(requestingUser.permissions, UserPermissions.USERMOD);
+
+	await db.deleteFrom('aime_card')
+		.where('id', '=', id)
+		.where('user', '=', user)
+		.executeTakeFirst();
+	
+	revalidatePath('/settings', 'page');
+	revalidatePath('/admin/users', 'page');
+};
+
 export const userAddCard = async (code: string): Promise<ActionResult<{ card: DB['aime_card'] }>> => {
 	const user = await requireUser();
 
 	if (!hasPermission(user.permissions, UserPermissions.USERMOD)) {
-		const cards = await getCards(user);
+		const cards = await getCards(user.id);
 
 		if (!getGlobalConfig('allow_user_add_card'))
 			return { error: true, message: 'You do not have permissions to add a card' };

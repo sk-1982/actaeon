@@ -11,7 +11,7 @@ import { UserPermissions } from '@/types/permissions';
 import { hasPermission } from '@/helpers/permissions';
 import { useErrorModal } from '@/components/error-modal';
 import { useState } from 'react';
-import { userAddCard } from '@/actions/card';
+import { deleteCard, userAddCard } from '@/actions/card';
 
 export type CardsProps = {
 	cards: DB['aime_card'][],
@@ -21,7 +21,7 @@ export type CardsProps = {
 
 export const Cards = ({ cards: initialCards, canAddCard, maxCard }: CardsProps) => {
 	const prompt = usePromptModal();
-	const user = useUser();
+	const user = useUser({ required: true });
 	const setError = useErrorModal();
 	const [cards, setCards] = useState(initialCards);
 
@@ -29,7 +29,7 @@ export const Cards = ({ cards: initialCards, canAddCard, maxCard }: CardsProps) 
 		<header className="text-2xl font-semibold flex px-4 h-16 items-center">
 			Cards
 
-			{(hasPermission(user?.permissions, UserPermissions.USERMOD) ||
+			{(hasPermission(user.permissions, UserPermissions.USERMOD) ||
 				(canAddCard && cards.length < (maxCard ?? Infinity))) && <Tooltip content="Add card">
 					<Button isIconOnly className="ml-auto" onPress={() => {
 						promptAccessCode(prompt, 'Enter an access code for this card', code => {
@@ -47,7 +47,10 @@ export const Cards = ({ cards: initialCards, canAddCard, maxCard }: CardsProps) 
 		</header>
 		<Divider className="mb-4 hidden sm:block" />
 		<div className="px-1 sm:px-4 sm:pb-4 flex flex-wrap items-center justify-center gap-4">
-			{cards.map(c => <AimeCard key={c.id} card={c} className="w-full" />)}
+			{cards.map(c => <AimeCard canDelete key={c.id} card={c} className="w-full" onDelete={() => {
+				deleteCard(user.id, c.id);
+				setCards(cards => cards.filter(card => card.id !== c.id));
+			}} />)}
 		</div>
 	</section>);
 };

@@ -88,7 +88,8 @@ export const getUsers = async () => {
 		] as const)
 		.execute();
 
-	return parseJsonResult(res, ['cards']);
+	const data = parseJsonResult(res, ['cards']);
+	return data.map(d => ({ ...d, cards: d.cards.filter(c => c.id !== null) }));
 };
 
 export type AdminUser = Awaited<ReturnType<typeof getUsers>>[number];
