@@ -49,7 +49,7 @@ export const UserProfile = <T extends boolean>(props: UserProfileProps<T>) => {
 	const header = (<>
 		<header className="flex flex-wrap w-full text-4xl font-bold mt-4 px-4 sm:mt-12 max-w-4xl mx-auto items-center gap-3">
 			<div className="flex items-center mx-auto sm:mx-0 flex-wrap gap-y-2">
-				{props.friend?.chuniRival && <Tooltip content="Chunithm Rival">
+				{!!props.friend?.chuniRival && <Tooltip content="Chunithm Rival">
 					<div><ChuniPenguinIcon className="h-8 mr-3 md:-ml-8 ml-2" /></div>
 				</Tooltip>}
 				<span>{props.user.username}</span>
