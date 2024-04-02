@@ -44,7 +44,7 @@ export const SystemConfig = ({ config: initialConfig }: SystemConfigProps) => {
 			Allow users to add cards
 
 			<Checkbox size="lg" className="ml-auto" isDisabled={loading}
-				checked={config.allow_user_add_card}
+				isSelected={config.allow_user_add_card}
 				onValueChange={v => setConfigKey('allow_user_add_card', v)} />
 
 			<span className="w-full mt-2 text-xs sm:text-sm text-gray-500">
