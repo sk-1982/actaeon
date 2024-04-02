@@ -7,8 +7,6 @@ import { USER_PERMISSION_NAMES, UserPermissions } from '@/types/permissions';
 import { Button, Divider, Tooltip, Input, Accordion, AccordionItem, Spacer } from '@nextui-org/react';
 import { ChevronDownIcon, CreditCardIcon, PencilSquareIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { usePromptModal } from '@/components/prompt-modal';
-import { ArrowPathIcon } from '@heroicons/react/24/outline';
-import { generateAccessCode } from '@/helpers/access-code';
 import { useUser } from '@/helpers/use-user';
 import { hasPermission } from '@/helpers/permissions';
 import { AimeCard } from '@/components/aime-card';
@@ -19,6 +17,7 @@ import { TrashIcon } from '@heroicons/react/24/outline';
 import { useConfirmModal } from '@/components/confirm-modal';
 import Link from 'next/link';
 import { PermissionIcon } from '@/components/permission-icon';
+import { promptAccessCode } from '@/components/prompt-access-code';
 
 const FORMAT = {
 	month: 'numeric',
@@ -42,33 +41,13 @@ export const AdminUserList = ({ users: initialUsers }: { users: AdminUser[]; }) 
 			setOpenUsers(new Set([window.location.hash.slice(1)]));
 	}, []);
 
-	const promptAccessCode = (message: string, onConfirm: (val: string) => void) => {
-		prompt({
-			size: '2xl',
-			title: 'Enter Access Code', content: (val, setVal) => <>
-				{ message }
-				<div className="flex overflow-hidden rounded-lg">
-					<Input label="Access Code" inputMode="numeric" size="sm" type="text" maxLength={24} radius="none"
-						classNames={{ input: `[font-feature-settings:"fwid"] text-xs sm:text-sm` }}
-						value={val.match(/.{1,4}/g)?.join('-') ?? ''}
-						onValueChange={v => setVal(v.replace(/\D/g, ''))} />
-					<Tooltip content="Generate Random Code">
-						<Button isIconOnly color="primary" size="lg" radius="none" onPress={() => setVal(generateAccessCode())}>
-							<ArrowPathIcon className="h-7" />
-						</Button>
-					</Tooltip>
-				</div>
-			</>
-		}, v => onConfirm(v.replace(/\D/g, '')));
-	}
-
 	return (<main className="max-w-5xl mx-auto w-full">
 		<header className="p-4 font-semibold text-2xl flex items-center">
 			Users
 
 			<Tooltip content="Create new user">
 				<Button isIconOnly className="ml-auto"
-					onPress={() => promptAccessCode('Enter an access code to create this user', code => {
+					onPress={() => promptAccessCode(prompt, 'Enter an access code to create this user', code => {
 						createUserWithAccessCode(code)
 							.then(res => {
 								if (res.error)
@@ -172,7 +151,7 @@ export const AdminUserList = ({ users: initialUsers }: { users: AdminUser[]; }) 
 							}} />)}
 					</div>
 					<Tooltip content="Add new card to this user">
-						<Button isIconOnly onPress={() => promptAccessCode('Enter an access code to add',
+						<Button isIconOnly onPress={() => promptAccessCode(prompt, 'Enter an access code to add',
 							code => adminAddCardToUser(userEntry.id, code).then(res => {
 								if (res.error)
 									return setError(res.message);

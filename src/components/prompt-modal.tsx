@@ -6,7 +6,7 @@ import { useHashNavigation } from '@/helpers/use-hash-navigation';
 type PromptOptions = { title: string, size?: ModalProps['size'] } &
 	(({ message: string, content?: never } & Partial<Pick<InputProps, 'type' | 'name' | 'label' | 'placeholder'>>) |
 	{ content: (value: string, setValue: (v: string) => void) => ReactNode, message?: never });
-type PromptCallback = (options: PromptOptions, onConfirm: (val: string) => void, onCancel?: () => void) => void;
+export type PromptCallback = (options: PromptOptions, onConfirm: (val: string) => void, onCancel?: () => void) => void;
 const PromptContext = createContext<PromptCallback>(() => {});
 
 export const PromptProvider = ({ children }: { children: ReactNode }) => {

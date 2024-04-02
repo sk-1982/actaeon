@@ -1,26 +1,24 @@
 import { getCards } from '@/actions/card';
 import { Divider } from '@nextui-org/react';
-import { AimeCard } from '@/components/aime-card';
 import { UserSettings } from './user-settings';
+import { Cards } from './cards';
+import { requireUser } from '@/actions/auth';
+import { getGlobalConfig } from '@/config';
 
 export default async function SettingsPage() {
-	const card = await getCards();
-
+	const user = await requireUser();
+	const cards = await getCards(user);
 
 	return (<div className="w-full flex items-center justify-center">
-		<div className="w-full max-w-full sm:max-w-5xl flex flex-col gap-2 2xl:max-w-screen-4xl 2xl:grid grid-cols-2">
-			<div>
+		<div className="w-full max-w-full sm:max-w-5xl flex flex-col gap-2 2xl:max-w-screen-4xl 2xl:grid grid-cols-12">
+			<div className="col-span-3">
 				<UserSettings />
 			</div>
 
 			<Divider className="block sm:hidden mt-2" />
 
-			<div className="w-full rounded-lg sm:bg-content1 sm:shadow-lg">
-				<div className="text-2xl font-semibold p-4">Cards</div>
-				<Divider className="mb-4 hidden sm:block" />
-				<div className="px-1 sm:px-4 sm:pb-4 flex flex-wrap items-center justify-center gap-4">
-					{card.map(c => <AimeCard key={c.id} card={c} className="w-full" />)}
-				</div>
+			<div className="col-span-9">
+				<Cards cards={cards} canAddCard={getGlobalConfig('allow_user_add_card')} maxCard={getGlobalConfig('user_max_card') ?? Infinity} />
 			</div>
 		</div>
 	</div>);
