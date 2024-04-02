@@ -58,15 +58,15 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 	if (size === 'xs') {
 		itemWidth = 125;
 		itemHeight = 180;
-		itemClass = 'py-0.5 px-0.5 h-full';
+		itemClass = 'py-0.5 px-0.5 h-full block';
 	} else if (size === 'sm') {
 		itemWidth = 175;
 		itemHeight = 235;
-		itemClass = 'py-1.5 px-1 h-full';
+		itemClass = 'py-1.5 px-1 h-full block';
 	} else {
 		itemWidth = 285;
 		itemHeight = 375;
-		itemClass = 'py-1.5 px-1 h-full';
+		itemClass = 'py-1.5 px-1 h-full block';
 	}
 
 	const setError = useErrorModal();
@@ -74,7 +74,7 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 
 	return (<WindowScrollerGrid rowSize={itemHeight} colSize={itemWidth} items={music}>
 		{item => <TickerHoverProvider>
-			{setHover => 	<div className={itemClass}><ChuniDifficultyContainer difficulty={item.chartId!}
+			{setHover => 	<Link href={`/chuni/music/${item.songId}`} className={itemClass}><ChuniDifficultyContainer difficulty={item.chartId!}
 				containerClassName="flex flex-col"
 				className="w-full h-full border border-gray-500/75 rounded-md"
 				onMouseEnter={() => setHover(true)}
@@ -135,7 +135,7 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 					<Ticker hoverOnly noDelay>{item.title}</Ticker>
 				</Link>
 				<Ticker className={`${size === 'lg' ? 'text-medium mb-1.5' : 'text-xs mb-0.5' } text-center px-1 drop-shadow-2xl text-white`} hoverOnly noDelay>{item.artist}</Ticker>
-			</ChuniDifficultyContainer></div>}
+			</ChuniDifficultyContainer></Link>}
 		</TickerHoverProvider>}
 	</WindowScrollerGrid>);
 };
