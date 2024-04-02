@@ -2,7 +2,7 @@
 
 import { Avatar, Badge, Button, Divider, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Navbar, Popover, PopoverContent, PopoverTrigger, Tooltip } from '@nextui-org/react';
 import { Bars3Icon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, RefCallback, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ThemeSwitcherDropdown, ThemeSwitcherSwitch } from '@/components/theme-switcher';
 import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/solid';
@@ -18,6 +18,7 @@ import { BellAlertIcon } from '@heroicons/react/24/solid';
 import { FriendRequest, acceptFriendRequest, getFriendRequests, rejectFriendRequest } from '@/actions/friend';
 import { useWindowListener } from '@/helpers/use-window-listener';
 import { useErrorModal } from '@/components/error-modal';
+import { useSwipeable } from 'react-swipeable';
 
 export type HeaderSidebarProps = {
 	children?: React.ReactNode,
@@ -41,6 +42,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
 	const [isNotificationsOpen, _setNotificationsOpen] = useState(false);
 	const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+	const [menuTranslate, setMenuTranslate] = useState<number | null>(null);
+	const [notificationsTranslate, setNotificationsTranslate] = useState<number | null>(null);
 
 	const path = pathname === '/' ? (user?.homepage ?? '/dashboard') : pathname;
 
@@ -50,6 +53,56 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	const { setTheme, theme } = useTheme();
 	
 	const setError = useErrorModal();
+
+	const { ref } = useSwipeable({
+		touchEventOptions: { passive: false },
+		onSwiped: e => {
+			const speedX = Math.abs(e.vxvy[0]);
+			const speedY = Math.abs(e.vxvy[1]);
+			const fastSwipe = speedX > 0.75 && speedX > speedY;
+
+			if (menuTranslate && ((Math.abs(menuTranslate) > 384 * 0.5) || fastSwipe)) {
+				if (isMenuOpen && window.location.hash === '#sidebar')
+					router.back();
+				setMenuOpen(!isMenuOpen);
+			} else if (notificationsTranslate && ((Math.abs(notificationsTranslate) > window.innerWidth * 0.4 || fastSwipe))) {
+				if (isNotificationsOpen && window.location.hash === '#notifications')
+					router.back();
+				setNotificationsOpen(!isNotificationsOpen);
+			}
+
+			setMenuTranslate(null);
+			setNotificationsTranslate(null);
+		},
+		onSwipeStart: e => {
+			if (e.dir === 'Down' || e.dir === 'Up') return;
+
+			const allMenusClosed = !isMenuOpen && !isNotificationsOpen;
+			const xPercent = e.initial[0] / window.innerWidth;
+
+			if ((isMenuOpen && e.dir === 'Left') || (allMenusClosed && e.dir === 'Right' && xPercent <= 0.6)) {
+				setMenuTranslate(e.deltaX);
+				e.event.preventDefault();
+			} else if ((isNotificationsOpen && e.dir === 'Right' || (allMenusClosed && e.dir === 'Left' && xPercent >= 0.4))) {
+				setNotificationsTranslate(e.deltaX);
+				e.event.preventDefault();
+			}
+		},
+		onSwiping: e => {
+			if (menuTranslate !== null) {
+				setMenuTranslate(e.deltaX);
+				e.event.preventDefault();
+			} else if (notificationsTranslate !== null) {
+				setNotificationsTranslate(e.deltaX);
+				e.event.preventDefault();
+			}
+		}
+	}) as { ref: RefCallback<Document>; };
+
+	useEffect(() => {
+		ref(document);
+		return () => ref({} as any);
+	}, [ref]);
 
 	useEffect(() => {
 		if (user)
@@ -78,7 +131,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 		setNotificationsOpen(window.location.hash === '#notifications');
 	}, []);
 
-	const renderHeaderLink = (route: Subroute) => {
+	const renderHeaderLink = useCallback((route: Subroute) => {
 		const linkStyle = path?.startsWith(route.url) ?
 			'font-semibold text-primary' : 'hover:text-secondary';
 
@@ -112,7 +165,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			className={`mr-4 transition ${linkStyle}`}>
 			{route.name}
 		</Link>);
-	};
+	}, [cookies, routeGroup, path]);
 
 	const notifications = useMemo(() => {
 		if (!friendRequests.length) return null;
@@ -147,27 +200,119 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 		});
 	}, [friendRequests]);
 
-	return (<>
-		{/* begin sidebar */}
-		<div className={`fixed inset-0 w-full h-full z-[49] ${isMenuOpen ? '' : 'pointer-events-none'}`}>
+	const topNavbar = useMemo(() => {
+		return (<Navbar className="w-full fixed" classNames={{ wrapper: 'max-w-full p-0' }} shouldHideOnScroll={breakpoint === undefined} height="5.5rem">
+			<div className="flex h-header px-6 items-center flex-shrink-0 w-full z-[48]">
+				<Button className="text-2xl font-bold cursor-pointer flex items-center m-0 ps-1.5 pe-2 mr-6" variant="light"
+					onClick={() => setMenuOpen(true)}>
+					<Bars3Icon className="h-6 mt-0.5" />
+					<span>{routeGroup.title}</span>
+				</Button>
+				<div className="mr-auto mt-1 hidden md:flex text-lg">
+					{routeGroup.routes?.filter(filter).map(renderHeaderLink)}
+				</div>
+				<div className="mx-auto"></div>
+				{routeGroup !== MAIN_ROUTES && <div className="mr-4 mt-1 hidden [@media(min-width:1175px)]:flex text-lg">
+					{MAIN_ROUTES.routes.filter(filter).map(renderHeaderLink)}
+				</div>}
+				{user ? <>
+					{friendRequests.length ? <Popover>
+						<PopoverTrigger>
+							<div className="hidden sm:block">
+								<Badge content={friendRequests.length.toString()} color="danger" shape="circle">
+									<div className="flex items-center justify-center border-medium w-unit-8 h-unit-8 border-default box-border rounded-small cursor-pointer">
+										<BellAlertIcon className="h-5" />
+									</div>
+								</Badge>
+							</div>
+						</PopoverTrigger>
+						<PopoverContent className="max-h-96 overflow-y-auto w-96 flex flex-col overflow-x-hidden pt-2.5 items-center justify-center">
+							{notifications}
+						</PopoverContent>
+					</Popover> : <Tooltip content={<span className="text-gray-500 italic">No notifications</span>}>
+						<Button isIconOnly size="sm" variant="bordered" className="hidden sm:flex" disableRipple disableAnimation>
+							<BellIcon className="h-5" />
+						</Button>
+					</Tooltip>}
+
+					<Dropdown isOpen={userDropdownOpen && !isNotificationsOpen} onOpenChange={o => {
+						if (!o || breakpoint)
+							setUserDropdownOpen(o);
+						else
+							setNotificationsOpen(true);
+					}}>
+						<DropdownTrigger>
+							<div className="flex items-center">
+								<Badge content={friendRequests.length.toString()} color="danger" shape="circle" isInvisible={!!breakpoint || !friendRequests.length} size="lg">
+									<Avatar name={user.username?.[0]?.toUpperCase() ?? undefined} className={`w-12 h-12 ml-2.5 cursor-pointer text-2xl [font-feature-settings:"fwid"]`} />
+								</Badge>
+							</div>
+						</DropdownTrigger>
+						<DropdownMenu>
+							<DropdownItem showDivider className="p-0">
+								<Link className="text-lg font-semibold block w-full h-full px-2 py-1.5" href={`/user/${user.uuid}`}>{user.username}</Link>
+							</DropdownItem>
+							<DropdownItem className="p-0 mt-0.5">
+								<Link href="/settings" className="w-full h-full block px-2 py-1.5">
+									Settings
+								</Link>
+							</DropdownItem>
+							<DropdownItem className="p-0 mt-0.5">
+								<Link href="/friends" className="w-full h-full block px-2 py-1.5">
+									Friends
+								</Link>
+							</DropdownItem>
+							<DropdownItem className="p-0 mt-0.5" showDivider closeOnSelect={false}>
+								<div className="w-full flex pl-2 h-8 items-center" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+									Dark Theme
+
+									<ThemeSwitcherSwitch className="ml-auto" size="sm" />
+								</div>
+							</DropdownItem>
+							<DropdownItem className="p-0" color="danger" variant="flat">
+								<div className="w-full h-full block px-2 py-1.5 text-danger" onClick={() => logout({ redirectTo: '/' })}>
+									Logout
+								</div>
+							</DropdownItem>
+						</DropdownMenu>
+					</Dropdown>
+				</> :
+					<>
+						<ThemeSwitcherDropdown />
+						<Button size="sm" className="ml-2" color="primary" onClick={() => login()}>
+							Login
+						</Button>
+					</>
+				}
+			</div>
+		</Navbar>);
+	}, [breakpoint, routeGroup, friendRequests, userDropdownOpen, isNotificationsOpen, user, notifications]);
+
+	const leftSidebar = useMemo(() => {
+		return (<div className={`fixed inset-0 w-full h-full z-[49] ${isMenuOpen ? '' : 'pointer-events-none'}`}>
 			<div className={`transition bg-black z-[49] absolute inset-0 w-full h-full ${isMenuOpen ? 'bg-opacity-25' : 'bg-opacity-0 pointer-events-none'}`} onClick={() => {
 				setMenuOpen(false);
-				router.back();
+				if (window.location.hash === '#sidebar')
+					router.back();
 			}} />
 
-			<div className={`dark flex flex-col text-white absolute p-6 top-0 h-full max-w-full w-96 bg-gray-950 z-[49] transition-all left-0 ${isMenuOpen ? 'shadow-2xl' : '-translate-x-full'}`}>
+			<div className={`dark flex flex-col text-white absolute p-6 top-0 h-full max-w-full w-96 bg-gray-950 z-[49] left-0 ${menuTranslate ? '' : 'transition-all'} ${isMenuOpen ? 'shadow-2xl' : '-translate-x-full'}`} style={menuTranslate ? {
+				transform: `translateX(clamp(-100%, calc(${isMenuOpen ? `${menuTranslate}px` : `${menuTranslate}px - 100%`}), 0px))`
+			} : undefined}>
 				<div className="flex">
 					<Button className="text-2xl mb-6 font-bold cursor-pointer flex items-center ps-1.5 pe-2" variant="light"
 						onClick={() => {
 							setMenuOpen(false);
-							router.back();
+							if (window.location.hash === '#sidebar')
+								router.back();
 						}}>
 						<ChevronLeftIcon className="h-6 mt-0.5" />
-						<span>{ routeGroup.title }</span>
+						<span>{routeGroup.title}</span>
 					</Button>
 					<Button className="ml-auto" isIconOnly color="danger" onClick={() => {
 						setMenuOpen(false);
-						router.back();
+						if (window.location.hash === '#sidebar')
+							router.back();
 					}}>
 						<XMarkIcon className="w-5" />
 					</Button>
@@ -212,21 +357,24 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					<ThemeSwitcherSwitch />
 
 					{user && <Link href="/settings" className="ml-auto">
-              <Button isIconOnly variant="bordered" size="lg">
-                  <AdjustmentsHorizontalIcon className="w-8" />
-              </Button>
-          </Link>}
+						<Button isIconOnly variant="bordered" size="lg">
+							<AdjustmentsHorizontalIcon className="w-8" />
+						</Button>
+					</Link>}
 				</div>
 				<Button color="primary" className="w-full" onClick={() => user ? logout({ redirectTo: '/' }) : login()}>
 					{user ? 'Logout' : 'Login'}
 				</Button>
 			</div>
-		</div>
-		{/* end sidebar */}
+		</div>);
+	}, [isMenuOpen, router, menuTranslate, routeGroup, user, path, cookies]);
 
-		{/* being mobile notifications */}
-		<div className={`fixed inset-0 w-full h-full max-h-full z-[49] ${isNotificationsOpen ? '' : 'pointer-events-none'}`}>
-			<div className={`flex flex-col dark text-white absolute pt-6 pb-3 top-0 h-full max-w-full w-full max-h-full bg-gray-950 z-[49] transition-all left-0  ${isNotificationsOpen ? 'shadow-2xl translate-x-0' : 'translate-x-full'}`}>
+	const rightSidebar = useMemo(() => { 
+		return (<div className={`fixed inset-0 w-full h-full max-h-full z-[49] ${isNotificationsOpen ? '' : 'pointer-events-none'}`}>
+			<div className={`flex flex-col dark text-white absolute pt-6 pb-3 top-0 h-full max-w-full w-full max-h-full bg-gray-950 z-[49] ${notificationsTranslate ? '' : 'transition-all'} left-0 ${isNotificationsOpen ? 'shadow-2xl translate-x-0' : 'translate-x-full'}`}
+				style={notificationsTranslate ? {
+					transform: `translateX(clamp(0px, ${isNotificationsOpen ? `${notificationsTranslate}px` : `100% + ${notificationsTranslate}px`}, 100%))`
+				} : undefined}>
 				<header className="font-semibold text-2xl flex items-center pr-4 pl-2 w-full">
 					<Link href={`/user/${user?.uuid}`} className="flex items-center gap-3" onClick={() => setNotificationsOpen(false)}>
 						<Avatar name={user?.username?.[0]?.toUpperCase() ?? undefined} className={`w-12 h-12 ml-2.5 cursor-pointer text-2xl [font-feature-settings:"fwid"]`} />
@@ -241,7 +389,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					</Link>
 					<Button isIconOnly className="ml-2" color="danger" onPress={() => {
 						setNotificationsOpen(false);
-						router.back();
+						if (window.location.hash === '#notifications')
+							router.back();
 					}}>
 						<XMarkIcon className="h-1/2" />
 					</Button>
@@ -277,100 +426,17 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					Logout
 				</Button>
 			</div>
-		</div>
-		{/* end mobile notifications */}
+		</div>);
+	}, [isNotificationsOpen, notificationsTranslate, user, friendRequests]);
 
+	return (<>
+		{ leftSidebar }
+		{ rightSidebar }
 		{/* begin top navbar */}
 		<div className="flex flex-col flex-grow">
-			<Navbar className="w-full fixed" classNames={{ wrapper: 'max-w-full p-0' }} shouldHideOnScroll={breakpoint === undefined} height="5.5rem">
-				<div className="flex h-header px-6 items-center flex-shrink-0 w-full z-[48]">
-					<Button className="text-2xl font-bold cursor-pointer flex items-center m-0 ps-1.5 pe-2 mr-6" variant="light"
-						onClick={() => setMenuOpen(true)}>
-						<Bars3Icon className="h-6 mt-0.5" />
-						<span>{ routeGroup.title }</span>
-					</Button>
-					<div className="mr-auto mt-1 hidden md:flex text-lg">
-						{routeGroup.routes?.filter(filter).map(renderHeaderLink)}
-					</div>
-					<div className="mx-auto"></div>
-					{routeGroup !== MAIN_ROUTES && <div className="mr-4 mt-1 hidden [@media(min-width:1175px)]:flex text-lg">
-						{MAIN_ROUTES.routes.filter(filter).map(renderHeaderLink)}
-					</div>}
-					{user ? <>
-						{friendRequests.length ? <Popover>
-							<PopoverTrigger>
-								<div className="hidden sm:block">
-									<Badge content={friendRequests.length.toString()} color="danger" shape="circle">
-										<div className="flex items-center justify-center border-medium w-unit-8 h-unit-8 border-default box-border rounded-small cursor-pointer">
-											<BellAlertIcon className="h-5" />
-										</div>
-									</Badge>
-								</div>
-							</PopoverTrigger>
-							<PopoverContent className="max-h-96 overflow-y-auto w-96 flex flex-col overflow-x-hidden pt-2.5 items-center justify-center">
-								{ notifications }
-							</PopoverContent>
-						</Popover> : <Tooltip content={<span className="text-gray-500 italic">No notifications</span>}>
-								<Button isIconOnly size="sm" variant="bordered" className="hidden sm:flex" disableRipple disableAnimation>
-									<BellIcon className="h-5" />
-								</Button>
-						</Tooltip>}
+			{topNavbar}
 
-
-
-						<Dropdown isOpen={userDropdownOpen && !isNotificationsOpen} onOpenChange={o => {
-							if (!o || breakpoint)
-								setUserDropdownOpen(o);
-							else
-								setNotificationsOpen(true);
-						}}>
-							<DropdownTrigger>
-								<div className="flex items-center">
-									<Badge content={friendRequests.length.toString()} color="danger" shape="circle" isInvisible={!!breakpoint || !friendRequests.length} size="lg">
-										<Avatar name={user.username?.[0]?.toUpperCase() ?? undefined} className={`w-12 h-12 ml-2.5 cursor-pointer text-2xl [font-feature-settings:"fwid"]`} />
-									</Badge>
-								</div>
-							</DropdownTrigger>
-							<DropdownMenu>
-								<DropdownItem showDivider className="p-0">
-									<Link className="text-lg font-semibold block w-full h-full px-2 py-1.5" href={`/user/${user.uuid}`}>{user.username}</Link>
-								</DropdownItem>
-								<DropdownItem className="p-0 mt-0.5">
-									<Link href="/settings" className="w-full h-full block px-2 py-1.5">
-										Settings
-									</Link>
-								</DropdownItem>
-								<DropdownItem className="p-0 mt-0.5">
-									<Link href="/friends" className="w-full h-full block px-2 py-1.5">
-										Friends
-									</Link>
-								</DropdownItem>
-								<DropdownItem className="p-0 mt-0.5" showDivider closeOnSelect={false}>
-									<div className="w-full flex pl-2 h-8 items-center" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-										Dark Theme
-
-										<ThemeSwitcherSwitch className="ml-auto" size="sm" />
-									</div>
-								</DropdownItem>
-								<DropdownItem className="p-0" color="danger" variant="flat">
-									<div className="w-full h-full block px-2 py-1.5 text-danger" onClick={() => logout({ redirectTo: '/' })}>
-										Logout
-									</div>
-								</DropdownItem>
-							</DropdownMenu>
-						</Dropdown>
-					</> :
-						<>
-							<ThemeSwitcherDropdown />
-							<Button size="sm" className="ml-2" color="primary" onClick={() => login()}>
-								Login
-							</Button>
-						</>
-					}
-				</div>
-			</Navbar>
-
-			<div className={`sm:px-5 flex-grow pt-fixed flex flex-col ${isNotificationsOpen ? 'overflow-hidden' : ''}`}>
+			<div className={`sm:px-5 flex-grow pt-fixed flex flex-col`}>
 				{children}
 			</div>
 		</div>
