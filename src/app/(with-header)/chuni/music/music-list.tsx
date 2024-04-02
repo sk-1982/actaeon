@@ -74,13 +74,15 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 
 	return (<WindowScrollerGrid rowSize={itemHeight} colSize={itemWidth} items={music}>
 		{item => <TickerHoverProvider>
-			{setHover => 	<Link href={`/chuni/music/${item.songId}`} className={itemClass}><ChuniDifficultyContainer difficulty={item.chartId!}
+			{setHover => 	<div className={itemClass}><ChuniDifficultyContainer difficulty={item.chartId!}
 				containerClassName="flex flex-col"
 				className="w-full h-full border border-gray-500/75 rounded-md"
 				onMouseEnter={() => setHover(true)}
 				onMouseLeave={() => setHover(false)}>
 				<div className="aspect-square w-full p-[0.2rem] relative">
-					<img src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)} alt={item.title ?? 'Music'} className="rounded" />
+					<Link href={`/chuni/music/${item.songId}`}>
+						<img src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)} alt={item.title ?? 'Music'} className="rounded" />
+					</Link>
 					{item.rating && !item.worldsEndTag && <div className={`${size === 'lg' ? 'text-2xl' : ''} absolute bottom-0.5 left-0.5 bg-gray-200/60 backdrop-blur-sm px-0.5 rounded`}>
               <ChuniRating rating={+item.rating * 100} className="-my-0.5">
 								{item.rating.slice(0, item.rating.indexOf('.') + 3)}
@@ -135,7 +137,7 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 					<Ticker hoverOnly noDelay>{item.title}</Ticker>
 				</Link>
 				<Ticker className={`${size === 'lg' ? 'text-medium mb-1.5' : 'text-xs mb-0.5' } text-center px-1 drop-shadow-2xl text-white`} hoverOnly noDelay>{item.artist}</Ticker>
-			</ChuniDifficultyContainer></Link>}
+			</ChuniDifficultyContainer></div>}
 		</TickerHoverProvider>}
 	</WindowScrollerGrid>);
 };
