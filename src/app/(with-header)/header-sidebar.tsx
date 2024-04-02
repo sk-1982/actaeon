@@ -76,6 +76,10 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 		},
 		onSwipeStart: e => {
 			if (e.dir === 'Down' || e.dir === 'Up') return;
+			
+			const data = (e.event.target as HTMLElement)?.dataset;
+			if (data?.slot === 'thumb' || data?.dragging)
+				return;
 
 			const allMenusClosed = !isMenuOpen && !isNotificationsOpen;
 			const xPercent = e.initial[0] / window.innerWidth;
@@ -427,7 +431,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				</Button>
 			</div>
 		</div>);
-	}, [isNotificationsOpen, notificationsTranslate, user, friendRequests]);
+	}, [isNotificationsOpen, notificationsTranslate, user, friendRequests, notifications, router]);
 
 	return (<>
 		{ leftSidebar }
