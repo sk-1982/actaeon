@@ -16,6 +16,7 @@ import { Ticker, TickerHoverProvider } from '@/components/ticker';
 import { useErrorModal } from '@/components/error-modal';
 import { CHUNI_FILTER_DIFFICULTY, CHUNI_FILTER_FAVORITE, CHUNI_FILTER_GENRE, CHUNI_FILTER_LAMP, CHUNI_FILTER_LEVEL, CHUNI_FILTER_RATING, CHUNI_FILTER_SCORE, CHUNI_FILTER_WORLDS_END_STARS, CHUNI_FILTER_WORLDS_END_TAG } from '@/helpers/chuni/filter';
 import { WindowScrollerGrid } from '@/components/window-scroller-grid';
+import { useUser } from '@/helpers/use-user';
 
 export type ChuniMusicListProps = {
 	music: ChuniMusic[]
@@ -51,6 +52,8 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 	setMusicList: (m: typeof music) => void,
 	fullMusicList: ChuniMusicListProps['music']
 }) => {
+	const user = useUser();
+
 	let itemWidth = 0;
 	let itemHeight = 0;
 	let itemClass = '';
@@ -90,7 +93,7 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
           </div>}
 					<ChuniLevelBadge className={`${size === 'lg' ? 'h-14' : 'w-14'} absolute bottom-px right-px`} music={item} />
 
-					<Button isIconOnly className={`absolute top-0 left-0 pt-1 bg-gray-600/25 ${item.favorite ? 'text-red-500': ''}`}
+					{!!user?.chuni && <Button isIconOnly className={`absolute top-0 left-0 pt-1 bg-gray-600/25 ${item.favorite ? 'text-red-500' : ''}`}
 						size={size === 'xs' ? 'sm' : 'md'} variant="flat" radius="full"
 						onPress={() => {
 							if (pendingFavorite) return;
@@ -112,10 +115,10 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 										return setError(`Failed to set favorite: ${res.message}`);
 									}
 								})
-								.finally(() => setPendingFavorite(false))
+								.finally(() => setPendingFavorite(false));
 						}}>
 						{item.favorite ? <SolidHeartIcon className="w-3/4" /> : <OutlineHeartIcon className="w-3/4" />}
-					</Button>
+					</Button>}
 				</div>
 				<div className="px-0.5 mb-1 flex">
 					{size === 'lg' && <div className="h-full w-1/3 mr-0.5">
