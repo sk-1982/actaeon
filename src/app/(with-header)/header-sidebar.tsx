@@ -155,7 +155,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				router.back();
 			}} />
 
-			<div className={`dark flex flex-col text-white absolute p-6 top-0 h-full max-w-full w-96 bg-gray-950 z-[49] transition-all ${isMenuOpen ? 'left-0 shadow-2xl' : '-left-full'}`}>
+			<div className={`dark flex flex-col text-white absolute p-6 top-0 h-full max-w-full w-96 bg-gray-950 z-[49] transition-all left-0 ${isMenuOpen ? 'shadow-2xl' : '-translate-x-full'}`}>
 				<div className="flex">
 					<Button className="text-2xl mb-6 font-bold cursor-pointer flex items-center ps-1.5 pe-2" variant="light"
 						onClick={() => {
@@ -226,7 +226,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 
 		{/* being mobile notifications */}
 		<div className={`fixed inset-0 w-full h-full max-h-full z-[49] ${isNotificationsOpen ? '' : 'pointer-events-none'}`}>
-			<div className={`flex flex-col dark text-white absolute pt-6 pb-3 top-0 h-full max-w-full w-full max-h-full bg-gray-950 z-[49] transition-all ${isNotificationsOpen ? 'left-0 shadow-2xl' : 'left-full'}`}>
+			<div className={`flex flex-col dark text-white absolute pt-6 pb-3 top-0 h-full max-w-full w-full max-h-full bg-gray-950 z-[49] transition-all left-0  ${isNotificationsOpen ? 'shadow-2xl translate-x-0' : 'translate-x-full'}`}>
 				<header className="font-semibold text-2xl flex items-center pr-4 pl-2 w-full">
 					<Link href={`/user/${user?.uuid}`} className="flex items-center gap-3" onClick={() => setNotificationsOpen(false)}>
 						<Avatar name={user?.username?.[0]?.toUpperCase() ?? undefined} className={`w-12 h-12 ml-2.5 cursor-pointer text-2xl [font-feature-settings:"fwid"]`} />
