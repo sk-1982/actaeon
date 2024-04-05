@@ -72,6 +72,7 @@ export interface ActaeonTeams {
 }
 
 export interface ActaeonUserExt {
+  dashboard: string | null;
   homepage: string | null;
   team: string | null;
   userId: number;

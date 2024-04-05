@@ -1,6 +1,6 @@
 import { AimeUser, DB } from '@/types/db';
 
-export type DBUserPayload = Omit<AimeUser, 'password'> & Omit<DB['actaeon_user_ext'], 'userId'> & {
+export type DBUserPayload = Omit<AimeUser, 'password'> & Omit<DB['actaeon_user_ext'], 'userId' | 'dashboard'> & {
 	chuni: boolean
 };
 

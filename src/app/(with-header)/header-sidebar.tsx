@@ -77,6 +77,16 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 		onSwipeStart: e => {
 			if (e.dir === 'Down' || e.dir === 'Up') return;
 			
+			let parent: HTMLElement | null = e.event.target as HTMLElement;
+			while (parent) {
+				const data = parent.dataset;
+				if (data?.slot === 'thumb' || data?.dragging ||
+					parent?.classList?.contains('react-draggable-dragging') ||
+					parent?.classList?.contains('react-resizable-handle'))
+					return;
+				parent = parent.parentElement;
+			}
+			
 			const data = (e.event.target as HTMLElement)?.dataset;
 			if (data?.slot === 'thumb' || data?.dragging)
 				return;
