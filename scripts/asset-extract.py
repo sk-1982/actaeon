@@ -18,7 +18,8 @@ def run(event, func, args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', help='asset config (default=assets.yaml)', default='assets.yaml')
+    parser.add_argument('--config', help='asset config (default=assets.fast.yaml)', default='assets.fast.yaml')
+    parser.add_argument('--paths', help='path config (default=paths.yaml)', default='paths.yaml')
     parser.add_argument('--processes', type=int, default=cpu_count(), help=f'number of processes to use (default={cpu_count()})')
     parser.add_argument('--out-dir', '--output-dir', '--output', '-o', help='output directory (default=../public/assets)', default='../public/assets')
     parser.add_argument('--no-overwrite', '-n', help='don\'t overwrite exising files', action='store_true')

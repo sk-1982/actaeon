@@ -1,12 +1,5 @@
 # produces decent quality files much faster, at the expense of greatly increased file sizes
 
-# path to ffmpeg if it is not on the path
-ffmpeg_path: 'ffmpeg'
-# path to vgmstream if it is not on the path
-# required for some audio conversions
-# https://github.com/vgmstream/vgmstream
-vgmstream_path: 'vgmstream-cli'
-
 # options for music
 music:
   enable: true

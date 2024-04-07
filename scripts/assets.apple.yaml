@@ -1,0 +1,17 @@
+# produces audio files compatible with safari
+
+music:
+  enable: true
+  extension: .m4a
+  ffmpeg_args: ['-b:a', '96k']
+
+audio:
+  enable: true
+  extension: .m4a
+  ffmpeg_args: ['-b:a', '96k']
+
+images:
+  enable: false
+
+jackets:
+  enable: false

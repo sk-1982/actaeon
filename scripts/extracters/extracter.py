@@ -13,9 +13,11 @@ from collections import defaultdict
 
 
 class Extracter:
-    def __init__(self, *, config, out_dir, no_overwrite, no_music, no_audio, no_jackets, no_images, **kwargs):
+    def __init__(self, *, config, paths, out_dir, no_overwrite, no_music, no_audio, no_jackets, no_images, **kwargs):
         with open(config, 'r') as f:
             self.config = yaml.safe_load(f)
+        with open(paths, 'r') as f:
+            self.paths = yaml.safe_load(f)
         self.music_enabled = self.config['music']['enable']
         self.jackets_enabled = self.config['jackets']['enable']
         self.images_enabled = self.config['images']['enable']
@@ -50,7 +52,7 @@ class Extracter:
             input_file = tmp
 
         args = [
-            self.config['vgmstream_path'],
+            self.paths['vgmstream_path'],
             '-p',
             input_file
         ]
@@ -83,7 +85,7 @@ class Extracter:
                 input_args[i] = str(arg)
 
         args = [
-            self.config['ffmpeg_path'],
+            self.paths['ffmpeg_path'],
             ('-n' if self.no_overwrite else '-y'),
             '-hide_banner',
             '-loglevel',
