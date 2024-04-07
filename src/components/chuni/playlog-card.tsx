@@ -36,10 +36,12 @@ export const ChuniPlaylogCard = ({ playlog, className, badgeClass, showDetails }
 		<div className="flex">
 			<div className="flex-shrink-0 mr-2 mt-2">
 				<ChuniDifficultyContainer difficulty={playlog.chartId ?? 0} className="w-28 aspect-square relative p-1">
-					<ChuniLevelBadge className="absolute -bottom-1.5 -right-1.5 w-12" music={playlog}/>
-					<img className="aspect-square w-full rounded overflow-hidden"
-						src={getJacketUrl(`chuni/jacket/${playlog.jacketPath}`)}
-						alt={playlog.title ?? ''}/>
+					<ChuniLevelBadge className="absolute -bottom-1.5 -right-1.5 w-12" music={playlog} />
+					<Link href={`/chuni/music/${playlog.songId}`}>
+						<img className="aspect-square w-full rounded overflow-hidden"
+							src={getJacketUrl(`chuni/jacket/${playlog.jacketPath}`)}
+							alt={playlog.title ?? ''} />
+					</Link>
 				</ChuniDifficultyContainer>
 			</div>
 

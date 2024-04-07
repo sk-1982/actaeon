@@ -17,10 +17,10 @@ export const ChuniTopRating = ({ rating, className }: ChuniTopRatingProps) => {
 	return (<div className={`flex flex-col ${className ?? ''}`}>
 		{rating.map((music, i) => <div key={i} className="flex py-2 h-28 border-b border-gray-500">
 			<ChuniDifficultyContainer difficulty={music.chartId ?? 0} className="flex-shrink-0 w-20 mr-2 self-center">
-				<div className="p-1">
+				<Link className="p-1 block" href={`/chuni/music/${music.songId}`}>
 					<img className="aspect-square rounded overflow-hidden" src={getJacketUrl(`chuni/jacket/${music.jacketPath}`)}
 						alt={music.title ?? ''} />
-				</div>
+				</Link>
 				<ChuniLevelBadge className="w-11 absolute -right-0.5 -bottom-0.5" music={music} />
 			</ChuniDifficultyContainer>
 
