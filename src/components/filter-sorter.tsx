@@ -5,11 +5,14 @@ import { ComponentProps, ReactNode, useCallback, useEffect, useMemo, useRef, use
 import { XMarkIcon } from '@heroicons/react/16/solid';
 import { ArrowLongUpIcon } from '@heroicons/react/24/solid';
 import { useDebounceCallback, useIsMounted } from 'usehooks-ts';
-import { usePathname } from 'next/navigation';
+import { ReadonlyURLSearchParams, usePathname, useSearchParams } from 'next/navigation';
 import { SearchIcon } from '@nextui-org/shared-icons';
 import { DateSelect } from '@/components/date-select';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
 import { Awaitable } from '@/types/awaitable';
+import { useWindowListener } from '@/helpers/use-window-listener';
+import { DateRange } from 'react-day-picker';
+import { Entries } from 'type-fest';
 
 
 type ValueType = {
@@ -71,9 +74,67 @@ const debounceOptions = {
 	trailing: true,
 } as const;
 
-const queryDebounceOptions = { leading: false, trailing: true };
+type LocalState = {
+	sorter?: Set<string>,
+	ascending?: boolean,
+	pageSize?: Set<string>,
+	currentPage?: number,
+	displayMode?: Set<string>
+} & { [K: string]: any; };
 
-const FilterSorterComponent = <D, M extends string, N extends string, S extends string>({ defaultData, defaultAscending, filterers, data, pageSizes, sorters, displayModes, searcher, className, children }: FilterSorterProps<D, M, N, S> & { defaultData: any }) => {
+const getParamsFromState = (data: LocalState & { query: string }) => {
+	const params = new URLSearchParams();
+
+	Object.entries(data).forEach(([key, val]) => {
+		if (val === undefined || val === null) return;
+
+		if (typeof val === 'boolean' || typeof val === 'number' || typeof val === 'string') {
+			params.set(key, val.toString());
+		} else if (val instanceof Set || Array.isArray(val)) {
+			params.set(key, [...val].join(','));
+		} else if ('from' in val || 'to' in val) {
+			if (val.from)
+				params.set(`${key}-begin`, val.from.toISOString());
+			if (val.to)
+				params.set(`${key}-end`, val.to.toISOString());
+		}
+	});
+
+	params.sort();
+	return params;
+};
+
+const getStateFromParams = <K extends keyof LocalState & string>(params: ReadonlyURLSearchParams, key: K, val: LocalState[K]): LocalState[K] => {
+	if (typeof val === 'boolean') {
+		if (params.has(key))
+			return params.get(key) === 'true';
+	} else if (typeof val === 'number') {
+		return +(params.get(key) ?? val);
+	} else if (typeof val === 'string') {
+		return params.get(key) ?? val;
+	} else if ((val as any) instanceof Set) {
+		if (params.has(key))
+			return new Set(params.get(key)?.split(',')?.filter(x => x));
+	} else if (Array.isArray(val)) {
+		if (params.has(key))
+			return params.get(key)!.split(',');
+	} else if (params.has(`${key}-begin`) || params.has(`${key}-end`)) {
+		const range: DateRange = {
+			from: new Date(params.get(`${key}-begin`)!)
+		};
+		if (params.has(`${key}-end`))
+			range.to = new Date(params.get(`${key}-end`)!);
+		return range;
+	}
+
+	return val;
+};
+
+const getFilterStateFromParams = <S extends object>(params: ReadonlyURLSearchParams, state: S) => Object.fromEntries((Object.entries(state) as Entries<S>).map(([key, val]) => {
+		return [key, getStateFromParams(params, key as any, val)];
+})) as S;
+
+const FilterSorterComponent = <D, M extends string, N extends string, S extends string>({ defaultData, defaultAscending, filterers, data, pageSizes, sorters, displayModes, searcher, className, children }: FilterSorterProps<D, M, N, S> & { defaultData: any; }) => {
 	const defaultFilterState: Record<N, any> = {} as any;
 	filterers.forEach(filter => {
 		defaultFilterState[filter.name] = filter.value;
@@ -82,18 +143,21 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 	const { sorter: defaultSorter, ascending: storedAscending, pageSize: defaultPageSize, currentPage: defaultCurrentPage,
 		displayMode: defaultDisplayMode, ...payloadFilterState } = defaultData;
 
-	const [filterState, _setFilterState] = useState<typeof defaultFilterState>(Object.keys(payloadFilterState).length ? payloadFilterState :
-		defaultFilterState);
-	const [pageSize, _setPageSize] = useState(defaultPageSize ?? new Set([(pageSizes?.[0] ?? 25).toString()]));
-	const [sorter, _setSorter] = useState(defaultSorter ?? new Set(sorters.length ? [sorters[0].name] : []));
-	const [ascending, _setAscending] = useState<boolean>(storedAscending ?? defaultAscending ?? true);
-	const [displayMode, _setDisplayMode] = useState(defaultDisplayMode ?? new Set([displayModes?.length ? displayModes[0].name : '']));
-	const [query, _setQuery] = useState('');
+	const params = useSearchParams();
+	const [filterState, _setFilterState] = useState<typeof defaultFilterState>(getFilterStateFromParams(params, Object.keys(payloadFilterState).length ? payloadFilterState :
+		defaultFilterState));
+	const [pageSize, _setPageSize] = useState<Set<string>>(getStateFromParams(params, 'pageSize', defaultPageSize ?? new Set([(pageSizes?.[0] ?? 25).toString()]))!);
+	const [sorter, _setSorter] = useState<Set<string>>(getStateFromParams(params, 'sorter', defaultSorter ?? new Set(sorters.length ? [sorters[0].name] : []))!);
+	const [ascending, _setAscending] = useState<boolean>(getStateFromParams(params, 'ascending', storedAscending ?? defaultAscending ?? true)!);
+	const [displayMode, _setDisplayMode] = useState<Set<string>>(getStateFromParams(params, 'displayMode', defaultDisplayMode ?? new Set([displayModes?.length ? displayModes[0].name : '']))!);
+	const [currentPage, _setCurrentPage] = useState(getStateFromParams(params, 'currentPage', 1)!);
+	const [query, _setQuery] = useState(getStateFromParams(params, 'query', ''));
 	const [processedData, setProcessedData] = useState(Array.isArray(data) ? data : []);
 	const [totalCount, setTotalCount] = useState(Array.isArray(data) ? data.length : -1);
-	const [currentPage, _setCurrentPage] = useState(defaultCurrentPage ?? 1);
 	const [selectedKeys, setSelectedKeys] = useState(new Set(['1']));
 	const [loadingRemoteData, setLoadingRemoteData] = useState(false);
+	const paramsChangedByState = useRef<string | null>(null);
+	const lastParams = useRef(params.toString());
 	const pathname = usePathname();
 	const prevNonce = useRef(1);
 	const resetPage = useRef(false);
@@ -109,6 +173,18 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 
 	const deps = dataRemote ? [data, filterers, pageSize, filterState, currentPage, ascending, searcher, sorters, sorter, mounted, query] :
 		[data, filterers, filterState, ascending, searcher, sorters, sorter, mounted, query];
+	
+	useEffect(() => {
+		history.replaceState({}, '', `?${getParamsFromState({
+			sorter,
+			ascending,
+			pageSize,
+			currentPage,
+			displayMode,
+			...filterState,
+			query
+		})}`);
+	}, []);
 
 	const onChange = useDebounceCallback(useCallback(() => {
 		if (!mounted()) return;
@@ -121,6 +197,12 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 			if (dataRemote)
 				setTotalCount(-1);
 		}
+
+		const newParams = getParamsFromState({ sorter, ascending, pageSize, currentPage: page, displayMode, query, ...filterState });
+		const paramUrlString = `?${newParams}`;
+		paramsChangedByState.current = newParams.toString();
+		if (paramUrlString !== location.search)
+			history.pushState({}, '', paramUrlString);
 
 		const sort = sorters.find(s => sorter.has(s.name))!;
 		if (Array.isArray(data)) {
@@ -135,7 +217,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 				setProcessedData(filteredSorted.reverse());
 			setTotalCount(filteredSorted.length);
 
-			if (!Number.isNaN(pageSizeNum) && currentPage > (filteredSorted.length / pageSizeNum))
+			if (!Number.isNaN(pageSizeNum) && currentPage > Math.ceil(filteredSorted.length / pageSizeNum))
 				setCurrentPage(1)
 
 			return;
@@ -152,7 +234,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 				}
 			})
 			.finally(() => setLoadingRemoteData(false));
-	}, deps), dataRemote ? 250 : 100, debounceOptions);
+	}, [data, filterers, pageSize, filterState, currentPage, ascending, searcher, sorters, sorter, mounted, query]), dataRemote ? 250 : 100, debounceOptions);
 
 	const onQuery = useDebounceCallback(useCallback(() => {
 		onChange();
@@ -193,30 +275,36 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 		}
 	}, [pageSize, dataRemote, currentPage]);
 
+	useWindowListener('keydown', ev => {
+		if (ev.code === 'KeyF' && ev.ctrlKey) {
+			ev.stopPropagation();
+			ev.preventDefault();
+			setSelectedKeys(new Set(['1']));
+			searchRef.current?.focus();
+		}
+	});
+
 	useEffect(() => {
-		const cb = (ev: KeyboardEvent) => {
-			if (ev.code === 'KeyF' && ev.ctrlKey) {
-				ev.stopPropagation();
-				ev.preventDefault();
-				setSelectedKeys(new Set(['1']));
-				searchRef.current?.focus();
-			}
-		};
+		if (params.toString() === lastParams.current)
+			return;
+		lastParams.current = params.toString();
+		if (paramsChangedByState.current === params.toString()) {
+			return;
+		}
+		paramsChangedByState.current = null;
+		flush.current = true;
+		initialQuery.current = true;
+		_setSorter(getStateFromParams(params, 'sorter', sorter)!);
+		_setAscending(getStateFromParams(params, 'ascending', ascending)!);
+		_setPageSize(getStateFromParams(params, 'pageSize', pageSize)!);
+		_setCurrentPage(getStateFromParams(params, 'currentPage', currentPage)!);
+		_setDisplayMode(getStateFromParams(params, 'displayMode', displayMode)!);
+		_setFilterState(getFilterStateFromParams(params, filterState));
+		_setQuery(getStateFromParams(params, 'query', query)!);
+	}, [params, sorter, ascending, pageSize, currentPage, displayMode, filterState, query]);
 
-		window.addEventListener('keydown', cb);
-
-		return () => window.removeEventListener('keydown', cb);
-	}, []);
-
-	type LocalState = { sorter?: typeof sorter,
-		ascending?: typeof ascending,
-		pageSize?: typeof pageSize,
-		currentPage?: typeof currentPage,
-		displayMode?: typeof displayMode
-	} & { [K: string]: any };
-
-	const updateLocalState = (payload: Partial<LocalState>) => {
-		payload = {
+	const updateLocalState = (payload: Partial<LocalState & { query: string; }>) => {
+		const state = {
 			sorter,
 			ascending,
 			pageSize,
@@ -225,13 +313,13 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 			...filterState,
 			...payload,
 		};
-		const data = JSON.stringify(payload, (k, v) => v instanceof Set ? { type: 'set', value: [...v] } : v);
+		const data = JSON.stringify(state, (k, v) => v instanceof Set ? { type: 'set', value: [...v] } : v);
 		localStorage.setItem(localStateKey, data);
-	}
+	};
 	const setCurrentPage = (currentPage: number) => {
 		updateLocalState({ currentPage });
 		_setCurrentPage(currentPage);
-	}
+	};
 
 	const setPageSize = (size: typeof pageSize) => {
 		const sizeNum = +[...size][0];
@@ -273,6 +361,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 	}
 
 	const setQuery = (q: string) => {
+		updateLocalState({ query: q });
 		_setQuery(q);
 		resetPage.current = true;
 	}
@@ -336,12 +425,12 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 							<Input startContent={<SearchIcon />} ref={searchRef} size="sm" label="Search" type="text" isClearable={true} value={query} onValueChange={setQuery} onClear={() => setQuery('')} />
 						</div>
 						<div className="flex gap-2 sm:w-1/3 flex-grow sm:flex-grow-0 sm:max-w-80 items-center">
-							<Select name="page" label="Per Page" size="sm" className="w-1/2" selectedKeys={pageSize} onSelectionChange={sel => sel !== 'all' && sel.size && setPageSize(sel)}>
+							<Select name="page" label="Per Page" size="sm" className="w-1/2" selectedKeys={pageSize} onSelectionChange={sel => sel !== 'all' && sel.size && setPageSize(sel as Set<string>)}>
 								{ (pageSizes ?? [25, 50, 100]).map(s => <SelectItem key={s === Infinity ? 'all' : s.toString()} value={s === Infinity ? 'all' : s.toString()}>
 									{s === Infinity ? 'All' : s.toString()}
 								</SelectItem>) }
 							</Select>
-							<Select name="sort" label="Sort" size="sm" className="w-1/2" selectedKeys={sorter} onSelectionChange={sel => sel !== 'all' && sel.size && setSorter(sel)}>
+							<Select name="sort" label="Sort" size="sm" className="w-1/2" selectedKeys={sorter} onSelectionChange={sel => sel !== 'all' && sel.size && setSorter(sel as Set<string>)}>
 								{ sorters.map(s => <SelectItem key={s.name} value={s.name}>
 									{s.name}
 								</SelectItem>) }
@@ -364,7 +453,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 	                  {displayModes.find(m => displayMode.has(m.name))?.icon}
                   </Button>
               </DropdownTrigger>
-              <DropdownMenu selectionMode="single" selectedKeys={displayMode} onSelectionChange={sel => sel !== 'all' && sel.size && setDisplayMode(sel)}>
+              <DropdownMenu selectionMode="single" selectedKeys={displayMode} onSelectionChange={sel => sel !== 'all' && sel.size && setDisplayMode(sel as Set<string>)}>
 								{displayModes.map(mode => <DropdownItem key={mode.name}>
 									{mode.name}
 								</DropdownItem>)}
