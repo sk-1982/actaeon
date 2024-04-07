@@ -19,6 +19,7 @@ import { FriendRequest, acceptFriendRequest, getFriendRequests, rejectFriendRequ
 import { useWindowListener } from '@/helpers/use-window-listener';
 import { useErrorModal } from '@/components/error-modal';
 import { useSwipeable } from 'react-swipeable';
+import { useReloaded } from '@/components/client-providers';
 
 export type HeaderSidebarProps = {
 	children?: React.ReactNode,
@@ -44,6 +45,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 	const [menuTranslate, setMenuTranslate] = useState<number | null>(null);
 	const [notificationsTranslate, setNotificationsTranslate] = useState<number | null>(null);
+	const reloaded = useReloaded();
+	const menusOpened = useRef(false);
 
 	const path = pathname === '/' ? (user?.homepage ?? '/dashboard') : pathname;
 
@@ -54,6 +57,13 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	
 	const setError = useErrorModal();
 
+	const back = useCallback(() => {
+		if (document.referrer.includes(location.origin) || reloaded || menusOpened.current)
+			router.back();
+		else
+			router.replace('', { scroll: false });
+	}, [router, reloaded]);
+
 	const { ref } = useSwipeable({
 		touchEventOptions: { passive: false },
 		onSwiped: e => {
@@ -63,11 +73,11 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 
 			if (menuTranslate && ((Math.abs(menuTranslate) > 384 * 0.5) || fastSwipe)) {
 				if (isMenuOpen && window.location.hash === '#sidebar')
-					router.back();
+					back();
 				setMenuOpen(!isMenuOpen);
 			} else if (notificationsTranslate && ((Math.abs(notificationsTranslate) > window.innerWidth * 0.4 || fastSwipe))) {
 				if (isNotificationsOpen && window.location.hash === '#notifications')
-					router.back();
+					back();
 				setNotificationsOpen(!isNotificationsOpen);
 			}
 
@@ -87,11 +97,6 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					return;
 				parent = parent.parentElement;
 			}
-			
-			const data = (e.event.target as HTMLElement)?.dataset;
-			if (data?.slot === 'thumb' || data?.dragging)
-				return;
-
 			const allMenusClosed = !isMenuOpen && !isNotificationsOpen;
 			const xPercent = e.initial[0] / window.innerWidth;
 
@@ -126,16 +131,22 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			getFriendRequests().then(setFriendRequests);
 	}, [pathname, user]);
 
-	const setNotificationsOpen = (open: boolean) => {
+	const setNotificationsOpen = (open: boolean, updateRef = true) => {
 		_setNotificationsOpen(open);
-		if (open)
+		if (open) {
 			router.push('#notifications', { scroll: false });
+			if (updateRef)
+				menusOpened.current = true;
+		}
 	};
 
-	const setMenuOpen = (open: boolean) => { 
+	const setMenuOpen = (open: boolean, updateRef = true) => { 
 		_setMenuOpen(open);
-		if (open)
+		if (open) {
 			router.push('#sidebar', { scroll: false });
+			if (updateRef)
+				menusOpened.current = true;
+		}
 	};
 
 	useWindowListener('hashchange', () => {
@@ -144,8 +155,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	});
 
 	useEffect(() => {
-		setMenuOpen(window.location.hash === '#sidebar');
-		setNotificationsOpen(window.location.hash === '#notifications');
+		setMenuOpen(window.location.hash === '#sidebar', false);
+		setNotificationsOpen(window.location.hash === '#notifications', false);
 	}, []);
 
 	const renderHeaderLink = useCallback((route: Subroute) => {
@@ -310,7 +321,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			<div className={`transition bg-black z-[49] absolute inset-0 w-full h-full ${isMenuOpen ? 'bg-opacity-25' : 'bg-opacity-0 pointer-events-none'}`} onClick={() => {
 				setMenuOpen(false);
 				if (window.location.hash === '#sidebar')
-					router.back();
+					back();
 			}} />
 
 			<div className={`dark flex flex-col text-white absolute p-6 top-0 h-full max-w-full w-96 bg-gray-950 z-[49] left-0 ${menuTranslate ? '' : 'transition-all'} ${isMenuOpen ? 'shadow-2xl' : '-translate-x-full'}`} style={menuTranslate ? {
@@ -321,7 +332,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 						onClick={() => {
 							setMenuOpen(false);
 							if (window.location.hash === '#sidebar')
-								router.back();
+								back();
 						}}>
 						<ChevronLeftIcon className="h-6 mt-0.5" />
 						<span>{routeGroup.title}</span>
@@ -329,7 +340,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					<Button className="ml-auto" isIconOnly color="danger" onClick={() => {
 						setMenuOpen(false);
 						if (window.location.hash === '#sidebar')
-							router.back();
+							back();
 					}}>
 						<XMarkIcon className="w-5" />
 					</Button>
@@ -384,7 +395,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				</Button>
 			</div>
 		</div>);
-	}, [isMenuOpen, router, menuTranslate, routeGroup, user, path, cookies]);
+	}, [isMenuOpen, router, menuTranslate, routeGroup, user, path, cookies, back]);
 
 	const rightSidebar = useMemo(() => { 
 		return (<div className={`fixed inset-0 w-full h-full max-h-full z-[49] ${isNotificationsOpen ? '' : 'pointer-events-none'}`}>
@@ -407,7 +418,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					<Button isIconOnly className="ml-2" color="danger" onPress={() => {
 						setNotificationsOpen(false);
 						if (window.location.hash === '#notifications')
-							router.back();
+							back();
 					}}>
 						<XMarkIcon className="h-1/2" />
 					</Button>
@@ -444,7 +455,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				</Button>
 			</div>
 		</div>);
-	}, [isNotificationsOpen, notificationsTranslate, user, friendRequests, notifications, router]);
+	}, [isNotificationsOpen, notificationsTranslate, user, friendRequests, notifications, router, back]);
 
 	return (<>
 		{ leftSidebar }

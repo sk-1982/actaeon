@@ -9,6 +9,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import { CellMeasurerChildProps } from 'react-virtualized/dist/es/CellMeasurer';
 import { useRouter } from 'next/navigation';
 import { useWindowListener } from '@/helpers/use-window-listener';
+import { useReloaded } from './client-providers';
 
 
 
@@ -205,6 +206,8 @@ export const SelectModalButton = <T extends 'grid' | 'list', D extends { name?: 
 	const router = useRouter();
 	const [isOpen, setOpen] = useState(false);
 	const { modalId, footer, onSelectionChanged, gap, onSelected, selectedItem, renderItem, items, colSize, rowSize, displayMode, modalSize } = props;
+	const historyPushed = useRef(false);
+	const reloaded = useReloaded();
 
 	useWindowListener('hashchange', () => {
 		if (window.location.hash !== `#modal-${modalId}` && isOpen) {
@@ -224,11 +227,16 @@ export const SelectModalButton = <T extends 'grid' | 'list', D extends { name?: 
 			onSelected={item => {
 				setOpen(false);
 				onSelected(item);
-				router.back();
+				if (document.referrer.includes(location.origin) || historyPushed.current || reloaded) {
+					router.back();
+				} else {
+					router.replace('', { scroll: false });
+				}
 			}} />
 		<Button {...(props as object)} onClick={() => {
 			setOpen(true);
-			router.push(`#modal-${modalId}`,{ scroll: false });
+			router.push(`#modal-${modalId}`, { scroll: false });
+			historyPushed.current = true;
 		}} />
 	</>);
 };
