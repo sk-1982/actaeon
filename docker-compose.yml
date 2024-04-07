@@ -9,3 +9,5 @@ services:
       - NEXTAUTH_SECRET=[insert_random_string_here]
     ports:
       - 3000:1430
+    restart: unless-stopped
+
