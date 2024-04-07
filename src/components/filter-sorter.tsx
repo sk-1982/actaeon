@@ -251,7 +251,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 			prevNonce.current = 1;
 			onChange.cancel();
 		}
-	}, [data, filterers, filterState, currentPage, ascending, searcher, sorters, sorter]);
+	}, [data, filterers, filterState, currentPage, ascending, searcher, sorters, sorter, pageSize]);
 
 	const initialQuery = useRef(true);
 
