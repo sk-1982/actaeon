@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { db, GeneratedDB } from '@/db';
 import { DBUserPayload } from '@/types/user';
@@ -31,10 +31,18 @@ const selectUserProps = (builder: SelectQueryBuilder<GeneratedDB & { u: AimeUser
 	] as const)
 	.executeTakeFirst();
 
+const config: Partial<NextAuthConfig> = {};
+
+if (['0', 'false', 'no'].includes(process.env.COOKIE_SECURE?.toLowerCase()!))
+	config.useSecureCookies = false;
+else if (['1', 'true', 'yes'].includes(process.env.COOKIE_SECURE?.toLowerCase()!))
+	config.useSecureCookies = true;
+
 const nextAuth = NextAuth({
 	pages: {
 		signIn: `${basePath}/auth/login`
 	},
+	...config,
 	basePath: `${basePath}/api/auth/`,
 	session: {
 		strategy: 'jwt'
