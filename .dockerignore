@@ -1,0 +1,11 @@
+Dockerfile
+.dockerignore
+node_modules
+public/assets/*
+!public/assets/fonts
+.next
+.git
+scripts
+.idea
+npm-debug.log
+README.md

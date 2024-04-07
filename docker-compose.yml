@@ -1,0 +1,11 @@
+services:
+  actaeon:
+    container_name: actaeon
+    build:
+      dockerfile: ./Dockerfile
+    environment:
+      - AUTOMIGRATE=true
+      - DATABASE_URL=mysql://aime:aime@127.0.0.1:3306/aime
+      - NEXTAUTH_SECRET=[insert_random_string_here]
+    ports:
+      - 3000:1430
