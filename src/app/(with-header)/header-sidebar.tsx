@@ -73,6 +73,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 
 			setMenuTranslate(null);
 			setNotificationsTranslate(null);
+			document.body.classList.remove('touch-none', 'overflow-hidden');
 		},
 		onSwipeStart: e => {
 			if (e.dir === 'Down' || e.dir === 'Up') return;
@@ -97,9 +98,11 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			if ((isMenuOpen && e.dir === 'Left') || (allMenusClosed && e.dir === 'Right' && xPercent <= 0.6)) {
 				setMenuTranslate(e.deltaX);
 				e.event.preventDefault();
+				document.body.classList.add('touch-none', 'overflow-hidden');
 			} else if ((isNotificationsOpen && e.dir === 'Right' || (allMenusClosed && e.dir === 'Left' && xPercent >= 0.4))) {
 				setNotificationsTranslate(e.deltaX);
 				e.event.preventDefault();
+				document.body.classList.add('touch-none', 'overflow-hidden');
 			}
 		},
 		onSwiping: e => {
