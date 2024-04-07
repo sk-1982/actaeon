@@ -30,7 +30,10 @@ Make sure you have [created tables](#creating-database-tables) and ran [database
 1. Run `npm run start`
 
 ## Initial Promotion to Owner
-In order to access all features of Actaeon, you need to have owner permissions. This can be done by setting the `permissions` column of your user inside the `aime_user` table to `255`. Once one user is owner, they can promote other users to owner through the Actaeon web interface.
+In order to access all features of Actaeon, you need to have owner permissions. This can be done by setting the `permissions` column of your user inside the `aime_user` table to `255`, or by running the server with [`ACTAEON_OWNER_ID`](#runtime-variables) set to your user id. Once one user is owner, they can promote other users to owner through the Actaeon web interface. You can find out your user id by inspecting your ARTEMiS logs:
+```
+Aimedb | INFO | access_code ******************** -> user_id 10000
+```
 
 # Configuration
 
@@ -54,8 +57,9 @@ These variables can be set at runtime through the environment or through the `.e
 | Variable                           | Description                                                                                                                                     | Examples                                | Required |
 |------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|----------|
 | `DATABASE_URL`                     | URL to your artemis database, in the format `mysql://user:pass@host:port/db_name`                                                               | `mysql://aime:aime@127.0.0.1:3306/aime` | Yes      |
-| `NEXTAUTH_SECRET` or `AUTH_SECRET` | Set this to a long random string (you can generate this by running `openssl rand -base64 32` or `npx auth secret` on the command line)               |                                         | Yes      |
+| `NEXTAUTH_SECRET` or `AUTH_SECRET` | Set this to a long random string (you can generate this by running `openssl rand -base64 32` or `npx auth secret` on the command line)          |                                         | Yes      |
 | `AUTOMIGRATE`                      | Automatically run new migrations on server startup                                                                                              | `true`, `false`                         | No       |
+| `ACTAEON_OWNER_ID`                 | Set this to a user id to automatically grant this user owner permissions.                                                                       | `10000`                                 | No       |
 | `COOKIE_SECURE`                    | Override the secure flag on authentication cookies  (by default, the host protocol or the `x-forwarded-proto` header is used to determine this) | `true`, `false`                         | No       |
 | `BCRYPT_ROUNDS`                    | The number of bcrypt rounds to hash passwords with (default: 12)                                                                                | `12`, `14`                              | No       |
 
