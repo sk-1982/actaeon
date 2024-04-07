@@ -1,8 +1,8 @@
 import { UserPayload, UserVisibility } from '@/types/user';
 import { hasPermission } from '@/helpers/permissions';
 import { UserPermissions } from '@/types/permissions';
-import { sql } from 'kysely';
-import { db } from '@/db';
+import { Kysely, Transaction, sql } from 'kysely';
+import { GeneratedDB, db } from '@/db';
 import { jsonObjectArray } from '@/types/json-object-array';
 import { parseJsonResult } from '@/helpers/parse-json-result';
 import { getUser } from '@/actions/auth';
@@ -93,3 +93,18 @@ export const getUsers = async () => {
 };
 
 export type AdminUser = Awaited<ReturnType<typeof getUsers>>[number];
+
+export const createActaeonUsersFromExistingUsers = async (builder: Transaction<GeneratedDB> | Kysely<GeneratedDB>) => {
+	await builder.insertInto('actaeon_user_ext')
+		.columns(['uuid', 'visibility', 'userId'])
+		.expression(eb => eb.selectFrom('aime_user')
+			.where(({ not, exists, selectFrom }) => not(exists(selectFrom('actaeon_user_ext')
+				.whereRef('actaeon_user_ext.userId', '=', 'aime_user.id')
+				.select('aime_user.id'))))
+			.select(({ fn, lit }) => [
+				fn<string>('uuid_v4').as('uuid'),
+				lit(0).as('visibility'),
+				'aime_user.id as userId'
+			]))
+		.execute();
+};

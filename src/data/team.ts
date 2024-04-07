@@ -1,7 +1,7 @@
 import { GeneratedDB, db } from '@/db';
 import { JoinPrivacy, Visibility } from '@/types/privacy-visibility';
 import crypto from 'crypto';
-import { userIsVisible, withUsersVisibleTo } from './user';
+import { createActaeonUsersFromExistingUsers, userIsVisible, withUsersVisibleTo } from './user';
 import { Transaction } from 'kysely';
 import { UserPayload } from '@/types/user';
 import { hasPermission } from '@/helpers/permissions';
@@ -37,6 +37,8 @@ export const createActaeonTeamsFromExistingTeams = async () => {
 		await trx.insertInto('actaeon_teams')
 			.values(insertValues)
 			.executeTakeFirst();
+		
+		await createActaeonUsersFromExistingUsers(trx).catch(console.error);
 		
 		for (const val of insertValues) {
 			await trx.updateTable('actaeon_user_ext')
