@@ -16,6 +16,11 @@ export async function register() {
 				console.error('[FATAL] insecure secret detected, please set NEXTAUTH_SECRET variable to a random string');
 				process.exit(1);
 			}
+
+			if (secret.length < 32) {
+				console.error('[FATAL] secret is too short, please set it to a random string that is at least 32 characters long');
+				process.exit(1);
+			}
 		}
 
 		let url: URL;
