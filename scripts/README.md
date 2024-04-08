@@ -17,7 +17,7 @@ You must specify the path to these executables inside `paths.yaml` if they are n
 2. [`vgmstream-cli`](https://vgmstream.org/)
 
 ### Asset Configs
-You can customize the file extension and ffmpeg arguments of generated files through an `assets.yaml` file. Some exiting assets configs have already been provided. Read the comment in the first line of the file to decide which one you want to use.
+You can customize the file extension and ffmpeg arguments of generated files through an `assets.yaml` file. Some existing assets configs have already been provided. Read the comment in the first line of the file to decide which one you want to use.
 
 ### Options
 These options must be specified before the `game` argument
