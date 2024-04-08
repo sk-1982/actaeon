@@ -86,7 +86,7 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 					<Link href={`/chuni/music/${item.songId}`}>
 						<img src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)} alt={item.title ?? 'Music'} className="rounded" />
 					</Link>
-					{item.rating && !item.worldsEndTag && <div className={`${size === 'lg' ? 'text-2xl' : ''} absolute bottom-0.5 left-0.5 bg-gray-200/60 backdrop-blur-sm px-0.5 rounded`}>
+					{item.rating && !item.worldsEndTag && <div className={`${size === 'lg' ? 'text-2xl' : ''} absolute bottom-0.5 left-0.5 bg-gray-200/60 backdrop-blur-sm moz-no-backdrop-blur px-0.5 rounded`}>
               <ChuniRating rating={+item.rating * 100} className="-my-0.5">
 								{item.rating.slice(0, item.rating.indexOf('.') + 3)}
               </ChuniRating>

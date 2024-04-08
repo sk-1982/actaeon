@@ -45,6 +45,11 @@ $header-height: 5.5rem;
 	background-color: black;
 }
 
+@supports (-moz-appearance:none) {
+	.moz-no-backdrop-blur {
+		--tw-backdrop-blur: initial !important;
+	}
+}
 
 @layer base {
 	:root {
