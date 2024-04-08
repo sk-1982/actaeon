@@ -165,14 +165,13 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 	const searchRef = useRef<HTMLInputElement | null>(null);
 	const mounted = useIsMounted();
 	const breakpoint = useBreakpoint();
+	const dataCallback = useCallback(typeof data === 'function' ? data : (() => { }), []);
+	const dataDep = typeof data === 'function' ? dataCallback : data;
 
 	const localStateKey = `filter-sort-${pathname}`;
 
 	const dataRemote = !Array.isArray(data);
 	const pageSizeNum = +[...pageSize][0];
-
-	const deps = dataRemote ? [data, filterers, pageSize, filterState, currentPage, ascending, searcher, sorters, sorter, mounted, query] :
-		[data, filterers, filterState, ascending, searcher, sorters, sorter, mounted, query];
 	
 	useEffect(() => {
 		history.replaceState({}, '', `?${getParamsFromState({
@@ -205,10 +204,10 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 			history.pushState({}, '', paramUrlString);
 
 		const sort = sorters.find(s => sorter.has(s.name))!;
-		if (Array.isArray(data)) {
+		if (Array.isArray(dataDep)) {
 			const lower = query.toLowerCase();
 
-			const filteredSorted = data
+			const filteredSorted = dataDep
 				.filter(d => filterers.every(f => f.filter?.(filterState[f.name], d)) && searcher?.(lower, d)!)
 				.sort(sorters.find(s => sorter.has(s.name))!.sort);
 			if (ascending)
@@ -226,7 +225,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 		const nonce = Math.random();
 		prevNonce.current = nonce;
 		setLoadingRemoteData(true);
-		Promise.resolve(data({ ascending, filters: filterState, sort: sort.name, pageSize: pageSizeNum, search: query, currentPage: page }))
+		Promise.resolve(dataDep({ ascending, filters: filterState, sort: sort.name, pageSize: pageSizeNum, search: query, currentPage: page })!)
 			.then(d => {
 				if (nonce === prevNonce.current) {
 					setProcessedData(d.data);
@@ -234,12 +233,12 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 				}
 			})
 			.finally(() => setLoadingRemoteData(false));
-	}, [data, filterers, pageSize, filterState, currentPage, ascending, searcher, sorters, sorter, mounted, query]), dataRemote ? 250 : 100, debounceOptions);
+	}, [dataDep, filterers, pageSize, filterState, currentPage, ascending, searcher, sorters, sorter, mounted, query]), dataRemote ? 250 : 100, debounceOptions);
 
 	const onQuery = useDebounceCallback(useCallback(() => {
 		onChange();
 		onChange.flush();
-	}, deps), 500)
+	}, [query]), 500)
 
 	useEffect(() => {
 		onChange();
@@ -251,7 +250,7 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 			prevNonce.current = 1;
 			onChange.cancel();
 		}
-	}, [data, filterers, filterState, currentPage, ascending, searcher, sorters, sorter, pageSize]);
+	}, [dataDep, filterers, filterState, currentPage, ascending, searcher, sorters, sorter, pageSize]);
 
 	const initialQuery = useRef(true);
 
