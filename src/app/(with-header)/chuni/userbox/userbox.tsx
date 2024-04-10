@@ -15,6 +15,7 @@ import { SaveIcon } from '@/components/save-icon';
 import { useAudio } from '@/helpers/use-audio';
 import { Entries } from 'type-fest';
 import { useErrorModal } from '@/components/error-modal';
+import Image from 'next/image';
 
 export type ChuniUserboxProps = {
 	profile: ChuniUserData,
@@ -128,7 +129,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 
 	const renderItem = (item: { name: string | undefined | null }, image: string, textClass='', containerClass='') => (
 		<div className={`w-full h-full flex flex-col border border-gray-500 rounded-2xl shadow-inner ${containerClass}`}>
-			<img alt={item.name ?? ''} className={`w-full ${textClass}`} src={image} />
+			<Image width={100} height={100} alt={item.name ?? ''} className={`w-full h-auto ${textClass}`} src={image} />
 			<div className={textClass}>{ item.name }</div>
 		</div>
 	);
@@ -240,7 +241,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 
 				<div className="flex w-full flex-col sm:flex-row items-center px-2 sm:px-4 sm:pb-4 h-full">
 					<div className="flex flex-col">
-						<img className="w-80 max-w-full"
+						<Image className="w-80 max-w-full" width={320} height={204} priority
 							alt={equipped.systemVoice.name ?? ''} src={getImageUrl(`chuni/system-voice-icon/${equipped.systemVoice.imagePath}`)} />
 						<span className="text-center">{ equipped.systemVoice.name }</span>
 					</div>
@@ -297,7 +298,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 				<Divider className="mb-4 hidden sm:block" />
 
 
-				<img className="w-52 max-w-full -mt-2"
+				<Image className="w-52 max-w-full -mt-2" width={208} height={208} priority
 					alt={equipped.mapIcon.name ?? ''} src={getImageUrl(`chuni/map-icon/${equipped.mapIcon.imagePath}`)} />
 				<span className="text-center mb-2">{ equipped.mapIcon.name }</span>
 				<div className="px-2 w-full flex justify-center">

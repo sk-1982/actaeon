@@ -7,6 +7,7 @@ import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-containe
 import { Tooltip } from '@nextui-org/react';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export type ChuniTopRatingProps = {
 	className?: string,
@@ -18,7 +19,8 @@ export const ChuniTopRating = ({ rating, className }: ChuniTopRatingProps) => {
 		{rating.map((music, i) => <div key={i} className="flex py-2 h-28 border-b border-gray-500">
 			<ChuniDifficultyContainer difficulty={music.chartId ?? 0} className="flex-shrink-0 w-20 mr-2 self-center">
 				<Link className="p-1 block" href={`/chuni/music/${music.songId}`}>
-					<img className="aspect-square rounded overflow-hidden" src={getJacketUrl(`chuni/jacket/${music.jacketPath}`)}
+					<Image className="aspect-square rounded overflow-hidden w-full h-full" width={72} height={72}
+						src={getJacketUrl(`chuni/jacket/${music.jacketPath}`)}
 						alt={music.title ?? ''} />
 				</Link>
 				<ChuniLevelBadge className="w-11 absolute -right-0.5 -bottom-0.5" music={music} />

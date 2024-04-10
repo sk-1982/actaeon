@@ -10,6 +10,7 @@ import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import { ChuniScoreBadge, ChuniLampSuccessBadge, getVariantFromRank, ChuniLampComboBadge } from '@/components/chuni/score-badge';
 import { ChuniRating } from '@/components/chuni/rating';
 import Link from 'next/link';
+import Image from 'next/image';
 import { HeartIcon as OutlineHeartIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 import { HeartIcon as SolidHeartIcon }  from '@heroicons/react/24/solid';
 import { Ticker, TickerHoverProvider } from '@/components/ticker';
@@ -84,7 +85,9 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 				onMouseLeave={() => setHover(false)}>
 				<div className="aspect-square w-full p-[0.2rem] relative">
 					<Link href={`/chuni/music/${item.songId}`}>
-						<img src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)} alt={item.title ?? 'Music'} className="rounded" />
+						<Image width={100} height={100}
+							src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)}
+							alt={item.title ?? 'Music'} className="rounded w-full h-full" />
 					</Link>
 					{item.rating && !item.worldsEndTag && <div className={`${size === 'lg' ? 'text-2xl' : ''} absolute bottom-0.5 left-0.5 bg-gray-200/60 backdrop-blur-sm moz-no-backdrop-blur px-0.5 rounded`}>
               <ChuniRating rating={+item.rating * 100} className="-my-0.5">

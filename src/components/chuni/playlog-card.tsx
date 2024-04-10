@@ -10,6 +10,7 @@ import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-containe
 import { formatJst } from '@/helpers/format-jst';
 import { Ticker, TickerHoverProvider } from '@/components/ticker';
 import { Divider } from '@nextui-org/react';
+import Image from 'next/image';
 
 export type ChuniPlaylogCardProps = {
 	playlog: ChuniPlaylog['data'][number],
@@ -38,7 +39,7 @@ export const ChuniPlaylogCard = ({ playlog, className, badgeClass, showDetails }
 				<ChuniDifficultyContainer difficulty={playlog.chartId ?? 0} className="w-28 aspect-square relative p-1">
 					<ChuniLevelBadge className="absolute -bottom-1.5 -right-1.5 w-12" music={playlog} />
 					<Link href={`/chuni/music/${playlog.songId}`}>
-						<img className="aspect-square w-full rounded overflow-hidden"
+						<Image className="aspect-square w-full rounded overflow-hidden" width={100} height={100}
 							src={getJacketUrl(`chuni/jacket/${playlog.jacketPath}`)}
 							alt={playlog.title ?? ''} />
 					</Link>

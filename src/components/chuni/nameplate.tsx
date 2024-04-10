@@ -4,6 +4,7 @@ import { ChuniTrophy } from '@/components/chuni/trophy';
 import { PickNullable } from '@/types/pick-nullable';
 import { ChuniRating } from '@/components/chuni/rating';
 import { formatJst } from '@/helpers/format-jst';
+import Image from 'next/image';
 
 export const CHUNI_NAMEPLATE_PROFILE_KEYS = [
 	'trophyName', 'trophyRareType', 'nameplateImage', 'nameplateName', 'teamName', 'characterId', 'level',
@@ -63,12 +64,13 @@ export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
 							</div>
 						</div>
 					</div>
-					<img className="ml-auto aspect-square h-full bg-gray-200 border-2 border-black" alt="Character" src={profile.characterId !== null ? getImageUrl(
+					<Image className="ml-auto aspect-square h-full w-auto bg-gray-200 border-2 border-black" alt="Character" width={135} height={135} src={profile.characterId !== null ? getImageUrl(
 						`chuni/character/CHU_UI_Character_${Math.floor(profile.characterId / 10).toString()
 							.padStart(4, '0')}_${(profile.characterId % 10).toString().padStart(2, '0')}_02`) : ''}/>
 				</div>
 			</div>
-			<img src={getImageUrl(`chuni/name-plate/${profile.nameplateImage}`)} title={profile.nameplateName ?? 'Nameplate'}
+			<Image width={576} height={228} priority
+				src={getImageUrl(`chuni/name-plate/${profile.nameplateImage}`)} title={profile.nameplateName ?? 'Nameplate'}
 				alt={profile.nameplateName ?? 'Nameplate'} className="absolute inset-0 w-full h-full" />
 		</div>
 	</div>)

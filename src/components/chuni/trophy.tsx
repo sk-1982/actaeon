@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getImageUrl } from '@/helpers/assets';
 
 const TROPHY_TYPES = {
@@ -29,10 +30,11 @@ export const ChuniTrophy = ({ name, rarity, className }: ChuniTrophyProps) => {
 			</div>
 		</div>
 		<div className="w-[129.51%] aspect-[768/1024] relative">
-			<img src={getImageUrl('chuni/trophy/CHU_UI_title_rank_00_v10')}
-			     alt={name ?? 'Trophy'} title={name ?? 'Trophy'}
-			     className="w-full absolute left-[-0.78125%]" style={{
-						 top: `-${TROPHY_Y[TROPHY_TYPES[rarity as keyof typeof TROPHY_TYPES]]}%`
+			<Image width={593} height={62} priority
+				src={getImageUrl('chuni/trophy/CHU_UI_title_rank_00_v10')}
+				alt={name ?? 'Trophy'} title={name ?? 'Trophy'}
+				className="w-full absolute h-auto left-[-0.78125%]" style={{
+					top: `-${TROPHY_Y[TROPHY_TYPES[rarity as keyof typeof TROPHY_TYPES]]}%`
 			}}/>
 		</div>
 	</div>)

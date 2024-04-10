@@ -4,6 +4,7 @@ import { Button, Card, CardBody, Slider } from '@nextui-org/react';
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAudio } from '@/helpers/use-audio';
+import Image from 'next/image';
 
 export type MusicPlayerProps = {
 	audio: string,
@@ -55,7 +56,8 @@ export const MusicPlayer = ({ audio, image, children, className }: MusicPlayerPr
 		<CardBody className="sm:rounded-2xl sm:p-4 bg-content1 sm:bg-content2">
 			<div className="grid grid-cols-12">
 				<div className="col-span-full sm:col-span-4 h-full flex items-center justify-center sm:justify-start">
-					<img src={image} alt="" className="aspect-square rounded-md shadow-2xl max-w-56 w-full border border-gray-500 sm:border-0" />
+					<Image src={image} alt="Jacket" width={224} height={224}
+						className="aspect-square rounded-md shadow-2xl max-w-56 w-full border border-gray-500 sm:border-0" />
 				</div>
 				<div className="col-span-full sm:col-span-8 h-full flex flex-col pt-4 sm:pt-0 sm:pl-4 text-xl">
 					<div className="mb-2 sm:my-auto flex flex-col gap-1 items-center sm:items-start overflow-hidden">
