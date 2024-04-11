@@ -10,11 +10,11 @@ import { useWindowListener } from '@/helpers/use-window-listener';
 import { useReloaded } from './client-providers';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-type Data<I extends string> = {
+type Data = {
 	name?: string | null,
-} & { [K in I]: any };
+};
 
-export type SelectModalProps<T extends 'grid' | 'list', I extends string, D extends Data<I>> = {
+export type SelectModalProps<T extends 'grid' | 'list', D extends Data, I extends keyof D> = {
 	isOpen: boolean,
 	onSelected: (item: D | null | undefined) => void,
 	selectedItem: D | null | undefined,
@@ -33,8 +33,8 @@ export type SelectModalProps<T extends 'grid' | 'list', I extends string, D exte
 	colSize?: never
 		});
 
-const SelectModalList = <I extends string, D extends Data<I>>({ onSelectionChanged, setSelected, gap, rowSize, renderItem, items, selected, itemId }:
-	Pick<SelectModalProps<'list', I, D>, 'itemId' | 'onSelectionChanged' | 'gap' | 'rowSize' | 'renderItem' | 'items'> & { selected?: D | null, setSelected: (d: D) => void }) => { 
+const SelectModalList = <D extends Data, I extends keyof D>({ onSelectionChanged, setSelected, gap, rowSize, renderItem, items, selected, itemId }:
+	Pick<SelectModalProps<'list', D, I>, 'itemId' | 'onSelectionChanged' | 'gap' | 'rowSize' | 'renderItem' | 'items'> & { selected?: D | null, setSelected: (d: D) => void }) => { 
 	const listRef = useRef<HTMLDivElement | null>(null);
 	const lastHeight = useRef(rowSize);
 
@@ -76,8 +76,8 @@ const SelectModalList = <I extends string, D extends Data<I>>({ onSelectionChang
 	</div>)
 };
 
-const SelectModalGrid = <I extends string, D extends Data<I>>({ onSelectionChanged, setSelected, gap, rowSize, renderItem, items, selected, colSize, itemId }:
-	Pick<SelectModalProps<'grid', I, D>, 'itemId' | 'onSelectionChanged' | 'gap' | 'rowSize' | 'renderItem' | 'items' | 'colSize'> & { selected?: D | null, setSelected: (d: D) => void; }) => { 
+const SelectModalGrid = <D extends Data, I extends keyof D>({ onSelectionChanged, setSelected, gap, rowSize, renderItem, items, selected, colSize, itemId }:
+	Pick<SelectModalProps<'grid', D, I>, 'itemId' | 'onSelectionChanged' | 'gap' | 'rowSize' | 'renderItem' | 'items' | 'colSize'> & { selected?: D | null, setSelected: (d: D) => void; }) => { 
 	const listRef = useRef<HTMLDivElement | null>(null);
 	const lastHeight = useRef(rowSize);
 	const [width, setWidth] = useState(0)
@@ -134,7 +134,7 @@ const SelectModalGrid = <I extends string, D extends Data<I>>({ onSelectionChang
 	</div>)
 };
 
-const SelectModal = <T extends 'grid' | 'list', I extends string, D extends Data<I>>({ footer, onSelectionChanged, gap, selectedItem, renderItem, displayMode, items, isOpen, onSelected, modalSize, colSize, rowSize, itemId }: SelectModalProps<T, I, D>) => {
+const SelectModal = <T extends 'grid' | 'list', D extends Data, I extends keyof D>({ footer, onSelectionChanged, gap, selectedItem, renderItem, displayMode, items, isOpen, onSelected, modalSize, colSize, rowSize, itemId }: SelectModalProps<T, D, I>) => {
 	const [selected, setSelected] = useState(selectedItem);
 	const [filteredItems, setFilteredItems] = useState(items);
 	const outputSelected = useRef<null | undefined | D>(null);
@@ -194,8 +194,8 @@ const SelectModal = <T extends 'grid' | 'list', I extends string, D extends Data
 	</Modal>)
 };
 
-export const SelectModalButton = <T extends 'grid' | 'list', I extends string, D extends Data<I>>(props: Omit<ButtonProps, 'onClick'> &
-	Pick<SelectModalProps<T, I, D>, 'itemId' | 'modalSize' | 'displayMode' | 'colSize' | 'rowSize' | 'items' | 'renderItem' | 'selectedItem' | 'onSelected' | 'gap' | 'onSelectionChanged' | 'footer'> &
+export const SelectModalButton = <T extends 'grid' | 'list', D extends Data, I extends keyof D>(props: Omit<ButtonProps, 'onClick'> &
+	Pick<SelectModalProps<T, D, I>, 'itemId' | 'modalSize' | 'displayMode' | 'colSize' | 'rowSize' | 'items' | 'renderItem' | 'selectedItem' | 'onSelected' | 'gap' | 'onSelectionChanged' | 'footer'> &
 	{ modalId: string; }) => {
 	const router = useRouter();
 	const [isOpen, setOpen] = useState(false);

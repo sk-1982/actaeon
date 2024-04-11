@@ -34,7 +34,7 @@ export type UserboxItems = {
 	trophy: Pick<DB['actaeon_chuni_static_trophies'], 'id' | 'name' | 'rareType' | 'explainText'>[]
 } & {
 	[K in `avatar${'Wear' | 'Head' | 'Face' | 'Skin' | 'Item' | 'Front' | 'Back'}`]:
-		Pick<DB['chuni_static_avatar'], 'avatarAccessoryId' | 'name' | 'iconPath' | 'texturePath'>[]
+		Pick<DB['chuni_static_avatar'], 'id' | 'name' | 'iconPath' | 'texturePath'>[]
 };
 
 export const getUserboxItems = async (user: UserPayload, profile: ChuniUserData): Promise<UserboxItems> => {

@@ -45,7 +45,7 @@ type SavedItem = { [K in keyof RequiredUserbox]: boolean };
 export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 	const initialEquipped = useRef(Object.fromEntries(Object.entries(ITEM_KEYS)
 		.map(([key, profileKey]) => [key, userboxItems[key as keyof RequiredUserbox]
-			.find(i => ('id' in i ? i.id : i.avatarAccessoryId) === profile?.[profileKey])])) as EquippedItem);
+			.find(i => i.id === profile?.[profileKey])])) as EquippedItem);
 	const [equipped, setEquipped] = useState<EquippedItem>(initialEquipped.current);
 	const [saved, setSaved] = useState<SavedItem>(Object.fromEntries(Object.keys(ITEM_KEYS).map(k => [k, true])) as any);
 	const [playingVoice, setPlayingVoice] = useState(false);
@@ -82,7 +82,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 
 		const update: Partial<ProfileUpdate> = Object.fromEntries((Object.entries(equipped) as Entries<typeof equipped>)
 			.filter(([k]) => items.includes(k as any))
-			.map(([k, v]) => [ITEM_KEYS[k], 'id' in v ? v.id : v.avatarAccessoryId]));
+			.map(([k, v]) => [ITEM_KEYS[k], v.id]));
 
 		setSaved(s => ({ ...s, ...Object.fromEntries(items.map(i => [i, true])) }));
 
@@ -209,7 +209,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 					</div>
 					<div className="grid grid-cols-2 w-full px-2 sm:px-0 sm:flex flex-col gap-1.5 sm:ml-3 flex-grow">
 						{(['avatarHead', 'avatarFace', 'avatarWear', 'avatarSkin', 'avatarItem', 'avatarBack'] as const).map(k => ((k !== 'avatarSkin' || userboxItems.avatarSkin.length > 1) && <SelectModalButton
-	              key={k} displayMode="grid" modalSize="3xl" colSize={175} rowSize={205} gap={5} modalId={k} itemId="avatarAccessoryId"
+	              key={k} displayMode="grid" modalSize="3xl" colSize={175} rowSize={205} gap={5} modalId={k} itemId="id"
 								className={(k === 'avatarBack' && userboxItems.avatarSkin.length === 1) ? 'w-full col-span-full' : 'w-full'}
 	              onSelected={i => equipItem(k, i)} items={userboxItems[k]} selectedItem={equipped[k]}
 	              renderItem={i => renderItem(i, getImageUrl(`chuni/avatar/${i.iconPath}`)) }>
