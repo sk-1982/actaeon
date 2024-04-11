@@ -43,7 +43,7 @@ export default async function ArcadePage() {
 					<span className="font-semibold">IP:&nbsp;</span>
 					{arcade.ip}
 				</span>}
-				<div className="ml-auto flex flex-wrap">
+				<div className="ml-auto flex flex-wrap items-center">
 
 					{!!arcade.machineCount && <span className="mr-3">{arcade.machineCount!.toString()} Machine{Number(arcade.machineCount) > 1 ? 's' : ''}</span>}
 
