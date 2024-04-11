@@ -61,6 +61,7 @@ module.exports = bundleAnalyzer({ enabled: !!process.env.ANALYZE })({
     productionBrowserSourceMaps: true,
     webpack: config => {
         config.externals = [...config.externals, 'bcrypt', 'mysql2'];
+        config.resolve.alias['resize-observer-polyfill'] = path.resolve(__dirname, 'resize-observer.cjs');
         return config;
     }
 });
