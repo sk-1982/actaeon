@@ -1,5 +1,6 @@
-import { ReactNode, useEffect, useRef } from 'react';
-import { AutoSizer, List, WindowScroller } from 'react-virtualized';
+import { ReactNode, useRef } from 'react';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
+import { useResizeObserver } from 'usehooks-ts';
 
 type WindowScrollerGridProps<D> = {
 	rowSize: number,
@@ -9,27 +10,38 @@ type WindowScrollerGridProps<D> = {
 };
 
 export const WindowScrollerGrid = <D extends any>({ rowSize, colSize, items, children }: WindowScrollerGridProps<D>) => {
-	const listRef = useRef<List | null>(null);
+	const listRef = useRef<HTMLDivElement | null>(null);
 
-	useEffect(() => {
-		listRef.current?.recomputeRowHeights(0);
-	}, [rowSize, colSize, items]);
+	const { width = 0 } = useResizeObserver({
+		ref: listRef
+	});
 
-	return (<WindowScroller>{({ height, isScrolling, onChildScroll, scrollTop }) =>
-		(<AutoSizer disableHeight>
-			{({ width }) => {
-				const itemsPerRow = Math.max(1, Math.floor(width / colSize));
-				const rowCount = Math.ceil(items.length / itemsPerRow);
+	const itemsPerRow = Math.max(1, Math.floor(width / colSize));
+	const rowCount = Math.ceil(items.length / itemsPerRow);
 
-				return (<List ref={listRef} autoHeight isScrolling={isScrolling} onScroll={onChildScroll} scrollTop={scrollTop}
-					rowCount={rowCount} height={height} rowHeight={rowSize} width={width} rowRenderer={({ index, key, style }) =>
-					(<div key={key} style={{ ...style, height: `${rowSize}px` }} className="max-w-full h-full w-full flex justify-evenly sm:justify-center">
-						{items.slice(index * itemsPerRow, (index + 1) * itemsPerRow).map((item, i) => (<div key={i} style={{ width: `${colSize}px` }} className="h-full max-w-full">
-							{children(item)}
-						</div>))}
-					</div>)
-				} />)
-			}}
-		</AutoSizer>)
-	}</WindowScroller>)
+	const virtualizer = useWindowVirtualizer({
+		count: rowCount,
+		estimateSize: () => rowSize,
+		scrollMargin: listRef.current?.offsetTop ?? 0,
+		overscan: 5,
+		scrollingDelay: 0
+	});
+
+	return (<div ref={listRef} className={width <= 0 ? `invisible` : ''}>
+		{width > 0 && <div className="w-full relative" style={{
+			height: `${virtualizer.getTotalSize()}px`
+		}}>
+			{virtualizer.getVirtualItems().map(item => {
+				const row = items.slice(item.index * itemsPerRow, (item.index + 1) * itemsPerRow);
+				return (<div key={item.key} className="absolute top-0 left-0 max-w-full h-full w-full flex justify-evenly sm:justify-center" style={{
+					height: `${rowSize}px`,
+					transform: `translateY(${item.start - virtualizer.options.scrollMargin}px)`
+				}}>
+					{row.map((item, i) => (<div key={i} style={{ width: `${colSize}px` }} className="h-full max-w-full">
+						{children(item)}
+					</div>))}
+				</div>);
+			})}
+		</div>}
+	</div>);
 };

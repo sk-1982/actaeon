@@ -165,13 +165,13 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 					</div>
 					<div className="flex gap-2 w-full px-2 sm:px-1">
 						<SelectModalButton className="flex-grow flex-1" displayMode="grid" modalSize="full" rowSize={230} colSize={500} gap={6} items={userboxItems.namePlate}
-							modalId="nameplate"
+							modalId="nameplate" itemId="id"
 							renderItem={n => renderItem(n, getImageUrl(`chuni/name-plate/${n.imagePath}`), 'w-full sm:text-lg', 'px-2 pb-1')}
 							selectedItem={equipped.namePlate} onSelected={i => equipItem('namePlate', i)}>
 							Change Nameplate
 						</SelectModalButton>
 						<SelectModalButton className="flex-grow flex-1" displayMode="list" modalSize="2xl" rowSize={66} items={userboxItems.trophy}
-							modalId="trophy"
+							modalId="trophy" itemId="id"
 							renderItem={n => <ChuniTrophy rarity={n.rareType} name={n.name} />}
 							selectedItem={equipped.trophy} onSelected={i => equipItem('trophy', i)}>
 							Change Trophy
@@ -209,7 +209,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 					</div>
 					<div className="grid grid-cols-2 w-full px-2 sm:px-0 sm:flex flex-col gap-1.5 sm:ml-3 flex-grow">
 						{(['avatarHead', 'avatarFace', 'avatarWear', 'avatarSkin', 'avatarItem', 'avatarBack'] as const).map(k => ((k !== 'avatarSkin' || userboxItems.avatarSkin.length > 1) && <SelectModalButton
-	              key={k} displayMode="grid" modalSize="3xl" colSize={175} rowSize={205} gap={5} modalId={k}
+	              key={k} displayMode="grid" modalSize="3xl" colSize={175} rowSize={205} gap={5} modalId={k} itemId="avatarAccessoryId"
 								className={(k === 'avatarBack' && userboxItems.avatarSkin.length === 1) ? 'w-full col-span-full' : 'w-full'}
 	              onSelected={i => equipItem(k, i)} items={userboxItems[k]} selectedItem={equipped[k]}
 	              renderItem={i => renderItem(i, getImageUrl(`chuni/avatar/${i.iconPath}`)) }>
@@ -252,8 +252,8 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 						</Checkbox>
 						{ voicePreview }
 						<SelectModalButton selectedItem={equipped.systemVoice} items={userboxItems.systemVoice}
-							displayMode="grid" rowSize={150} colSize={175} gap={6} modalSize="full"
-							modalId="system-voice"
+							displayMode="grid" rowSize={150} colSize={175} gap={6} modalSize="full" 
+							modalId="system-voice" itemId="id"
 							footer={<><div className="flex flex-grow gap-2 items-center max-w-full sm:max-w-[min(100%,18rem)]">
 								{ voicePreview }
 							</div>
@@ -304,7 +304,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 				<div className="px-2 w-full flex justify-center">
 					<SelectModalButton onSelected={i => i && equipItem('mapIcon', i)} selectedItem={equipped.mapIcon}
 						displayMode="grid" modalSize="full" rowSize={210} colSize={175} items={userboxItems.mapIcon} gap={6}
-						className="w-full sm:w-auto mb-4" modalId="map-icon"
+						className="w-full sm:w-auto mb-4" modalId="map-icon" itemId="id"
 						renderItem={i => renderItem(i, getImageUrl(`chuni/map-icon/${i.imagePath}`))}>
 						Change Map Icon
 					</SelectModalButton>

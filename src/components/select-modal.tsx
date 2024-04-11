@@ -4,16 +4,17 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalProps } 
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, ButtonProps, Input } from '@nextui-org/react';
 import { SearchIcon } from '@nextui-org/shared-icons';
-import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
 import { useDebounceCallback } from 'usehooks-ts';
-import { CellMeasurerChildProps } from 'react-virtualized/dist/es/CellMeasurer';
 import { useRouter } from 'next/navigation';
 import { useWindowListener } from '@/helpers/use-window-listener';
 import { useReloaded } from './client-providers';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
+type Data<I extends string> = {
+	name?: string | null,
+} & { [K in I]: any };
 
-
-export type SelectModalProps<T extends 'grid' | 'list', D extends { name?: string | null }> = {
+export type SelectModalProps<T extends 'grid' | 'list', I extends string, D extends Data<I>> = {
 	isOpen: boolean,
 	onSelected: (item: D | null | undefined) => void,
 	selectedItem: D | null | undefined,
@@ -21,30 +22,121 @@ export type SelectModalProps<T extends 'grid' | 'list', D extends { name?: strin
 	displayMode: T,
 	rowSize: number,
 	items: D[],
-	renderItem: (item: D) => (ReactNode | ((props: Pick<CellMeasurerChildProps, 'measure'>) => ReactNode)),
+	renderItem: (item: D) => ReactNode,
 	gap?: number,
 	onSelectionChanged?: (item: D) => void,
-	footer?: ReactNode
+	footer?: ReactNode,
+	itemId: I
 } & (T extends 'grid' ? {
 	colSize: number
 } : {
 	colSize?: never
-});
-
-const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null }>({ footer, onSelectionChanged, gap, selectedItem, renderItem, displayMode, items, isOpen, onSelected, modalSize, colSize, rowSize }: SelectModalProps<T, D>) => {
-	const measurementCache = useMemo(() => {
-		return new CellMeasurerCache({
-			defaultHeight: rowSize,
-			fixedWidth: true,
-			minHeight: Math.ceil(rowSize / 3),
-			keyMapper: () => window.innerWidth
 		});
-	}, [rowSize]);
 
-	const listRef = useRef<List | null>(null);
+const SelectModalList = <I extends string, D extends Data<I>>({ onSelectionChanged, setSelected, gap, rowSize, renderItem, items, selected, itemId }:
+	Pick<SelectModalProps<'list', I, D>, 'itemId' | 'onSelectionChanged' | 'gap' | 'rowSize' | 'renderItem' | 'items'> & { selected?: D | null, setSelected: (d: D) => void }) => { 
+	const listRef = useRef<HTMLDivElement | null>(null);
+	const lastHeight = useRef(rowSize);
+
+	const virtualizer = useVirtualizer({
+		count: items.length,
+		getScrollElement: () => listRef.current,
+		estimateSize: () => lastHeight.current,
+		overscan: 5,
+		scrollingDelay: 0,
+		measureElement: el => {
+			return lastHeight.current = el.clientHeight;
+		}
+	});
+
+	const buttonStyle = { height: `calc(100% - ${gap ?? 0}px)` };
+
+	return (<div ref={listRef} className="w-full overflow-y-auto overflow-x-hidden">
+		<div className="w-full relative" style={{
+			height: `${virtualizer.getTotalSize()}px`
+		}}>
+			{virtualizer.getVirtualItems().map(item => {
+				const data = items[item.index];
+				const child = renderItem(data);
+
+				return (<div key={item.key} ref={virtualizer.measureElement} data-index={item.index}
+					className="flex items-center justify-center absolute top-0 left-0 w-full"
+					style={{
+						transform: `translateY(${item.start}px)`
+					}}>
+					<Button
+						style={buttonStyle}
+						className={`w-full h-fit max-h-full px-0 transition ${data[itemId] === selected?.[itemId] ? 'bg-gray-400/75' : 'bg-transparent'}`}
+						variant="flat" onPress={() => { setSelected(data); onSelectionChanged?.(data); }}>
+						{child}
+					</Button>
+				</div>)
+			})}
+		</div>
+	</div>)
+};
+
+const SelectModalGrid = <I extends string, D extends Data<I>>({ onSelectionChanged, setSelected, gap, rowSize, renderItem, items, selected, colSize, itemId }:
+	Pick<SelectModalProps<'grid', I, D>, 'itemId' | 'onSelectionChanged' | 'gap' | 'rowSize' | 'renderItem' | 'items' | 'colSize'> & { selected?: D | null, setSelected: (d: D) => void; }) => { 
+	const listRef = useRef<HTMLDivElement | null>(null);
+	const lastHeight = useRef(rowSize);
+	const [width, setWidth] = useState(0)
+
+	const itemsPerRow = Math.max(1, Math.floor(width / colSize));
+	const rowCount = Math.ceil(items.length / itemsPerRow);
+
+	const virtualizer = useVirtualizer({
+		count: rowCount,
+		getScrollElement: () => listRef.current,
+		estimateSize: () => lastHeight.current,
+		overscan: 5,
+		scrollingDelay: 0,
+		measureElement: el => {
+			return lastHeight.current = el.clientHeight;
+		}
+	});
+
+	const buttonStyle = {
+		maxWidth: `${colSize}px`,
+		aspectRatio: `${colSize}/${rowSize}`
+	};
+	const rowStyle = { gap: `${gap ?? 0}px`, paddingBottom: `${gap ?? 0}px` };
+
+	useEffect(() => setWidth(listRef.current?.clientWidth ?? 0), []);
+	useWindowListener('resize', () => setWidth(listRef.current?.clientWidth ?? 0));
+
+	return (<div ref={listRef} className="w-full overflow-y-auto overflow-x-hidden">
+		<div className="w-full relative" style={{
+			height: `${virtualizer.getTotalSize()}px`
+		}}>
+			{virtualizer.getVirtualItems().map(item => {
+				const row = items.slice(item.index * itemsPerRow, (item.index + 1) * itemsPerRow);
+				const children = row.map((item, i) => (<Button key={i} style={buttonStyle}
+					className={`w-full px-0 h-full ${selected?.[itemId] === item[itemId] ? 'bg-gray-400/75' : 'bg-transparent'}`} onPress={() => {
+						onSelectionChanged?.(item);
+						setSelected(item);
+					}}>
+					{renderItem(item)}
+				</Button>));
+
+				return (<div key={item.key} ref={virtualizer.measureElement} data-index={item.index}
+					className="absolute top-0 left-0 w-full flex items-center justify-center"
+					style={{
+						transform: `translateY(${item.start}px)`,
+						...rowStyle
+					}}>
+					{ children }
+					{item.index === rowCount - 1 ? [...new Array(itemsPerRow - children.length)].map((_, i) =>
+						<div key={i} style={buttonStyle} className="w-full h-full"></div>) : null }
+				</div>)
+			})}
+		</div>
+	</div>)
+};
+
+const SelectModal = <T extends 'grid' | 'list', I extends string, D extends Data<I>>({ footer, onSelectionChanged, gap, selectedItem, renderItem, displayMode, items, isOpen, onSelected, modalSize, colSize, rowSize, itemId }: SelectModalProps<T, I, D>) => {
 	const [selected, setSelected] = useState(selectedItem);
 	const [filteredItems, setFilteredItems] = useState(items);
-	const [gridRowCount, setGridRowCount] = useState(0);
 	const outputSelected = useRef<null | undefined | D>(null);
 
 	useEffect(() => {
@@ -55,118 +147,21 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 		}
 	}, [isOpen]);
 
-	useEffect(() => {
-		listRef.current?.recomputeRowHeights();
-	}, [colSize, rowSize]);
-
 	const filter = useDebounceCallback((query: string) => {
 		const lowerQuery = query.toLowerCase();
 		setFilteredItems(items.filter(({ name }) => name?.toLowerCase().includes(lowerQuery)));
 	}, 100);
 
-	const recompute = useDebounceCallback(() => {
-		listRef.current?.recomputeRowHeights();
-	}, 150);
-
-	useEffect(() => {
-		if (!isOpen) return;
-
-		let prevWidth = -1;
-		const cb = () => {
-			if (prevWidth !== window.innerWidth) {
-				prevWidth = window.innerWidth;
-				recompute();
-			}
-		};
-		window.addEventListener('resize', cb);
-
-		return () => {
-			window.removeEventListener('resize', cb);
-		};
-	}, [isOpen, recompute]);
-
-	const containerStyle = { pointerEvents: 'auto' } as const;
-
 	const renderedContent = useMemo(() => {
 		if (!isOpen) return null;
 
-		if (displayMode === 'list') {
-			const buttonStyle = { height: `calc(100% - ${gap ?? 0}px)` };
+		if (displayMode === 'list')
+			return <SelectModalList onSelectionChanged={onSelectionChanged} gap={gap} rowSize={rowSize} renderItem={renderItem}
+				items={filteredItems} selected={selected} setSelected={setSelected} itemId={itemId} />
 
-			return (<div style={{ flexBasis: `${filteredItems.length * rowSize}px` }}>
-				<AutoSizer>
-					{({ height, width }) => (<List containerStyle={containerStyle}
-						deferredMeasurementCache={measurementCache}
-						rowCount={filteredItems.length}
-						height={height}
-						width={width}
-						rowHeight={measurementCache.rowHeight}
-						ref={listRef}
-						rowRenderer={({ key, index, style, parent }) => {
-							const child = renderItem(filteredItems[index]);
-
-							return (<CellMeasurer cache={measurementCache} parent={parent} columnIndex={0} rowIndex={index} key={key}>
-								{({ measure, registerChild }) => {
-									return (<div ref={registerChild as any} style={style} className="flex items-center justify-center">
-										<Button
-											style={buttonStyle}
-											className={`w-full h-fit max-h-full px-0 transition ${filteredItems[index] === selected ? 'bg-gray-400/75' : 'bg-transparent'}`}
-											variant="flat" onPress={() => { setSelected(filteredItems[index]); onSelectionChanged?.(filteredItems[index]) }}>
-											{typeof child === 'function' ? child({ measure }) : child}
-										</Button>
-									</div>)
-								}}
-							</CellMeasurer>);
-						}}
-					/>)}
-				</AutoSizer>
-			</div>);
-		}
-
-		const buttonStyle = { maxWidth: `${colSize}px`,
-			aspectRatio: `${colSize}/${rowSize}`,
-			height: `calc(100% - ${gap ?? 0}px)` };
-		const rowStyle = { gap: `${gap ?? 0}px` };
-
-		return (<AutoSizer disableHeight className="flex flex-1 max-h-full overflow-hidden" style={{ flexBasis: `${gridRowCount * rowSize}px` }}>
-			{(({ width }) => {
-				const itemsPerRow = Math.max(1, Math.floor(width / colSize!));
-				const rowCount = Math.ceil(filteredItems.length / itemsPerRow);
-				setTimeout(() => setGridRowCount(rowCount));
-
-				return (<div style={{ flexBasis: `${rowCount * rowSize}px` }}>
-					<AutoSizer disableWidth>
-						{({ height }) => (<List ref={listRef}
-							containerStyle={containerStyle}
-							deferredMeasurementCache={measurementCache}
-							rowCount={rowCount}
-							height={height}
-							width={width}
-							rowHeight={measurementCache.rowHeight}
-							rowRenderer={({ key, index, style, parent }) => (<CellMeasurer cache={measurementCache} parent={parent} columnIndex={0} rowIndex={index} key={key}>
-								{({ measure, registerChild }) => {
-									const children = filteredItems.slice(index * itemsPerRow, (index + 1) * itemsPerRow)
-										.map((item, i) => {
-											const res = renderItem(item);
-
-											return (<Button key={i} style={buttonStyle} className={`w-full px-0 ${selected === item ? 'bg-gray-400/75' : 'bg-transparent'}`}
-												onPress={() => { setSelected(item); onSelectionChanged?.(item) }}>
-												{ typeof res === 'function' ? res({ measure }) : res }
-											</Button>)
-										});
-
-									return <div style={{...style, ...rowStyle}} className="w-full h-full flex items-center justify-center" ref={registerChild as any}>
-										{children}
-										{ index === rowCount - 1 ? [...new Array(itemsPerRow - children.length)].map((_, i) =>
-											<div key={i} style={buttonStyle} className="w-full"></div>) : null }
-									</div>;
-								}}
-							</CellMeasurer>)} />)}
-					</AutoSizer>
-				</div>);
-			})}
-		</AutoSizer>)
-	}, [displayMode, filteredItems, colSize, rowSize, selected, isOpen, gridRowCount, gap, onSelectionChanged]);
+		return <SelectModalGrid onSelectionChanged={onSelectionChanged} gap={gap} rowSize={rowSize} renderItem={renderItem}
+			items={filteredItems} selected={selected} setSelected={setSelected} colSize={colSize!} itemId={itemId} />
+	}, [displayMode, filteredItems, colSize, rowSize, selected, isOpen, gap]);
 
 	return (<Modal classNames={{ wrapper: 'overflow-hidden' }} size={modalSize} onClose={() => {
 		onSelected(outputSelected.current);
@@ -199,13 +194,12 @@ const SelectModal = <T extends 'grid' | 'list', D extends { name?: string | null
 	</Modal>)
 };
 
-export type SelectModalButtonProps<T extends 'grid' | 'list', D extends { name?: string | null }> = Omit<ButtonProps, 'onClick'> &
-	Pick<SelectModalProps<T, D>, 'modalSize' | 'displayMode' | 'colSize' | 'rowSize' | 'items' | 'renderItem' | 'selectedItem' | 'onSelected' | 'gap' | 'onSelectionChanged' | 'footer'> &
-	{ modalId: string };
-export const SelectModalButton = <T extends 'grid' | 'list', D extends { name?: string | null }>(props: SelectModalButtonProps<T, D>) => {
+export const SelectModalButton = <T extends 'grid' | 'list', I extends string, D extends Data<I>>(props: Omit<ButtonProps, 'onClick'> &
+	Pick<SelectModalProps<T, I, D>, 'itemId' | 'modalSize' | 'displayMode' | 'colSize' | 'rowSize' | 'items' | 'renderItem' | 'selectedItem' | 'onSelected' | 'gap' | 'onSelectionChanged' | 'footer'> &
+	{ modalId: string; }) => {
 	const router = useRouter();
 	const [isOpen, setOpen] = useState(false);
-	const { modalId, footer, onSelectionChanged, gap, onSelected, selectedItem, renderItem, items, colSize, rowSize, displayMode, modalSize } = props;
+	const { modalId, footer, onSelectionChanged, gap, onSelected, selectedItem, renderItem, items, colSize, rowSize, displayMode, modalSize, itemId } = props;
 	const historyPushed = useRef(false);
 	const reloaded = useReloaded();
 
@@ -223,7 +217,7 @@ export const SelectModalButton = <T extends 'grid' | 'list', D extends { name?: 
 
 	return (<>
 		<SelectModal displayMode={displayMode} modalSize={modalSize} isOpen={isOpen} selectedItem={selectedItem} gap={gap} footer={footer}
-			colSize={colSize as any} rowSize={rowSize} items={items} renderItem={renderItem} onSelectionChanged={onSelectionChanged}
+			colSize={colSize as any} rowSize={rowSize} items={items} renderItem={renderItem} onSelectionChanged={onSelectionChanged} itemId={itemId}
 			onSelected={item => {
 				setOpen(false);
 				onSelected(item);
