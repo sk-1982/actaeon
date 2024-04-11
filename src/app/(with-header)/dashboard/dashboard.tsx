@@ -3,8 +3,6 @@
 import 'react-resizable/css/styles.css';
 import 'react-grid-layout/css/styles.css';
 
-import resolveConfig from 'tailwindcss/resolveConfig';
-import tailwindConfig from '@/../tailwind.base';
 import GridLayout, { ItemCallback, Layout, calculateUtils } from 'react-grid-layout';
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChuniNameplate } from '@/components/chuni/nameplate';
@@ -19,12 +17,11 @@ import { ChuniAvatar } from '@/components/chuni/avatar';
 import { Entries, IsEqual } from 'type-fest';
 import { ChevronRightIcon, ChevronLeftIcon, DevicePhoneMobileIcon, PencilIcon, SquaresPlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { SaveIcon } from '@/components/save-icon';
-import { Resizable, ResizableBox, ResizeCallbackData } from 'react-resizable';
+import { Resizable, ResizeCallbackData } from 'react-resizable';
 import { ServerStatus } from '@/data/status';
 import { ActaeonStatus } from '@/components/actaeon-status';
 import { setDashboard } from '@/actions/dashboard';
-
-const config = resolveConfig(tailwindConfig);
+import { TAILWIND_SCREENS } from '@/types/tailwind';
 
 const COLS = {
 	xs: 6,
@@ -48,22 +45,22 @@ const OVERRIDE_COLS = new Map([
 	[COLS.sm, {
 		width: 768,
 		name: 'Small',
-		breakpoint: parseInt(config.theme.screens.sm)
+		breakpoint: parseInt(TAILWIND_SCREENS.sm)
 	}],
 	[COLS.lg, {
 		width: 1280,
 		name: 'Medium',
-		breakpoint: parseInt(config.theme.screens.lg)
+		breakpoint: parseInt(TAILWIND_SCREENS.lg)
 	}],
 	[COLS['2xl'], {
 		width: 1920,
 		name: 'Large',
-		breakpoint: parseInt(config.theme.screens['2xl'])
+		breakpoint: parseInt(TAILWIND_SCREENS['2xl'])
 	}],
 	[COLS['5xl'], {
 		width: 2160,
 		name: 'Extra Large',
-		breakpoint: parseInt(config.theme.screens['5xl'])
+		breakpoint: parseInt(TAILWIND_SCREENS['5xl'])
 	}]
 ]);
 

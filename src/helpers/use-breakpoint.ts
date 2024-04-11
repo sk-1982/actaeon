@@ -1,9 +1,7 @@
-import resolveConfig from 'tailwindcss/resolveConfig';
-import tailwindConfig from '@/../tailwind.base';
 import { useMediaQuery } from 'usehooks-ts';
+import { TAILWIND_SCREENS } from '@/types/tailwind';
 
-const config = resolveConfig(tailwindConfig);
-const breakpoints = Object.entries(config.theme.screens)
+const breakpoints = Object.entries(TAILWIND_SCREENS)
 	.sort(([, a], [, b]) => parseInt(a) - parseInt(b));
 
 export const useBreakpoint = () => {

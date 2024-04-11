@@ -1,4 +1,11 @@
-import fs from 'fs';
+const fs = require('fs');
+const path = require('path');
+const bundleAnalyzer = require('@next/bundle-analyzer');
+require('ts-node').register({ compilerOptions: { module: 'commonjs' } });
+
+const resolveConfig = require('tailwindcss/resolveConfig.js');
+const tailwindConfig = require('./tailwind.base.ts');
+const resolved = resolveConfig(tailwindConfig);
 
 let baseAssetUrl = process.env.ASSET_URL ?? '/';
 if (!baseAssetUrl.endsWith('/')) baseAssetUrl += '/';
@@ -22,7 +29,7 @@ try {
 } catch { }
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = bundleAnalyzer({ enabled: !!process.env.ANALYZE })({
     images: {
         unoptimized: true
     },
@@ -42,7 +49,8 @@ const nextConfig = {
     env: {
         NEXT_PUBLIC_BASE_PATH: basePath,
         NEXT_PUBLIC_ASSET_URL: baseAssetUrl,
-        NEXT_PUBLIC_VERSION_STRING: versionString
+        NEXT_PUBLIC_VERSION_STRING: versionString,
+        NEXT_PUBLIC_TAILWIND_SCREENS: JSON.stringify(resolved.theme.screens)
     },
     sassOptions: {
         additionalData: `$asset-url: "${baseAssetUrl}";`
@@ -55,6 +63,4 @@ const nextConfig = {
         config.externals = [...config.externals, 'bcrypt', 'mysql2'];
         return config;
     }
-};
-
-export default nextConfig;
+});
