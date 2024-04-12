@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function UserProfilePage({ params }: { params: { userId: string; }; }) {
 	const viewingUser = await getUser();
-	const user = await withUsersVisibleTo(viewingUser)
+	const user = structuredClone(await withUsersVisibleTo(viewingUser)
 		.selectFrom('aime_user as u')
 		.innerJoin('actaeon_user_ext as ext', 'ext.userId', 'u.id')
 		.where('ext.uuid', '=', params.userId)
@@ -22,7 +22,7 @@ export default async function UserProfilePage({ params }: { params: { userId: st
 			'last_login_date',
 			userIsVisible('u.id').as('visible')
 		])
-		.executeTakeFirst();
+		.executeTakeFirst());
 	
 	if (!user)
 		return notFound();
@@ -32,18 +32,18 @@ export default async function UserProfilePage({ params }: { params: { userId: st
 			.where('user1', '=', user.id)
 			.where('user2', '=', viewingUser?.id!)
 			.select('chuniRival')
-			.executeTakeFirst(),
+			.executeTakeFirst().then(d => structuredClone(d)),
 		db.selectFrom('actaeon_friend_requests')
 			.where('user', '=', user.id)
 			.where('friend', '=', viewingUser?.id!)
 			.select('user')
-			.executeTakeFirst()
+			.executeTakeFirst().then(d => structuredClone(d))
 	]);
-	
+
 	if (!user.visible)
 		return (<UserProfile friend={friend} pendingFriend={!!pendingFriend} user={user as UserProfile<false>}/>);
 	
-	const chuniProfile = await getChuniUserData(user);
-	
+	const chuniProfile = structuredClone(await getChuniUserData(user));
+
 	return (<UserProfile friend={friend} pendingFriend={!!pendingFriend} user={user as UserProfile<true>} chuniProfile={chuniProfile} />);
 }

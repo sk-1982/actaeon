@@ -157,5 +157,5 @@ export const createMachine = async ({ arcade, update }: { arcade: number, update
 	revalidatePath('/arcade', 'page');
 	revalidatePath('/arcade/[arcadeId]', 'page');
 
-	return { error: false, message: '', data: await getArcadeCabs({ arcade, user, permissions: arcadePermissions }) };
+	return { error: false, message: '', data: structuredClone(await getArcadeCabs({ arcade, user, permissions: arcadePermissions })) };
 }

@@ -11,7 +11,8 @@ export const PrivateVisibilityError = () => {
 		<LockClosedIcon className="w-48 mb-10" />
 		<header className="text-2xl font-semibold">This page is private.</header>
 		{!user ? <span>You may be able to access it by&nbsp;
-				<span className="underline hover:text-secondary transition cursor-pointer" onClick={() => login()}>logging in.</span>
+			<span className="underline hover:text-secondary transition cursor-pointer" onClick={() => login()
+				.then(r => setTimeout(() => location.href = r.redirect!, 10))}>logging in.</span>
 		</span> : <span>You do not have permission to view this page.</span>}
 	</main>);
 }

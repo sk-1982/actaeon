@@ -19,8 +19,8 @@ export default async function ChuniUserboxPage() {
 	if (!user?.chuni)
 		return (<ChuniNoProfile />);
 
-	const profile = await getUserData(user);
-	const userboxItems = await getUserboxItems(user, profile);
+	const profile = structuredClone(await getUserData(user));
+	const userboxItems = structuredClone(await getUserboxItems(user, profile));
 
 	return (<ChuniUserbox profile={profile} userboxItems={userboxItems} />);
 }

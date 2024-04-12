@@ -15,7 +15,7 @@ export default async function TeamDetailPage({ params }: { params: { teamId: str
 
 	const [users, links] = await Promise.all([
 		getTeamUsers({ user, team }),
-		getTeamInviteLinks({ user, team })
+		getTeamInviteLinks({ user, team }).then(d => structuredClone(d))
 	]);
 
 	if (!team.visible)

@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function FriendsPage() {
 	const user = await requireUser();
-	const friends = await getFriends(user.id);
+	const friends = structuredClone(await getFriends(user.id));
 
 	return (<Friends friends={friends} />);
 };

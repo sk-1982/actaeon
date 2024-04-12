@@ -7,7 +7,7 @@ import { getGlobalConfig } from '@/config';
 
 export default async function SettingsPage() {
 	const user = await requireUser();
-	const cards = await getCards(user.id);
+	const cards = structuredClone(await getCards(user.id));
 
 	return (<div className="w-full flex items-center justify-center">
 		<div className="w-full max-w-full sm:max-w-5xl flex flex-col gap-2 2xl:max-w-screen-4xl 2xl:grid grid-cols-12">

@@ -18,8 +18,8 @@ export default async function ArcadeDetailPage({ params }: { params: { arcadeId:
 
 	const [users, cabs, links] = await Promise.all([
 		getArcadeUsers({ arcade: arcade.id, permissions: arcade.permissions, user }),
-		getArcadeCabs({ arcade: arcade.id, permissions: arcade.permissions, user }),
-		getArcadeInviteLinks({ arcade: arcade.id, permissions: arcade.permissions, user })
+		getArcadeCabs({ arcade: arcade.id, permissions: arcade.permissions, user }).then(d => structuredClone(d)),
+		getArcadeInviteLinks({ arcade: arcade.id, permissions: arcade.permissions, user }).then(d => structuredClone(d))
 	]);
 
 	return (<ArcadeDetail users={users} arcade={arcade} cabs={cabs} links={links} />)

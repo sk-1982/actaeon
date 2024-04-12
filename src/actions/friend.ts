@@ -3,17 +3,15 @@
 import { GeneratedDB, db } from '@/db';
 import { getUser, requireUser } from './auth';
 import { notFound } from 'next/navigation';
-import { CompiledQuery, Transaction, sql } from 'kysely';
+import { Transaction, sql } from 'kysely';
 import { syncUserFriends, withChuniRivalCount } from '@/data/friend';
-import { SqlBool } from 'kysely';
-import { Exact } from 'type-fest';
 import { revalidatePath } from 'next/cache';
 
 export const getFriendRequests = async () => {
 	const user = await getUser();
 	if (!user) return [];
 	
-	return db.selectFrom('actaeon_friend_requests as req')
+	return structuredClone(await db.selectFrom('actaeon_friend_requests as req')
 		.where('user', '=', user.id)
 		.innerJoin('aime_user as u', 'u.id', 'req.friend')
 		.innerJoin('actaeon_user_ext as ext', 'ext.userId', 'u.id')
@@ -23,7 +21,7 @@ export const getFriendRequests = async () => {
 			'ext.uuid as userUuid'
 		])
 		.orderBy('req.createdDate desc')
-		.execute();
+		.execute());
 };
 
 export type FriendRequest = Awaited<ReturnType<typeof getFriendRequests>>[number];

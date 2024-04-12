@@ -44,13 +44,15 @@ type LoginOptions = {
 
 export const login = async (options?: LoginOptions) => {
 	if (!options)
-		return signIn();
+		return { redirect: await signIn(undefined, { redirect: false }) as string };
 
 	try {
-		return await signIn('credentials', {
+		const res = await signIn('credentials', {
 			...options,
-			redirectTo: options?.redirectTo ?? '/'
+			redirectTo: options.redirectTo ?? '/',
+			redirect: false,
 		});
+		return { redirect: res };
 	} catch (e) {
 		if (e instanceof AuthError) {
 			if (e.type === 'CredentialsSignin')
@@ -63,8 +65,11 @@ export const login = async (options?: LoginOptions) => {
 	}
 };
 
-export const logout = async (options: { redirectTo?: string, redirect?: boolean }) => {
-	return signOut(options);
+export const logout = async (options: { redirectTo?: string }) => {
+	return await signOut({
+		...options,
+		redirect: false
+	});
 };
 
 export const register = async (formData: FormData) => {

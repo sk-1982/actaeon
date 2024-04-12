@@ -305,7 +305,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 								</div>
 							</DropdownItem>
 							<DropdownItem className="p-0" color="danger" variant="flat">
-								<div className="w-full h-full block px-2 py-1.5 text-danger" onClick={() => logout({ redirectTo: '/' })}>
+								<div className="w-full h-full block px-2 py-1.5 text-danger" onClick={() => logout({ redirectTo: '/' })
+									.then(r => setTimeout(() => location.href = r.redirect, 10))}>
 									Logout
 								</div>
 							</DropdownItem>
@@ -314,7 +315,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				</> :
 					<>
 						<ThemeSwitcherDropdown />
-						<Button size="sm" className="ml-2" color="primary" onClick={() => login()}>
+						<Button size="sm" className="ml-2" color="primary" onClick={() => login()
+							.then(r => setTimeout(() => location.href = r.redirect, 10))}>
 							Login
 						</Button>
 					</>
@@ -397,7 +399,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 						</Button>
 					</Link>}
 				</div>
-				<Button color="primary" className="w-full flex-shrink-0" onClick={() => user ? logout({ redirectTo: '/' }) : login()}>
+				<Button color="primary" className="w-full flex-shrink-0" onClick={() => (user ? logout({ redirectTo: '/' }) : login())
+					.then(r => setTimeout(() => location.href = r.redirect!, 10))}>
 					{user ? 'Logout' : 'Login'}
 				</Button>
 			</div>
@@ -457,7 +460,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 					</div>
 				</section>
 
-				<Button className="mt-auto mx-3 flex-shrink-0" color="danger" onPress={() => logout({ redirectTo: '/' })}>
+				<Button className="mt-auto mx-3 flex-shrink-0" color="danger" onPress={() => logout({ redirectTo: '/' })
+					.then(r => setTimeout(() => location.href = r.redirect, 10))}>
 					Logout
 				</Button>
 			</div>

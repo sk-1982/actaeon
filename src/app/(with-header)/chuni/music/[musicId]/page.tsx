@@ -10,7 +10,7 @@ export default async function ChuniMusicDetailPage({ params }: { params: { music
 		return notFound();
 
 	const [music, playlog] = await Promise.all([
-		getMusic(musicId),
+		getMusic(musicId).then(d => structuredClone(d)),
 		getPlaylog({ musicId, limit: 500 })
 	]);
 

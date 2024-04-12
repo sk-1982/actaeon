@@ -124,7 +124,7 @@ export async function getPlaylog(opts: GetPlaylogOptions) {
 			.select(({ fn }) => fn.countAll().as('total'))
 			.executeTakeFirstOrThrow()).total);
 
-	return { data: playlog, total };
+	return { data: structuredClone(playlog), total };
 }
 
 export type ChuniPlaylog = Awaited<ReturnType<typeof getPlaylog>>;

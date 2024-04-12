@@ -9,13 +9,13 @@ export const dynamic = 'force-dynamic';
 export default async function DashboardPage() {
 	const [user, status] = await Promise.all([
 		getUser(),
-		getServerStatus()
+		getServerStatus().then(d => structuredClone(d))
 	]);
 
 	if (!user) return (<Dashboard serverStatus={status} />)
 
 	const [chuniProfile, dashboard] = await Promise.all([
-		getUserData(user),
+		getUserData(user).then(d => structuredClone(d)),
 		getDashboard(user)
 	]);
 

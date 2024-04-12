@@ -56,12 +56,19 @@ module.exports = bundleAnalyzer({ enabled: !!process.env.ANALYZE })({
         additionalData: `$asset-url: "${baseAssetUrl}";`
     },
     experimental: {
-        instrumentationHook: true
+        instrumentationHook: true,
+        serverComponentsExternalPackages: ['kysely', 'mysql2', 'bcrypt']
     },
     productionBrowserSourceMaps: true,
-    webpack: config => {
-        config.externals = [...config.externals, 'bcrypt', 'mysql2'];
+    webpack: (config, { nextRuntime }) => {
         config.resolve.alias['resize-observer-polyfill'] = path.resolve(__dirname, 'resize-observer.cjs');
+        if (nextRuntime === 'edge') {
+            config.resolve.alias['mysql2'] = path.resolve(__dirname, 'empty.cjs');
+            config.resolve.alias['kysely'] = path.resolve(__dirname, 'empty.cjs');
+            config.resolve.alias['bcrypt'] = path.resolve(__dirname, 'empty.cjs');
+            config.resolve.alias['crypto'] = path.resolve(__dirname, 'empty.cjs');
+            config.resolve.alias['node:crypto'] = path.resolve(__dirname, 'empty.cjs');
+        }
         return config;
     }
 });

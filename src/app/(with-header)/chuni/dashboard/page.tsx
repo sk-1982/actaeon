@@ -17,9 +17,9 @@ export default async function ChuniDashboard() {
 		return (<ChuniNoProfile />);
 
 	const [profile, rating, playlog] = await Promise.all([
-		getUserData(user),
-		getUserRating(user),
-		getPlaylog({ limit: 72 })
+		getUserData(user).then(d => structuredClone(d)),
+		getUserRating(user).then(d => structuredClone(d)),
+		getPlaylog({ limit: 72 }).then(d => structuredClone(d))
 	]);
 
 	return (<div className="flex h-full flex-col md:flex-row">

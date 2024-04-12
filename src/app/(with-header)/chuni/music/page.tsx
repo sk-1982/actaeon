@@ -6,6 +6,6 @@ export default async function ChuniMusicPage() {
 	const music = await getMusic();
 
 	return (
-		<ChuniMusicList music={music} />
+		<ChuniMusicList music={structuredClone(music)} />
 	);
 }

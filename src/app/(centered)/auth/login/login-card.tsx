@@ -40,7 +40,8 @@ export const LoginCard = ({ initialError, referer, callback }: LoginCardProps) =
 		})
 			.then(res => {
 				if (res?.error)
-					setError(res.message)
+					return setError(res.message)
+				setTimeout(() => location.href = res.redirect, 10);
 			})
 			.finally(() => setLoading(false));
 	};

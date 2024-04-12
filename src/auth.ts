@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { db, GeneratedDB } from '@/db';
 import { DBUserPayload } from '@/types/user';
 import { cache } from 'react';
-import { SelectQueryBuilder, sql } from 'kysely';
+import { SelectQueryBuilder } from 'kysely';
 import { AimeUser } from '@/types/db';
 import crypto from 'crypto';
 import { createActaeonTeamsFromExistingTeams } from './data/team';
@@ -40,7 +40,7 @@ else if (['1', 'true', 'yes'].includes(process.env.COOKIE_SECURE?.toLowerCase()!
 
 const nextAuth = NextAuth({
 	pages: {
-		signIn: `${basePath}/auth/login`
+		signIn: `${basePath}/auth/login/`
 	},
 	...config,
 	basePath: `${basePath}/api/auth/`,

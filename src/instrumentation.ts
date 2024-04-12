@@ -81,8 +81,5 @@ export async function register() {
 			createActaeonTeamsFromExistingTeams().catch(console.error),
 			createActaeonFriendsFromExistingFriends().catch(console.error)
 		]);
-	} else if (process.env.NEXT_RUNTIME === 'edge') {
-		(globalThis as any).bcrypt = {};
-		(globalThis as any).mysql2 = {};
 	}
 }
