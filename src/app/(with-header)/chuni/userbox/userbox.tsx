@@ -88,7 +88,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 
 	const save = <K extends keyof SavedItem>(...items: K[]) => {
 		if (!items.length)
-			items = Object.keys(ITEM_KEYS) as any;
+			items = [...Object.keys(ITEM_KEYS) as any, 'username'];
 
 		const update: Partial<ProfileUpdate> = Object.fromEntries((Object.entries(equipped) as Entries<typeof equipped>)
 			.filter(([k]) => items.includes(k as any))
