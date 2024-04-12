@@ -4,7 +4,7 @@ import { ChuniPlaylogCard } from '@/components/chuni/playlog-card';
 import { getUserData, getUserRating } from '@/actions/chuni/profile';
 import { requireUser } from '@/actions/auth';
 import { ChuniTopRatingSidebar } from './top-rating-sidebar';
-import { Button } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
 import Link from 'next/link';
 import { ChuniNoProfile } from '@/components/chuni/no-profile';
 

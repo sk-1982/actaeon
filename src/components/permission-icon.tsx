@@ -1,5 +1,5 @@
 import { USER_PERMISSION_NAMES, UserPermissions } from '@/types/permissions';
-import { Tooltip } from '@nextui-org/react';
+import { Tooltip } from '@nextui-org/tooltip';
 import { TbBrandAppleArcade, TbCrown, TbFileSettings, TbUserShield } from 'react-icons/tb';
 
 const PERMISSION_ICONS = new Map([

@@ -3,7 +3,8 @@
 import { DB } from '@/types/db';
 import { useState } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { Button, Tooltip } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Tooltip } from '@nextui-org/tooltip';
 import { useUser } from '@/helpers/use-user';
 import { TbHammer, TbHammerOff, TbLock, TbLockOpen, TbTrashX } from 'react-icons/tb';
 import { hasPermission } from '@/helpers/permissions';

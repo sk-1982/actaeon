@@ -4,7 +4,12 @@ import { createUserWithAccessCode, deleteUser, setUserPermissions } from '@/acti
 import { PermissionEditModal } from '@/components/permission-edit-modal';
 import { useEffect, useState } from 'react';
 import { USER_PERMISSION_NAMES, UserPermissions } from '@/types/permissions';
-import { Button, Divider, Tooltip, Input, Accordion, AccordionItem, Spacer } from '@nextui-org/react';
+import { AccordionItem, Accordion } from '@nextui-org/accordion';
+import { Button } from '@nextui-org/button';
+import { Divider } from '@nextui-org/divider';
+import { Input } from '@nextui-org/input';
+import { Spacer } from '@nextui-org/spacer';
+import { Tooltip } from '@nextui-org/tooltip';
 import { ChevronDownIcon, CreditCardIcon, PencilSquareIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { usePromptModal } from '@/components/prompt-modal';
 import { useUser } from '@/helpers/use-user';

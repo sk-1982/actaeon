@@ -1,6 +1,13 @@
 'use client';
 
-import { Avatar, Badge, Button, Divider, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Navbar, Popover, PopoverContent, PopoverTrigger, Tooltip } from '@nextui-org/react';
+import { Avatar } from '@nextui-org/avatar';
+import { Badge } from '@nextui-org/badge';
+import { Button } from '@nextui-org/button';
+import { Divider } from '@nextui-org/divider';
+import { DropdownItem, DropdownTrigger, Dropdown, DropdownMenu } from '@nextui-org/dropdown';
+import { Navbar } from '@nextui-org/navbar';
+import { PopoverTrigger, Popover, PopoverContent } from '@nextui-org/popover';
+import { Tooltip } from '@nextui-org/tooltip';
 import { Bars3Icon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Fragment, RefCallback, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';

@@ -4,7 +4,8 @@ import { VisibilityIcon } from '@/components/visibility-icon';
 import { getTeams } from '@/data/team';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
-import { Divider, Tooltip } from '@nextui-org/react';
+import { Divider } from '@nextui-org/divider';
+import { Tooltip } from '@nextui-org/tooltip';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';

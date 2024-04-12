@@ -3,7 +3,11 @@
 import { useRef, useState } from 'react';
 import { Team, TeamUser } from '@/data/team';
 import { VisibilityDropdown } from '@/components/visibility-dropdown';
-import { Button, Divider, Input, Select, SelectItem, Tooltip } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Divider } from '@nextui-org/divider';
+import { Input } from '@nextui-org/input';
+import { SelectItem, Select } from '@nextui-org/select';
+import { Tooltip } from '@nextui-org/tooltip';
 import { JoinPrivacy } from '@/types/privacy-visibility';
 import { LinkIcon, PencilIcon, UserMinusIcon, UserPlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useUser } from '@/helpers/use-user';

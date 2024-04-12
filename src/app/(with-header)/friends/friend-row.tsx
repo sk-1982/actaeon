@@ -1,4 +1,8 @@
-import { Avatar, Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Divider, Tooltip } from '@nextui-org/react';
+import { Avatar } from '@nextui-org/avatar';
+import { Button } from '@nextui-org/button';
+import { Divider } from '@nextui-org/divider';
+import { DropdownItem, DropdownTrigger, Dropdown, DropdownMenu } from '@nextui-org/dropdown';
+import { Tooltip } from '@nextui-org/tooltip';
 import { Friend } from '@/data/friend';
 import Link from 'next/link';
 import { ChuniPenguinIcon } from '@/components/chuni/chuni-penguin-icon';

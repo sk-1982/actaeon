@@ -1,6 +1,7 @@
 import { Visibility } from '@/types/privacy-visibility';
 import { VisibilityIcon } from './visibility-icon';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { DropdownItem, DropdownTrigger, Dropdown, DropdownMenu } from '@nextui-org/dropdown';
 import { ChevronDownIcon, GlobeAltIcon, LinkIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 type VisibilityDropdownProps = {

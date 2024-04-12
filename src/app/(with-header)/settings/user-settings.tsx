@@ -4,7 +4,10 @@ import { setUserSettings } from '@/actions/user';
 import { useUser } from '@/helpers/use-user';
 import { getValidHomepageRoutes } from '@/routes';
 import { USER_VISIBILITY_NAMES, UserVisibility } from '@/types/user';
-import { Button, Checkbox, CheckboxGroup, Divider, Select, SelectItem, SelectSection } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { CheckboxGroup, Checkbox } from '@nextui-org/checkbox';
+import { Divider } from '@nextui-org/divider';
+import { SelectItem, Select, SelectSection } from '@nextui-org/select';
 import { useState } from 'react';
 import { useErrorModal } from '@/components/error-modal';
 

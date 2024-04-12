@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, ButtonProps } from '@nextui-org/react';
+import { Button, ButtonProps } from '@nextui-org/button';
 
 type BackButtonProps = Partial<ButtonProps> & {
 	referer?: string | null

@@ -3,7 +3,10 @@
 import { ChuniUserData, ProfileUpdate, updateProfile } from '@/actions/chuni/profile';
 import { UserboxItems } from '@/actions/chuni/userbox';
 import { ChuniNameplate } from '@/components/chuni/nameplate';
-import { Button, Checkbox, Divider, Select, SelectItem } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Checkbox } from '@nextui-org/checkbox';
+import { Divider } from '@nextui-org/divider';
+import { SelectItem, Select } from '@nextui-org/select';
 import { SelectModalButton } from '@/components/select-modal';
 import { ChuniTrophy } from '@/components/chuni/trophy';
 import { getAudioUrl, getImageUrl } from '@/helpers/assets';

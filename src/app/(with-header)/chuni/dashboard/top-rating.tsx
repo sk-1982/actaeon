@@ -4,7 +4,7 @@ import { ChuniRating } from '@/components/chuni/rating';
 import { floorToDp } from '@/helpers/floor-dp';
 import { ChuniScoreBadge, getVariantFromScore } from '@/components/chuni/score-badge';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
-import { Tooltip } from '@nextui-org/react';
+import { Tooltip } from '@nextui-org/tooltip';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import Link from 'next/link';
 import Image from 'next/image';

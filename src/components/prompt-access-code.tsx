@@ -1,6 +1,8 @@
 import { generateAccessCode } from '@/helpers/access-code';
 import { PromptCallback } from './prompt-modal';
-import { Button, Input, Tooltip } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Input } from '@nextui-org/input';
+import { Tooltip } from '@nextui-org/tooltip';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export const promptAccessCode = (prompt: PromptCallback, message: string, onConfirm: (val: string) => void) => {

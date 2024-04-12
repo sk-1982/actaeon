@@ -1,6 +1,9 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, Divider, Input } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Card, CardBody, CardHeader } from '@nextui-org/card';
+import { Divider } from '@nextui-org/divider';
+import { Input } from '@nextui-org/input';
 import { BackButton } from '@/components/back-button';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';

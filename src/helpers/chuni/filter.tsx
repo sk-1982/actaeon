@@ -1,5 +1,5 @@
 import { CHUNI_DIFFICULTIES } from '@/helpers/chuni/difficulties';
-import { SelectItem } from '@nextui-org/react';
+import { SelectItem } from '@nextui-org/select';
 import { FilterField } from '@/components/filter-sorter';
 import { ChuniMusic } from '@/actions/chuni/music';
 import { CHUNI_GENRES } from '@/helpers/chuni/genres';

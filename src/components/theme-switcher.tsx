@@ -1,7 +1,9 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Switch, SwitchProps } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { DropdownItem, DropdownTrigger, Dropdown, DropdownMenu } from '@nextui-org/dropdown';
+import { Switch, SwitchProps } from '@nextui-org/switch';
 import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
 import { useIsMounted } from 'usehooks-ts';
 import { useEffect, useState } from 'react';

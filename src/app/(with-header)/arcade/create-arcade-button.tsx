@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Tooltip } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Tooltip } from '@nextui-org/tooltip';
 import { createArcade } from '@/actions/arcade';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useUser } from '@/helpers/use-user';

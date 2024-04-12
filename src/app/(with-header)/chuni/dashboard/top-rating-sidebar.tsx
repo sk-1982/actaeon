@@ -3,7 +3,7 @@
 import { ChuniTopRating } from './top-rating';
 import { getUserRating } from '@/actions/chuni/profile';
 import { useState } from 'react';
-import { Button, ButtonGroup } from '@nextui-org/react';
+import { ButtonGroup, Button } from '@nextui-org/button';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
 import { BigDecimal } from '@/helpers/big-decimal';
 import { ChuniRating } from '@/components/chuni/rating';

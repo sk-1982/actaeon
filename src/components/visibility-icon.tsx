@@ -1,6 +1,6 @@
 import { GlobeAltIcon, LinkIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { Visibility } from '@/types/privacy-visibility';
-import { Tooltip } from '@nextui-org/react';
+import { Tooltip } from '@nextui-org/tooltip';
 
 export const VisibilityIcon = ({ visibility, className }: { visibility: Visibility, className?: string; }) => {
 	if (visibility === Visibility.PUBLIC)

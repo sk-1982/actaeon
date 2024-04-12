@@ -4,7 +4,11 @@ import { setGlobalConfig } from '@/actions/config';
 import { useErrorModal } from '@/components/error-modal';
 import { GlobalConfig } from '@/config';
 import { USER_PERMISSION_NAMES, UserPermissions } from '@/types/permissions';
-import { Button, Checkbox, Divider, Input, Select, SelectItem } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Checkbox } from '@nextui-org/checkbox';
+import { Divider } from '@nextui-org/divider';
+import { Input } from '@nextui-org/input';
+import { SelectItem, Select } from '@nextui-org/select';
 import { useState } from 'react';
 
 type SystemConfigProps = {

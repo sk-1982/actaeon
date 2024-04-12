@@ -1,7 +1,8 @@
 'use client';
 
 import { createContext, ReactNode, useContext, useState } from 'react';
-import { Button, Modal, ModalContent, ModalHeader } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { ModalHeader, ModalContent, Modal } from '@nextui-org/modal';
 import { ModalBody, ModalFooter } from '@nextui-org/modal';
 import { useHashNavigation } from '@/helpers/use-hash-navigation';
 

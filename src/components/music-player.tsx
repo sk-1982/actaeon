@@ -1,6 +1,8 @@
 'use client';
 
-import { Button, Card, CardBody, Slider } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { CardBody, Card } from '@nextui-org/card';
+import { Slider } from '@nextui-org/slider';
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import { ReactNode, useEffect, useState } from 'react';
 import { useAudio } from '@/helpers/use-audio';

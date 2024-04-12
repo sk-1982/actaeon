@@ -1,4 +1,7 @@
-import { Button, Input, InputProps, Modal, ModalContent, ModalHeader, Popover, PopoverContent, PopoverTrigger } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { InputProps, Input } from '@nextui-org/input';
+import { Modal, ModalHeader, ModalContent } from '@nextui-org/modal';
+import { PopoverTrigger, Popover, PopoverContent } from '@nextui-org/popover';
 import { useState } from 'react';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';

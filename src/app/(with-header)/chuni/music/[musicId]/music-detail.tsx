@@ -6,7 +6,7 @@ import { MusicPlayer } from '@/components/music-player';
 import { getJacketUrl, getMusicUrl } from '@/helpers/assets';
 import { Ticker } from '@/components/ticker';
 import { ChuniMusicPlaylog } from './music-playlog';
-import { Button } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
 import { HeartIcon as SolidHeartIcon } from '@heroicons/react/24/solid';
 import { HeartIcon as OutlineHeartIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';

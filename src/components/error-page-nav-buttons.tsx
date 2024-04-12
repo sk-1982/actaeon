@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 

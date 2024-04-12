@@ -1,7 +1,7 @@
 'use client';
 
 import { Friend } from '@/data/friend';
-import { Divider } from '@nextui-org/react';
+import { Divider } from '@nextui-org/divider';
 import { useState } from 'react';
 import { FriendRow } from './friend-row';
 

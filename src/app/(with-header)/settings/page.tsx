@@ -1,5 +1,5 @@
 import { getCards } from '@/actions/card';
-import { Divider } from '@nextui-org/react';
+import { Divider } from '@nextui-org/divider';
 import { UserSettings } from './user-settings';
 import { Cards } from './cards';
 import { requireUser } from '@/actions/auth';

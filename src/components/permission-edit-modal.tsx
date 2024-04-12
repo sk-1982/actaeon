@@ -1,4 +1,7 @@
-import { Button, Checkbox, Modal, ModalContent, ModalHeader, Tooltip } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Checkbox } from '@nextui-org/checkbox';
+import { Modal, ModalHeader, ModalContent } from '@nextui-org/modal';
+import { Tooltip } from '@nextui-org/tooltip';
 import { useHashNavigation } from '@/helpers/use-hash-navigation';
 import { ARCADE_PERMISSION_NAMES, ArcadePermissions, USER_PERMISSION_NAMES, UserPermissions } from '@/types/permissions';
 import Link from 'next/link';

@@ -2,7 +2,8 @@
 
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalProps } from '@nextui-org/modal';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, ButtonProps, Input } from '@nextui-org/react';
+import { Button, ButtonProps } from '@nextui-org/button';
+import { Input } from '@nextui-org/input';
 import { SearchIcon } from '@nextui-org/shared-icons';
 import { useDebounceCallback } from 'usehooks-ts';
 import { useRouter } from 'next/navigation';

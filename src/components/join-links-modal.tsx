@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, Fragment } from 'react';
-import { Button, Divider, Input, Modal, ModalContent, ModalHeader, Tooltip } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Divider } from '@nextui-org/divider';
+import { Input } from '@nextui-org/input';
+import { Modal, ModalHeader, ModalContent } from '@nextui-org/modal';
+import { Tooltip } from '@nextui-org/tooltip';
 import { ModalBody, ModalFooter } from '@nextui-org/modal';
 import Link from 'next/link';
 import { ClipboardDocumentIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';

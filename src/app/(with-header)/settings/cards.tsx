@@ -2,7 +2,9 @@
 
 import { DB } from '@/types/db';
 import { AimeCard } from '@/components/aime-card';
-import { Button, Divider, Tooltip } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { Divider } from '@nextui-org/divider';
+import { Tooltip } from '@nextui-org/tooltip';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { usePromptModal } from '@/components/prompt-modal';
 import { promptAccessCode } from '@/components/prompt-access-code';

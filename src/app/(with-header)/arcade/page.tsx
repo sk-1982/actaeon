@@ -1,6 +1,7 @@
 import { Arcade, getArcades } from '@/data/arcade';
 import { getUser } from '@/actions/auth';
-import { Divider, Tooltip } from '@nextui-org/react';
+import { Divider } from '@nextui-org/divider';
+import { Tooltip } from '@nextui-org/tooltip';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { CreateArcadeButton } from './create-arcade-button';

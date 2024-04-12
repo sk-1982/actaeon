@@ -2,7 +2,12 @@
 
 import { Arcade, ArcadeCab, ArcadeLink, ArcadeUser } from '@/data/arcade';
 import { JoinPrivacy } from '@/types/privacy-visibility';
-import { Autocomplete, AutocompleteItem, Button, Divider, Input, Select, SelectItem, Tooltip } from '@nextui-org/react';
+import { Autocomplete, AutocompleteItem } from '@nextui-org/autocomplete';
+import { Button } from '@nextui-org/button';
+import { Divider } from '@nextui-org/divider';
+import { Input } from '@nextui-org/input';
+import { SelectItem, Select } from '@nextui-org/select';
+import { Tooltip } from '@nextui-org/tooltip';
 import { LinkIcon, PencilIcon, PencilSquareIcon, PlusIcon, UserMinusIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { useRef, useState } from 'react';
 import { useUser } from '@/helpers/use-user';

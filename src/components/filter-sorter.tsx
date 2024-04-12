@@ -1,6 +1,15 @@
 'use client';
 
-import { Accordion, AccordionItem, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Pagination, Select, SelectItem, Slider, Spinner, Switch, Tooltip } from '@nextui-org/react';
+import { AccordionItem, Accordion } from '@nextui-org/accordion';
+import { Button } from '@nextui-org/button';
+import { DropdownItem, DropdownTrigger, Dropdown, DropdownMenu } from '@nextui-org/dropdown';
+import { Input } from '@nextui-org/input';
+import { Pagination } from '@nextui-org/pagination';
+import { SelectItem, Select } from '@nextui-org/select';
+import { Slider } from '@nextui-org/slider';
+import { Spinner } from '@nextui-org/spinner';
+import { Switch } from '@nextui-org/switch';
+import { Tooltip } from '@nextui-org/tooltip';
 import { ComponentProps, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/16/solid';
 import { ArrowLongUpIcon } from '@heroicons/react/24/solid';

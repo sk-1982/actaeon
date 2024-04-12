@@ -2,7 +2,7 @@
 
 import { ChuniMusic } from '@/actions/chuni/music';
 import { ChuniPlaylog } from '@/actions/chuni/playlog';
-import { Accordion, AccordionItem } from '@nextui-org/react';
+import { Accordion, AccordionItem } from '@nextui-org/accordion';
 import { CHUNI_DIFFICULTIES } from '@/helpers/chuni/difficulties';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import { ChuniRating } from '@/components/chuni/rating';

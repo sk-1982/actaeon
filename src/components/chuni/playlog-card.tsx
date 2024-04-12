@@ -9,7 +9,7 @@ import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';
 import { formatJst } from '@/helpers/format-jst';
 import { Ticker, TickerHoverProvider } from '@/components/ticker';
-import { Divider } from '@nextui-org/react';
+import { Divider } from '@nextui-org/divider';
 import Image from 'next/image';
 
 export type ChuniPlaylogCardProps = {

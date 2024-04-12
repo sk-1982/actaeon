@@ -1,7 +1,7 @@
 'use client'
 
 import { FilterSorter, Sorter } from '@/components/filter-sorter';
-import { Button } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
 import { addFavoriteMusic, ChuniMusic, removeFavoriteMusic } from '@/actions/chuni/music';
 import { useState } from 'react';
 import { ChuniDifficultyContainer } from '@/components/chuni/difficulty-container';

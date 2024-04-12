@@ -1,5 +1,7 @@
 import { createContext, ReactNode, useCallback, useContext, useRef, useState } from 'react';
-import { Button, Input, InputProps, Modal, ModalContent, ModalHeader } from '@nextui-org/react';
+import { Button } from '@nextui-org/button';
+import { InputProps, Input } from '@nextui-org/input';
+import { Modal, ModalHeader, ModalContent } from '@nextui-org/modal';
 import { ModalBody, ModalFooter, ModalProps } from '@nextui-org/modal';
 import { useHashNavigation } from '@/helpers/use-hash-navigation';
 

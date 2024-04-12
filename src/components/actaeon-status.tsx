@@ -1,6 +1,7 @@
 import { ServerStatus } from '@/data/status';
 import { CHUNI_VERSIONS } from '@/types/game-versions';
-import { Card, CardBody, CardHeader, Divider } from '@nextui-org/react';
+import { CardBody, CardHeader, Card } from '@nextui-org/card';
+import { Divider } from '@nextui-org/divider';
 
 export const ActaeonStatus = ({ status, className }: { status: ServerStatus, className?: string }) => { 
 	return (<Card className={`${className} px-2 py-1`}>
