@@ -2,19 +2,20 @@ import Image from 'next/image';
 import { getImageUrl } from '@/helpers/assets';
 
 const TROPHY_TYPES = {
-	0: 0, // common
-	1: 1, // bronze
-	2: 2, // silver
-	3: 3, // gold
-	4: 3, // expert all justice (gold)
-	5: 4, // platinum
-	6: 4, // master all justice (platinum)
-	7: 5, // rainbow
-	9: 6, // gekichumai dev staff
-	10: 7 // ongeki linked title
+	0: 0,  // common
+	1: 1,  // bronze
+	2: 2,  // silver
+	3: 3,  // gold
+	4: 3,  // expert all justice (gold)
+	5: 4,  // platinum
+	6: 4,  // master all justice (platinum)
+	7: 5,  // rainbow
+	9: 6,  // gekichumai dev staff
+	10: 7, // ongeki linked title
+	11: 8  // maimai linked title
 };
 
-const TROPHY_Y = [6, 81, 156, 231, 306, 381, 456, 531].map(x => x / 1024 * 100);
+const TROPHY_Y = [6, 81, 156, 231, 306, 381, 456, 531, 606].map(x => x / 1024 * 100);
 
 export type ChuniTrophyProps = {
 	name: string | null,
