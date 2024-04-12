@@ -193,7 +193,14 @@ Object.entries(AvatarCategory).forEach(([category, number]) => {
 	});
 });
 
-export type ProfileUpdate = Partial<{ [K in keyof UserboxItems]: number }>;
+validators.set('userName', (u, p, val) => {
+	if (!val) throw new Error('Username is required.');
+	if ([...val].length > 25) throw new Error('Username is too long.')
+	
+	return val;
+});
+
+export type ProfileUpdate = Partial<{ [K in keyof UserboxItems]: number } & { userName: string }>;
 
 export const updateProfile = async (data: ProfileUpdate) => {
 	const user = await requireUser();

@@ -19,6 +19,7 @@ import { useAudio } from '@/helpers/use-audio';
 import { Entries } from 'type-fest';
 import { useErrorModal } from '@/components/error-modal';
 import Image from 'next/image';
+import { ChuniNameModal } from '@/components/chuni/name-modal';
 
 export type ChuniUserboxProps = {
 	profile: ChuniUserData,
@@ -43,18 +44,20 @@ const AVATAR_KEYS = ['avatarWear', 'avatarHead', 'avatarFace', 'avatarSkin', 'av
 
 type RequiredUserbox = NonNullable<UserboxItems>;
 type EquippedItem = { [K in keyof RequiredUserbox]: RequiredUserbox[K][number] };
-type SavedItem = { [K in keyof RequiredUserbox]: boolean };
+type SavedItem = { [K in keyof RequiredUserbox]: boolean } & { username: boolean };
 
 export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 	const initialEquipped = useRef(Object.fromEntries(Object.entries(ITEM_KEYS)
 		.map(([key, profileKey]) => [key, userboxItems[key as keyof RequiredUserbox]
 			.find(i => i.id === profile?.[profileKey])])) as EquippedItem);
 	const [equipped, setEquipped] = useState<EquippedItem>(initialEquipped.current);
-	const [saved, setSaved] = useState<SavedItem>(Object.fromEntries(Object.keys(ITEM_KEYS).map(k => [k, true])) as any);
+	const [saved, setSaved] = useState<SavedItem>({ ...Object.fromEntries(Object.keys(ITEM_KEYS).map(k => [k, true])), username: true } as any);
 	const [playingVoice, setPlayingVoice] = useState(false);
 	const [selectedLine, setSelectedLine] = useState(new Set(['0035']));
 	const [playPreviews, _setPlayPreviews] = useState(true);
 	const [selectingVoice, setSelectingVoice] = useState<EquippedItem['systemVoice'] | null>(null);
+	const [editingUsername, setEditingUsername] = useState(false);
+	const [username, setUsername] = useState(profile?.userName!);
 	const setError = useErrorModal();
 
 	const setPlayPreviews = (play: boolean) => {
@@ -73,19 +76,26 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 		setSaved(s => ({ ...s, [k]: false }));
 	};
 
-	const reset = <K extends keyof RequiredUserbox>(...items: K[]) => {
+	const reset = <K extends keyof SavedItem>(...items: K[]) => {
 		setSaved(s => ({ ...s, ...Object.fromEntries(items.map(i => [i, true])) }));
-		setEquipped(e => ({ ...e, ...Object.fromEntries(Object
-				.entries(initialEquipped.current).filter(([k]) => items.includes(k as any))) }))
+		setEquipped(e => ({
+			...e, ...Object.fromEntries(Object
+				.entries(initialEquipped.current).filter(([k]) => items.includes(k as any)))
+		}));
+		if ((items as string[]).includes('username'))
+			setUsername(profile?.userName!);
 	};
 
-	const save = <K extends keyof RequiredUserbox>(...items: K[]) => {
+	const save = <K extends keyof SavedItem>(...items: K[]) => {
 		if (!items.length)
 			items = Object.keys(ITEM_KEYS) as any;
 
 		const update: Partial<ProfileUpdate> = Object.fromEntries((Object.entries(equipped) as Entries<typeof equipped>)
 			.filter(([k]) => items.includes(k as any))
 			.map(([k, v]) => [ITEM_KEYS[k], v.id]));
+		
+		if ((items as string[]).includes('username'))
+			update.userName = username;
 
 		setSaved(s => ({ ...s, ...Object.fromEntries(items.map(i => [i, true])) }));
 
@@ -144,11 +154,11 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 			<div className="flex flex-col items-center justify-center w-full sm:bg-content1 col-span-full rounded-lg overflow-hidden xl:col-span-7 sm:shadow-inner">
 				<div className="text-2xl font-semibold mr-auto p-3 flex w-full h-16 min-h-16 items-center">
 					<span className="sm:ml-2">Profile</span>
-					{(!saved.namePlate || !saved.trophy) && <>
-              <Button className="ml-auto" color="danger" variant="light" onPress={() => reset('namePlate', 'trophy')}>
+					{(!saved.namePlate || !saved.trophy || !saved.username) && <>
+              <Button className="ml-auto" color="danger" variant="light" onPress={() => reset('namePlate', 'trophy', 'username')}>
                   Reset
               </Button>
-              <Button className="ml-2" color="primary" onPress={() => save('namePlate', 'trophy')}>
+              <Button className="ml-2" color="primary" onPress={() => save('namePlate', 'trophy', 'username')}>
 		              Save
 							</Button>
           </>}
@@ -160,25 +170,37 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 					<div className="w-full max-w-full">
 						<ChuniNameplate profile={profile ? {
 							...profile,
+							userName: username,
 							nameplateName: equipped.namePlate.name,
 							nameplateImage: equipped.namePlate.imagePath,
 							trophyName: equipped.trophy.name,
 							trophyRareType: equipped.trophy.rareType
 						} : null} className="w-full" />
 					</div>
-					<div className="flex gap-2 w-full px-2 sm:px-1">
-						<SelectModalButton className="flex-grow flex-1" displayMode="grid" modalSize="full" rowSize={230} colSize={500} gap={6} items={userboxItems.namePlate}
+
+					<ChuniNameModal username={profile?.userName!} isOpen={editingUsername}
+						onClose={() => setEditingUsername(false)}
+						setUsername={u => {
+							setSaved(s => ({ ...s, username: false }));
+							setUsername(u);
+						}} />
+
+					<div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full px-2 sm:px-1">
+						<SelectModalButton className="col-span-2 sm:col-span-1" displayMode="grid" modalSize="full" rowSize={230} colSize={500} gap={6} items={userboxItems.namePlate}
 							modalId="nameplate" itemId="id"
 							renderItem={n => renderItem(n, getImageUrl(`chuni/name-plate/${n.imagePath}`), 'w-full sm:text-lg', 'px-2 pb-1')}
 							selectedItem={equipped.namePlate} onSelected={i => equipItem('namePlate', i)}>
 							Change Nameplate
 						</SelectModalButton>
-						<SelectModalButton className="flex-grow flex-1" displayMode="list" modalSize="2xl" rowSize={66} items={userboxItems.trophy}
+						<SelectModalButton displayMode="list" modalSize="2xl" rowSize={66} items={userboxItems.trophy}
 							modalId="trophy" itemId="id"
 							renderItem={n => <ChuniTrophy rarity={n.rareType} name={n.name} />}
 							selectedItem={equipped.trophy} onSelected={i => equipItem('trophy', i)}>
 							Change Trophy
 						</SelectModalButton>
+						<Button onPress={() => setEditingUsername(true)}>
+							Change Username
+						</Button>
 					</div>
 				</div>
 			</div>

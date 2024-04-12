@@ -43,7 +43,7 @@ export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
 							<div className="flex items-baseline border-b border-gray-700">
 								<span className="font-normal text-[14cqh]">Lv.</span>
 								<span className="text-[18cqh]">{profile.level}</span>
-								<span lang="ja" className="text-[21cqh] flex-grow text-center font-bold">
+								<span lang="ja" className={`text-[21cqh] flex-grow text-center font-bold [font-feature-settings:"fwid"]`}>
 								{profile.userName?.padEnd(7, '\u3000')}
 							</span>
 							</div>
