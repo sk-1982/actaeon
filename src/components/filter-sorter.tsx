@@ -480,6 +480,34 @@ const FilterSorterComponent = <D, M extends string, N extends string, S extends 
 	</div>);
 };
 
+const payloadValid = (payload: any, filterers: Filterers<any, any>) => {
+	for (const p of ['sorter', 'pageSize', 'displayMode']) {
+		if (p in payload && !(payload[p] instanceof Set))
+			return false;
+	}
+
+	if ('currentPage' in payload && typeof payload.currentPage !== 'number')
+		return false;
+
+	for (const filterer of filterers) {
+		if (!(filterer.name in payload)) continue;
+		const data = payload[filterer.name];
+		console.log(filterer.name, data)
+		if (filterer.type === 'select' && !(data instanceof Set))
+			return false;
+		if (filterer.type === 'slider' && !Array.isArray(data))
+			return false;
+		if (filterer.type === 'dateSelect' && data !== undefined && (
+			data.from === undefined ||
+			(data.from !== undefined && !(data.from instanceof Date)) ||
+			(data.to !== undefined && !(data.to instanceof Date))
+		))
+			return false;
+	}
+
+	return true;
+}
+
 export const FilterSorter = <D, M extends string, N extends string, S extends string>(props: FilterSorterProps<D, M, N, S>) => {
 	const pathname = usePathname();
 	const localStateKey = `filter-sort-${pathname}`;
@@ -494,7 +522,24 @@ export const FilterSorter = <D, M extends string, N extends string, S extends st
 		let payload: any;
 
 		try {
-			payload = JSON.parse(stored, (k, v) => typeof v === 'object' && 'type' in v && v.type === 'set' ? new Set(v.value) : v);
+			payload = JSON.parse(stored, (k, v) => {
+				if (typeof v === 'object' && v !== null) {
+					if ('type' in v && v.type === 'set')
+						return new Set(v.value);
+
+					const filterer = props.filterers.find(f => f.name === k);
+					if (filterer?.type === 'dateSelect')
+						return {
+							from: typeof v.from === 'string' ? new Date(v.from) : undefined,
+							to: typeof v.to === 'string' ? new Date(v.to) : undefined
+						};
+				}
+
+				return v;
+			});
+
+			if (!payloadValid(payload, props.filterers))
+				payload = {};
 
 			setDefaultData(payload)
 		} catch (e) {
