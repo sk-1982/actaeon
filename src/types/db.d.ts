@@ -21,6 +21,18 @@ export interface ActaeonChuniStaticMapIcon {
   sortName: string | null;
 }
 
+export interface ActaeonChuniStaticMusicExt {
+  airJudgeCount: number;
+  allJudgeCount: number;
+  chartDesigner: string | null;
+  chartId: number;
+  flickJudgeCount: number;
+  holdJudgeCount: number;
+  slideJudgeCount: number;
+  songId: number;
+  tapJudgeCount: number;
+}
+
 export interface ActaeonChuniStaticNamePlate {
   id: number;
   imagePath: string | null;
@@ -3343,6 +3355,7 @@ export interface DB {
   actaeon_arcade_ext: ActaeonArcadeExt;
   actaeon_arcade_join_keys: ActaeonArcadeJoinKeys;
   actaeon_chuni_static_map_icon: ActaeonChuniStaticMapIcon;
+  actaeon_chuni_static_music_ext: ActaeonChuniStaticMusicExt;
   actaeon_chuni_static_name_plate: ActaeonChuniStaticNamePlate;
   actaeon_chuni_static_system_voice: ActaeonChuniStaticSystemVoice;
   actaeon_chuni_static_trophies: ActaeonChuniStaticTrophies;

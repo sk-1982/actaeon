@@ -36,6 +36,9 @@ export async function getPlaylog(opts: GetPlaylogOptions) {
 		.innerJoin('chuni_static_music as music', join => join
 			.onRef('music.songId', '=', 'playlog.musicId')
 			.onRef('music.chartId', '=', 'playlog.level'))
+		.innerJoin('actaeon_chuni_static_music_ext as musicExt', join => join
+			.onRef('music.songId', '=', 'musicExt.songId')
+			.onRef('music.chartId', '=', 'musicExt.chartId'))
 		.where(({ and, eb, selectFrom }) => and([
 			eb('playlog.user', '=', user.id),
 			eb('music.version', '=', selectFrom('chuni_static_music')
@@ -52,7 +55,7 @@ export async function getPlaylog(opts: GetPlaylogOptions) {
 				chuniRating(ref('playlog.score')),
 				sql<number>`(playlog.playerRating - (LEAD(playlog.playerRating) OVER (ORDER BY id DESC)))`
 					.as('playerRatingChange')
-			])
+			] as const)
 		.orderBy('playlog.id desc')
 	)
 		.selectFrom('p')

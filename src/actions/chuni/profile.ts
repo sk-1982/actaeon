@@ -93,6 +93,9 @@ export async function getUserRating(user: UserPayload) {
                 ))`.as('score'), join => join.onTrue())
 		.innerJoin('chuni_static_music as music', join => join.onRef('score.musicId', '=', 'music.songId')
 			.onRef('score.level', '=', 'music.chartId'))
+		.innerJoin('actaeon_chuni_static_music_ext as musicExt', join => join
+			.onRef('music.songId', '=', 'musicExt.songId')
+			.onRef('music.chartId', '=', 'musicExt.chartId'))
 		.select(({ lit }) => [...CHUNI_MUSIC_PROPERTIES, chuniRating(sql.raw(`CAST(score.scoreMax AS INT)`)),
 			sql<string>`CAST(score.scoreMax AS INT)`.as('scoreMax'),
 			lit<number>(1).as('pastIndex')
@@ -104,8 +107,10 @@ export async function getUserRating(user: UserPayload) {
 	const top = await db.selectFrom('chuni_score_best as score')
 		.innerJoin('chuni_static_music as music', join => join
 			.onRef('music.songId', '=', 'score.musicId')
-			.onRef('music.chartId', '=', 'score.level')
-		)
+			.onRef('music.chartId', '=', 'score.level'))
+		.innerJoin('actaeon_chuni_static_music_ext as musicExt', join => join
+			.onRef('music.songId', '=', 'musicExt.songId')
+			.onRef('music.chartId', '=', 'musicExt.chartId'))
 		.where(({ eb, and, selectFrom }) => and([
 			eb('user', '=', user.id),
 			eb('score.level', '!=', 5),

@@ -22,11 +22,14 @@ export const getMusic = async (musicId?: number) => {
 				.on('favorite.favKind',  '=', 1)
 				.on('favorite.user', '=', user?.id!)
 		)
+		.innerJoin('actaeon_chuni_static_music_ext as musicExt', join => 
+			join.onRef('music.songId', '=', 'musicExt.songId')
+				.onRef('music.chartId', '=', 'musicExt.chartId'))
 		.select(({ fn }) => [...CHUNI_MUSIC_PROPERTIES,
 			'score.isFullCombo', 'score.isAllJustice', 'score.isSuccess', 'score.scoreRank', 'score.scoreMax',
 			'score.maxComboCount',
 			fn<boolean>('NOT ISNULL', ['favorite.favId']).as('favorite'),
-			chuniRating()])
+			chuniRating()] as const)
 		.where(({ selectFrom, eb, and, or }) => and([
 			eb('music.version', '=', selectFrom('chuni_static_music')
 				.select(({ fn }) => fn.max('version').as('latest'))),

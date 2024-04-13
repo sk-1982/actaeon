@@ -32,6 +32,14 @@ const getChangeColor = (val: number) => {
 };
 
 export const ChuniPlaylogCard = ({ playlog, className, badgeClass, showDetails }: ChuniPlaylogCardProps) => {
+	const rate = showDetails ? <>
+		{!!playlog.tapJudgeCount && <div>Tap: {(playlog.rateTap! / 100).toFixed(2)}%</div>}
+		{!!playlog.flickJudgeCount && <div>Flick: {(playlog.rateFlick! / 100).toFixed(2)}%</div>}
+		{!!playlog.holdJudgeCount && <div>Hold: {(playlog.rateHold! / 100).toFixed(2)}%</div>}
+		{!!playlog.slideJudgeCount && <div>Slide: {(playlog.rateSlide! / 100).toFixed(2)}%</div>}
+		{!!playlog.airJudgeCount && <div>Air: {(playlog.rateAir! / 100).toFixed(2)}%</div>}
+	</> : null;
+
 	return (<TickerHoverProvider>{setHover => <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
 		className={`rounded-md bg-content1 relative flex flex-col p-2 pt-1 border border-black/25 ${className ?? ''}`}>
 		<div className="flex">
@@ -68,11 +76,8 @@ export const ChuniPlaylogCard = ({ playlog, className, badgeClass, showDetails }
 
 			{showDetails && <div className="hidden md:flex flex-col text-sm gap-1 items-end text-nowrap ml-1">
 					<div className="text-xs my-1">{formatJst(playlog.userPlayDate!)}</div>
-          <div>Tap: {(playlog.rateTap! / 100).toFixed(2)}%</div>
-          <div>Flick: {(playlog.rateFlick! / 100).toFixed(2)}%</div>
-          <div>Hold: {(playlog.rateHold! / 100).toFixed(2)}%</div>
-          <div>Slide: {(playlog.rateSlide! / 100).toFixed(2)}%</div>
-          <div>Air: {(playlog.rateAir! / 100).toFixed(2)}%</div>
+					{rate}
+					<div style={{ marginBottom: `${(+!playlog.tapJudgeCount + +!playlog.flickJudgeCount + +!playlog.holdJudgeCount + +!playlog.slideJudgeCount + +!playlog.airJudgeCount) * 1.25}rem` }} />
       </div>}
 		</div>
 		<div
@@ -94,11 +99,7 @@ export const ChuniPlaylogCard = ({ playlog, className, badgeClass, showDetails }
 		{showDetails && <>
         <Divider className="md:hidden my-2"/>
         <div className="flex flex-wrap text-xs justify-around md:hidden gap-1 mb-1">
-					<div>Tap: {(playlog.rateTap! / 100).toFixed(2)}%</div>
-          <div>Flick: {(playlog.rateFlick! / 100).toFixed(2)}%</div>
-          <div>Hold: {(playlog.rateHold! / 100).toFixed(2)}%</div>
-          <div>Slide: {(playlog.rateSlide! / 100).toFixed(2)}%</div>
-          <div>Air: {(playlog.rateAir! / 100).toFixed(2)}%</div>
+					{rate}
         </div>
     </>}
 	</div>}
