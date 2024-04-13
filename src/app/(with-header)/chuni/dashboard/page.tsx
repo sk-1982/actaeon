@@ -36,7 +36,7 @@ export default async function ChuniDashboard() {
 			</div>
 			<div className="text-lg font-semibold px-4 pt-4 border-t border-gray-500 md:hidden">Recent Plays</div>
 			<div className="my-4 w-full flex-grow grid gap-2 grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 5xl:grid-cols-6 6xl:grid-cols-8">
-				{playlog.data.map((entry, i) => <ChuniPlaylogCard className="w-full h-48"
+				{playlog.data.map((entry, i) => <ChuniPlaylogCard className="w-full h-52"
 					badgeClass="h-5 lg:h-[1.125rem] xl:h-6 2xl:h-[1.125rem] 4xl:h-6 5xl:h-[1.125rem]"
 					playlog={entry} key={i} />)}
 			</div>

@@ -18,12 +18,6 @@ const config = {
 				'4xl': '1920px',
 				'5xl': '2560px',
 				'6xl': '3440px'
-			},
-			colors: {
-				'chuni-justice-critical': '#dfb920',
-				'chuni-justice': '#db7814',
-				'chuni-attack': '#61a873',
-				'chuni-miss': '#adadad'
 			}
 		}
 	}

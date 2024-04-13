@@ -85,10 +85,11 @@ export const ChuniPlaylogCard = ({ playlog, className, badgeClass, showDetails }
 			{!!playlog.isNewRecord && <ChuniScoreBadge variant="gold" fontSize="sm">NEW RECORD</ChuniScoreBadge>}
 		</div>
 		<div className="flex flex-wrap text-xs justify-around drop-shadow-sm gap-1">
-			<div className="text-chuni-justice-critical">Justice Critical: {playlog.judgeHeaven}</div>
-			<div className="text-chuni-justice">Justice: {playlog.judgeCritical}</div>
-			<div className="text-chuni-attack">Attack: {playlog.judgeAttack}</div>
-			<div className="text-chuni-miss">Miss: {playlog.judgeGuilty}</div>
+			<div className="text-yellow-300">J. Heaven: {playlog.judgeHeaven}</div>
+			<div className="text-yellow-500">J. Critical: {playlog.judgeCritical}</div>
+			<div className="text-orange-500">Justice: {playlog.judgeJustice}</div>
+			<div className="text-emerald-600">Attack: {playlog.judgeAttack}</div>
+			<div className="text-gray-400">Miss: {playlog.judgeGuilty}</div>
 		</div>
 		{showDetails && <>
         <Divider className="md:hidden my-2"/>

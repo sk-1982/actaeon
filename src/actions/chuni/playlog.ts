@@ -45,7 +45,7 @@ export async function getPlaylog(opts: GetPlaylogOptions) {
 			({ ref }) => ['playlog.id', 'playlog.sortNumber', 'playlog.playDate', 'playlog.userPlayDate', 'playlog.track',
 				'playlog.score', 'playlog.rank', 'playlog.maxCombo', 'playlog.maxChain', 'playlog.rateTap',
 				'playlog.rateHold', 'playlog.rateSlide', 'playlog.rateAir', 'playlog.rateFlick', 'playlog.judgeGuilty',
-				'playlog.judgeAttack', 'playlog.judgeCritical', 'playlog.judgeHeaven', 'playlog.playerRating',
+				'playlog.judgeAttack', 'playlog.judgeCritical', 'playlog.judgeHeaven', 'playlog.playerRating', 'playlog.judgeJustice',
 				'playlog.isNewRecord', 'playlog.isFullCombo', 'playlog.fullChainKind', 'playlog.isAllJustice',
 				'playlog.playKind', 'playlog.isClear', 'playlog.placeName',
 				...CHUNI_MUSIC_PROPERTIES,
