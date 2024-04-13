@@ -492,7 +492,6 @@ const payloadValid = (payload: any, filterers: Filterers<any, any>) => {
 	for (const filterer of filterers) {
 		if (!(filterer.name in payload)) continue;
 		const data = payload[filterer.name];
-		console.log(filterer.name, data)
 		if (filterer.type === 'select' && !(data instanceof Set))
 			return false;
 		if (filterer.type === 'slider' && !Array.isArray(data))

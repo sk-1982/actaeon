@@ -16,6 +16,10 @@ $scrollbar-size: 13px;
 
 // dont theme scrollbars on mobile
 @media (hover: hover) {
+  html {
+    scrollbar-gutter: stable;
+  }
+
   @supports not selector(::-webkit-scrollbar) {
     * {
       scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);

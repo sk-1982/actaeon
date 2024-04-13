@@ -52,8 +52,11 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 	const [menuTranslate, setMenuTranslate] = useState<number | null>(null);
 	const [notificationsTranslate, setNotificationsTranslate] = useState<number | null>(null);
+	const [navbarShowing, setNavbarShowing] = useState(true);
 	const reloaded = useReloaded();
 	const menusOpened = useRef(false);
+	const scrollOffset = useRef(0);
+	const lastScroll = useRef<number | null>(null);
 
 	const path = pathname === '/' ? (user?.homepage ?? '/dashboard') : pathname;
 
@@ -71,8 +74,23 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			router.replace('', { scroll: false });
 	}, [router, reloaded]);
 
+	useWindowListener('scroll', () => { 
+		if (lastScroll.current === null) lastScroll.current = window.scrollY;
+		scrollOffset.current += window.scrollY - lastScroll.current;
+		lastScroll.current = window.scrollY;
+
+		if (scrollOffset.current < -100 || window.scrollY < 35)
+			setNavbarShowing(true);
+		else if (scrollOffset.current > 100)
+			setNavbarShowing(false);
+	});
+
+	useWindowListener('scrollend', () => {
+		scrollOffset.current = 0;
+	});
+
 	const { ref } = useSwipeable({
-		touchEventOptions: { passive: false },
+		touchEventOptions: { passive: true },
 		onSwiped: e => {
 			const speedX = Math.abs(e.vxvy[0]);
 			const speedY = Math.abs(e.vxvy[1]);
@@ -90,6 +108,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 
 			setMenuTranslate(null);
 			setNotificationsTranslate(null);
+			if (!isMenuOpen && !isNotificationsOpen)
 			document.body.classList.remove('touch-none', 'overflow-hidden');
 		},
 		onSwipeStart: e => {
@@ -109,21 +128,17 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 
 			if ((isMenuOpen && e.dir === 'Left') || (allMenusClosed && e.dir === 'Right' && xPercent <= 0.6)) {
 				setMenuTranslate(e.deltaX);
-				e.event.preventDefault();
 				document.body.classList.add('touch-none', 'overflow-hidden');
 			} else if ((isNotificationsOpen && e.dir === 'Right' || (allMenusClosed && e.dir === 'Left' && xPercent >= 0.4))) {
 				setNotificationsTranslate(e.deltaX);
-				e.event.preventDefault();
 				document.body.classList.add('touch-none', 'overflow-hidden');
 			}
 		},
 		onSwiping: e => {
 			if (menuTranslate !== null) {
 				setMenuTranslate(e.deltaX);
-				e.event.preventDefault();
 			} else if (notificationsTranslate !== null) {
 				setNotificationsTranslate(e.deltaX);
-				e.event.preventDefault();
 			}
 		}
 	}) as { ref: RefCallback<Document>; };
@@ -132,6 +147,13 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 		ref(document);
 		return () => ref({} as any);
 	}, [ref]);
+
+	useEffect(() => {
+		if (isMenuOpen || isNotificationsOpen)
+			document.body.classList.add('touch-none', 'overflow-hidden');
+		else
+			document.body.classList.remove('touch-none', 'overflow-hidden');
+	}, [isMenuOpen, isNotificationsOpen])
 
 	useEffect(() => {
 		if (user)
@@ -236,7 +258,8 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 	}, [friendRequests]);
 
 	const topNavbar = useMemo(() => {
-		return (<Navbar className="w-full fixed" classNames={{ wrapper: 'max-w-full p-0' }} shouldHideOnScroll={breakpoint === undefined} height="5.5rem">
+		return (<Navbar className={`w-lvw fixed transition ${!navbarShowing && breakpoint === undefined ? '-translate-y-full' : ''}`}
+			classNames={{ wrapper: 'max-w-full p-0' }} height="5.5rem">
 			<div className="flex h-header px-6 items-center flex-shrink-0 w-full z-[48]">
 				<Button className="text-2xl font-bold cursor-pointer flex items-center m-0 ps-1.5 pe-2 mr-6" variant="light"
 					onClick={() => setMenuOpen(true)}>
@@ -323,7 +346,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 				}
 			</div>
 		</Navbar>);
-	}, [breakpoint, routeGroup, friendRequests, userDropdownOpen, isNotificationsOpen, user, notifications]);
+	}, [breakpoint, routeGroup, friendRequests, userDropdownOpen, isNotificationsOpen, user, notifications, navbarShowing]);
 
 	const leftSidebar = useMemo(() => {
 		return (<div className={`fixed inset-0 w-full h-full z-[49] ${isMenuOpen ? '' : 'pointer-events-none'}`}>
@@ -472,10 +495,10 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 		{ leftSidebar }
 		{ rightSidebar }
 		{/* begin top navbar */}
-		<div className="flex flex-col flex-grow">
+		<div className="flex flex-col flex-grow h-full">
 			{topNavbar}
 
-			<div className={`sm:px-5 flex-grow pt-fixed flex flex-col`}>
+			<div className={`sm:px-5 flex-grow pt-fixed flex flex-col h-full`}>
 				{children}
 			</div>
 		</div>
