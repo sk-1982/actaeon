@@ -1,4 +1,4 @@
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { useResizeObserver } from 'usehooks-ts';
 
@@ -26,6 +26,10 @@ export const WindowScrollerGrid = <D extends any>({ rowSize, colSize, items, chi
 		overscan: 5,
 		scrollingDelay: 0
 	});
+	
+	useEffect(() => { 
+		virtualizer.measure();
+	}, [rowSize, colSize, virtualizer]);
 
 	return (<div ref={listRef} className={width <= 0 ? `invisible` : ''}>
 		{width > 0 && <div className="w-full relative" style={{
