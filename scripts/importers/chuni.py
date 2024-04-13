@@ -63,11 +63,36 @@ class Chuni(Importer):
             self.get_xml('trophy', 'Trophy', ('./name/id', int), './name/str', ('./rareType', int), './explainText')
         )
 
+    def import_charts(self):
+        inserts = []
+        for file in chain(self.data_dir.glob(f'A000/music/*/*.c2s'),
+                          self.opt_dir.glob(f'*/music/*/*.c2s')):
+            print(file)
+            data = {}
+            song, chart = map(int, file.stem.split('_'))
+            if song >= 8000: chart = 5
+            with open(file, 'r', encoding='utf8') as f:
+                for line in f.readlines():
+                    parts = line.strip().split('\t')
+                    if len(parts) == 2:
+                        data[parts[0]] = parts[1]
+            inserts.append((song, chart, data['CREATOR'], data['T_JUDGE_TAP'], data['T_JUDGE_HLD'], data['T_JUDGE_SLD'],
+                            data['T_JUDGE_AIR'], data['T_JUDGE_FLK'], data['T_JUDGE_ALL']))
+        fields = ['songId', 'chartId', 'chartDesigner', 'tapJudgeCount', 'holdJudgeCount', 'slideJudgeCount',
+                  'airJudgeCount', 'flickJudgeCount', 'allJudgeCount']
+        self.cur.executemany(
+            f'''INSERT INTO actaeon_chuni_static_music_ext({','.join(fields)})
+                VALUES ({','.join(['%s'] * len(fields))})
+                ON DUPLICATE KEY UPDATE {','.join(f"{f}={f}" for f in fields)}''',
+            inserts
+        )
+
     def do_import(self):
         self.import_map_icon()
         self.import_name_plate()
         self.import_system_voice()
         self.import_trophies()
+        self.import_charts()
 
     @staticmethod
     def register(parser):
