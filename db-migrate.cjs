@@ -8,7 +8,9 @@ const dbmigrate = DBMigrate.getInstance(true);
 
 if (process.argv[2] === 'up')
 	dbmigrate.up();
-else if (process.argv[2] == 'down')
+else if (process.argv[2] === 'down')
 	dbmigrate.down();
+else if (process.argv[2] === 'reset')
+	dbmigrate.reset();
 else
 	console.error('Unknown action', argv[2]);

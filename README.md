@@ -4,6 +4,9 @@ An ARTEMiS frontend.
 # **WARNING: Back up your database**
 I am not responsible for misconfigurations that lead to database issues. **You should back up your database before making any changes to it.**
 
+### **Important**: your default database encoding must be unicode
+You can change the encoding by running `ALTER DATABASE aime CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;`
+
 ## Creating Database Tables
 Before running the database importer script, you must create the tables in your database. This can be done by running the server once with `AUTOMIGRATE` enabled ([see below](#runtime-variables)), or by running `npm run migrate` (make sure you have run `npm i` first and have the [`DATABASE_URL`](#runtime-variables) environment variable set).
 

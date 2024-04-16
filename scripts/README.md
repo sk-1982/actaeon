@@ -52,6 +52,9 @@ Usage: `py db-importer.py [options] <game> [game_options]`
 
 The database importer requires the `DATABASE_URL` environment variable to be set, which can be set in an `.env` file in the format `DATABASE_URL=mysql://user:pass@host:port/db_name` (see the `--env` option)
 
+### **Important**: your default database encoding must be unicode
+You can change the encoding by running `ALTER DATABASE aime CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;`
+
 # **WARNING: Back up your database**
 I am not responsible for misconfigurations that lead to database issues. **You should back up your database before making any changes to it.**
 
