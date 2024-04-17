@@ -6,21 +6,27 @@ import { Accordion, AccordionItem } from '@nextui-org/accordion';
 import { CHUNI_DIFFICULTIES } from '@/helpers/chuni/difficulties';
 import { ChuniLevelBadge } from '@/components/chuni/level-badge';
 import { ChuniRating } from '@/components/chuni/rating';
-import { ChuniLampComboBadge, ChuniLampSuccessBadge, ChuniScoreBadge, getVariantFromRank } from '@/components/chuni/score-badge';
-import { CHUNI_SCORE_RANKS } from '@/helpers/chuni/score-ranks';
+import { ChuniLampComboBadge, ChuniLampSuccessBadge, ChuniScoreBadge, ChuniScoreRankBadge, getVariantFromRank } from '@/components/chuni/score-badge';
 import { ChuniPlaylogCard } from '@/components/chuni/playlog-card';
 import { useState } from 'react';
+import { CalculatorIcon } from '@heroicons/react/24/outline';
+import { Tooltip } from '@nextui-org/tooltip';
+import { ChuniScoreCalculator, ChuniScoreCalculatorProps } from '@/components/chuni/score-calculator';
+import { ChuniUserRating } from '@/actions/chuni/profile';
+import { Spacer } from '@nextui-org/spacer';
 
 type ChuniMusicPlaylogProps = {
 	music: ChuniMusic[],
-	playlog: ChuniPlaylog
+	playlog: ChuniPlaylog,
+	rating: ChuniUserRating
 };
 
-export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) => {
+export const ChuniMusicPlaylog = ({ music, playlog, rating }: ChuniMusicPlaylogProps) => {
 	type Music = (typeof music)[number];
 	type Playlog = (typeof playlog)['data'][number];
 
 	const [selected, setSelected] = useState(new Set<string>());
+	const [scoreCalculator, setScoreCalculator] = useState<ChuniScoreCalculatorProps['music']>(null);
 
 	const difficulties: (Music & { playlog: Playlog[] })[] = [];
 	music.forEach(m => {
@@ -34,27 +40,19 @@ export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) =>
 	const badgeClass = 'h-6 sm:h-8';
 
 	return (<div className="flex flex-col w-full px-1 sm:px-0">
+		<ChuniScoreCalculator music={scoreCalculator} topRating={rating} onClose={() => setScoreCalculator(null)} />
 		<Accordion selectionMode="multiple" selectedKeys={selected}>
 			{difficulties.map((data, i) => {
-				const rank = CHUNI_SCORE_RANKS[data.scoreRank!];
 				const badges = [
-					!!data.scoreRank && <ChuniScoreBadge variant={getVariantFromRank(data.scoreRank)} className={`${badgeClass} tracking-[0.05cqw]`} key="1">
-						{rank.endsWith('+') ? <>
-							{rank.slice(0, -1)}
-							<div className="inline-block translate-y-[-15cqh]">+</div>
-						</> : rank}
-					</ChuniScoreBadge>,
+					data.scoreRank !== null && <ChuniScoreRankBadge key="1" rank={data.scoreRank} className={badgeClass} />,
 					data.isSuccess ? <ChuniLampSuccessBadge key="2" className={badgeClass} success={data.isSuccess} /> : null,
 					(data.isFullCombo || data.isAllJustice) && <ChuniLampComboBadge key="3" className={badgeClass} {...data} />
 				].filter(x => x);
 
-
-				// <div key={i} className="mb-2 border-b pb-2 border-gray-500 flex flex-row flex-wrap items-center">
-				return (<AccordionItem key={i.toString()} classNames={{ trigger: 'py-0 my-2' }} title={<div className="flex flex-row flex-wrap items-center gap-y-1.5"
-					onClick={() => {
+				return (<AccordionItem key={i.toString()} classNames={{ trigger: 'py-0 my-2' }} onClick={() => {
 						const key = i.toString();
 						setSelected(s => s.has(key) ? new Set([...s].filter(k => k !== key)) : new Set([...s, key]))
-					}}>
+					}} title={<div className="flex flex-row flex-wrap items-center gap-y-1.5 -mr-3">
 					<div className={`flex items-center gap-2 flex-wrap lg:flex-grow ${data.playlog.length ? 'cursor-pointer w-full lg:w-auto' : 'flex-grow'}`}>
 						<div className="flex items-center">
 							<div className="w-14 mr-2 p-0.5 bg-black">
@@ -63,7 +61,7 @@ export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) =>
 							<div className="text-xl font-semibold">{CHUNI_DIFFICULTIES[i]}</div>
 						</div>
 						{!data.playlog.length && <div className="text-right italic text-gray-500 flex-grow">No Play History</div>}
-						{data.rating ? <ChuniRating className="text-2xl text-right" rating={+data.rating * 100} /> : null}
+						{data.rating && data.chartId !== 5 ? <ChuniRating className="text-2xl text-right" rating={+data.rating * 100} /> : null}
 						{data.scoreMax ? <div className="ml-2 text-center flex-grow sm:flex-grow-0 max-sm:text-sm">
 							<span className="font-semibold">High Score: </span>{data.scoreMax.toLocaleString()}
 						</div> : null}
@@ -74,6 +72,16 @@ export const ChuniMusicPlaylog = ({ music, playlog }: ChuniMusicPlaylogProps) =>
 					{badges.length ? <div className={`flex-grow items-center lg:flex-grow-0 ml-auto mr-auto sm:ml-0 lg:ml-auto lg:mr-0 flex gap-0.5 flex-wrap justify-center sm:justify-start ${data.playlog.length ? 'cursor-pointer' : ''}`}>
 						{badges}
 					</div> : null}
+					{data.chartId !== 5 ? <Tooltip content="Score calculator">
+						<div className="ml-2 text-gray-400 rounded-full w-10 h-10 flex items-center justify-center transition hover:bg-default"
+							onClick={e => {
+								e.stopPropagation();
+								setScoreCalculator(data);
+							}}>
+							<CalculatorIcon className="h-3/4" />
+						</div>
+					</Tooltip> : <Spacer />}
+
 				</div>}>
 					<div className="flex flex-wrap gap-x-4 gap-y-2 mb-3 justify-center sm:justify-end max-sm:text-xs">
 						<span className="mr-auto max-sm:w-full text-center"><span className="font-semibold">Chart designer:</span> {data.chartDesigner}</span>

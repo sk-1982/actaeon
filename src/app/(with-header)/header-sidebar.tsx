@@ -117,7 +117,7 @@ export const HeaderSidebar = ({ children }: HeaderSidebarProps) => {
 			let parent: HTMLElement | null = e.event.target as HTMLElement;
 			while (parent) {
 				const data = parent.dataset;
-				if (data?.slot === 'thumb' || data?.dragging ||
+				if (data?.slot === 'thumb' || data?.dragging || data?.draggable ||
 					parent?.classList?.contains('react-draggable-dragging') ||
 					parent?.classList?.contains('react-resizable-handle'))
 					return;

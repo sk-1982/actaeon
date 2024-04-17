@@ -4,7 +4,7 @@ import { requireUser } from '@/actions/auth';
 import { PlaylogFilterState } from '@/app/(with-header)/chuni/playlog/page';
 import { db } from '@/db';
 import { CHUNI_MUSIC_PROPERTIES } from '@/helpers/chuni/music';
-import { chuniRating } from '@/helpers/chuni/rating';
+import { sqlChuniRating } from '@/helpers/chuni/rating';
 import { sql } from 'kysely';
 
 const SORT_KEYS = {
@@ -52,7 +52,7 @@ export async function getPlaylog(opts: GetPlaylogOptions) {
 				'playlog.isNewRecord', 'playlog.isFullCombo', 'playlog.fullChainKind', 'playlog.isAllJustice',
 				'playlog.playKind', 'playlog.isClear', 'playlog.placeName',
 				...CHUNI_MUSIC_PROPERTIES,
-				chuniRating(ref('playlog.score')),
+				sqlChuniRating(ref('playlog.score')),
 				sql<number>`(playlog.playerRating - (LEAD(playlog.playerRating) OVER (ORDER BY id DESC)))`
 					.as('playerRatingChange')
 			] as const)

@@ -3,7 +3,7 @@
 import { sql } from 'kysely';
 
 import { db, GeneratedDB } from '@/db';
-import { chuniRating } from '@/helpers/chuni/rating';
+import { sqlChuniRating } from '@/helpers/chuni/rating';
 import { CHUNI_MUSIC_PROPERTIES } from '@/helpers/chuni/music';
 import { UserPayload } from '@/types/user';
 import { ItemKind } from '@/helpers/chuni/items';
@@ -96,7 +96,7 @@ export async function getUserRating(user: UserPayload) {
 		.innerJoin('actaeon_chuni_static_music_ext as musicExt', join => join
 			.onRef('music.songId', '=', 'musicExt.songId')
 			.onRef('music.chartId', '=', 'musicExt.chartId'))
-		.select(({ lit }) => [...CHUNI_MUSIC_PROPERTIES, chuniRating(sql.raw(`CAST(score.scoreMax AS INT)`)),
+		.select(({ lit }) => [...CHUNI_MUSIC_PROPERTIES, sqlChuniRating(sql.raw(`CAST(score.scoreMax AS INT)`)),
 			sql<string>`CAST(score.scoreMax AS INT)`.as('scoreMax'),
 			lit<number>(1).as('pastIndex')
 		])
@@ -119,7 +119,7 @@ export async function getUserRating(user: UserPayload) {
 		]))
 		.select([
 			...CHUNI_MUSIC_PROPERTIES, 'score.scoreMax',
-			chuniRating()
+			sqlChuniRating()
 		])
 		.orderBy('rating desc')
 		.limit(30)
@@ -130,6 +130,8 @@ export async function getUserRating(user: UserPayload) {
 
 	return { recent, top };
 }
+
+export type ChuniUserRating = Awaited<ReturnType<typeof getUserRating>>;
 
 const validators = new Map<keyof GeneratedDB['chuni_profile_data'], (user: UserPayload, profile: NonNullable<ChuniUserData>, value: any) => Promise<any>>();
 

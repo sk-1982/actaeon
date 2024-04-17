@@ -12,13 +12,15 @@ import { HeartIcon as OutlineHeartIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import { useErrorModal } from '@/components/error-modal';
 import { useUser } from '@/helpers/use-user';
+import { ChuniUserRating } from '@/actions/chuni/profile';
 
 type ChuniMusicDetailProps = {
 	music: ChuniMusic[],
-	playlog: ChuniPlaylog
+	playlog: ChuniPlaylog,
+	rating: ChuniUserRating
 };
 
-export const ChuniMusicDetail = ({ music, playlog }: ChuniMusicDetailProps) => {
+export const ChuniMusicDetail = ({ music, playlog, rating }: ChuniMusicDetailProps) => {
 	const cueId = music[0].jacketPath?.match(/UI_Jacket_(\d+)/)?.[1];
 	const [favorite, setFavorite] = useState(music[0].favorite);
 	const [pendingFavorite, setPendingFavorite] = useState(false);
@@ -48,6 +50,6 @@ export const ChuniMusicDetail = ({ music, playlog }: ChuniMusicDetailProps) => {
 				{favorite ? <SolidHeartIcon className="w-3/4" /> : <OutlineHeartIcon className="w-3/4" />}
 			</Button>}
 		</MusicPlayer>
-		<ChuniMusicPlaylog music={music} playlog={playlog} />
+		<ChuniMusicPlaylog music={music} playlog={playlog} rating={rating} />
 	</div>);
 };

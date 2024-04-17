@@ -1,13 +1,16 @@
 type DecimalInput = BigDecimal | number | string;
 
 export class BigDecimal {
-	private val: bigint;
-	private decimals: bigint;
+	private _val: bigint;
+	private _decimals: bigint;
+
+	static readonly ZERO = new BigDecimal(0);
+	static readonly ONE = new BigDecimal(1);
 
 	constructor(val: DecimalInput) {
 		if (val instanceof BigDecimal) {
-			this.val = val.val;
-			this.decimals = val.decimals;
+			this._val = val._val;
+			this._decimals = val._decimals;
 			return;
 		}
 
@@ -16,12 +19,12 @@ export class BigDecimal {
 
 		const decimalIndex = val.indexOf('.');
 		val = val.replace('.', '');
-		this.val = BigInt(val);
+		this._val = BigInt(val);
 
 		if (decimalIndex === -1) {
-			this.decimals = 0n;
+			this._decimals = 0n;
 		} else {
-			this.decimals = BigInt(val.length - decimalIndex);
+			this._decimals = BigInt(val.length - decimalIndex);
 		}
 	}
 
@@ -29,12 +32,12 @@ export class BigDecimal {
 		const a = new BigDecimal(other);
 		const b = new BigDecimal(this);
 
-		if (a.decimals > b.decimals) {
-			b.val *= 10n ** (a.decimals - b.decimals);
-			b.decimals = a.decimals;
-		} else if (a.decimals < b.decimals) {
-			a.val *= 10n ** (b.decimals - a.decimals);
-			a.decimals = b.decimals;
+		if (a._decimals > b._decimals) {
+			b._val *= 10n ** (a._decimals - b._decimals);
+			b._decimals = a._decimals;
+		} else if (a._decimals < b._decimals) {
+			a._val *= 10n ** (b._decimals - a._decimals);
+			a._decimals = b._decimals;
 		}
 
 		return [a, b];
@@ -42,21 +45,21 @@ export class BigDecimal {
 
 	add(other: DecimalInput) {
 		const [a, b] = this.coerceDecimals(other);
-		a.val += b.val;
+		a._val += b._val;
 		return a;
 	}
 
 	sub(other: DecimalInput) {
 		const [a, b] = this.coerceDecimals(other);
-		b.val -= a.val;
+		b._val -= a._val;
 		return b;
 	}
 
 	mul(other: DecimalInput) {
 		const a = new BigDecimal(other);
 		const b = new BigDecimal(this);
-		a.val *= b.val;
-		a.decimals += b.decimals;
+		a._val *= b._val;
+		a._decimals += b._decimals;
 		return a;
 	}
 
@@ -64,33 +67,48 @@ export class BigDecimal {
 		const a = new BigDecimal(other);
 		const b = new BigDecimal(this);
 
-		if ((b.decimals - a.decimals) < minDecimals) {
-			const exp = minDecimals - (b.decimals - a.decimals);
-			b.val *= 10n ** exp;
-			b.decimals += exp;
+		if ((b._decimals - a._decimals) < minDecimals) {
+			const exp = minDecimals - (b._decimals - a._decimals);
+			b._val *= 10n ** exp;
+			b._decimals += exp;
 		}
 
-		b.val /= a.val;
-		b.decimals -= a.decimals;
-		if (b.decimals < 0) b.decimals = 0n;
+		b._val /= a._val;
+		b._decimals -= a._decimals;
+		if (b._decimals < 0) b._decimals = 0n;
 
 		return b;
 	}
 
 	static stringVal(val: bigint, decimals: bigint) {
-		const str = val.toString();
+		if (decimals === 0n || val === 0n) return val.toString();
+		const str = val.toString().padStart(Number(decimals), '0');
 		const pos = -Number(decimals);
-		return str.slice(0, pos) + '.' + str.slice(pos);
+		return (str.slice(0, pos) || '0') + '.' + str.slice(pos);
 	}
 
+	compare(other: DecimalInput) {
+		const [b, a] = this.coerceDecimals(other);
+		if (a._val === b._val) return 0;
+		if (a._val > b._val) return 1;
+		return -1;
+	}
 
 	toFixed(places: number | bigint) {
 		places = BigInt(places);
 
-		if (places >= this.decimals)
-			return BigDecimal.stringVal(this.val, this.decimals) + '0'.repeat(Number(places - this.decimals));
+		if (places >= this._decimals)
+			return BigDecimal.stringVal(this._val, this._decimals) + '0'.repeat(Number(places - this._decimals));
 
-		return BigDecimal.stringVal(this.val / (10n ** (this.decimals - places)), places);
+		return BigDecimal.stringVal(this._val / (10n ** (this._decimals - places)), places);
+	}
+
+	get val() {
+		return this._val;
+	}
+
+	get decimals() {
+		return this._decimals;
 	}
 
 	valueOf() {
@@ -98,9 +116,9 @@ export class BigDecimal {
 	}
 
 	toString() {
-		let val = this.val;
-		let decimals = this.decimals;
-		while (val && !(val % 10n)) {
+		let val = this._val;
+		let decimals = this._decimals;
+		while (val && !(val % 10n) && decimals) {
 			val /= 10n;
 			--decimals;
 		}

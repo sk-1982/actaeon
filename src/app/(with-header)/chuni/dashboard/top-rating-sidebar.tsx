@@ -1,14 +1,14 @@
 'use client';
 
 import { ChuniTopRating } from './top-rating';
-import { getUserRating } from '@/actions/chuni/profile';
+import { ChuniUserRating } from '@/actions/chuni/profile';
 import { useState } from 'react';
 import { ButtonGroup, Button } from '@nextui-org/button';
 import { useBreakpoint } from '@/helpers/use-breakpoint';
 import { BigDecimal } from '@/helpers/big-decimal';
 import { ChuniRating } from '@/components/chuni/rating';
 
-export const ChuniTopRatingSidebar = ({ rating }: { rating: Awaited<ReturnType<typeof getUserRating>> }) => {
+export const ChuniTopRatingSidebar = ({ rating }: { rating: ChuniUserRating }) => {
 	const [shownRating, setShownRating] = useState<'top' | 'recent' | null>('recent');
 	const breakpoint = useBreakpoint();
 

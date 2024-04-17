@@ -2,7 +2,7 @@
 
 import { getUser, requireUser } from '@/actions/auth';
 import { db } from '@/db';
-import { chuniRating } from '@/helpers/chuni/rating';
+import { sqlChuniRating } from '@/helpers/chuni/rating';
 import { CHUNI_MUSIC_PROPERTIES } from '@/helpers/chuni/music';
 import { UserPayload } from '@/types/user';
 import { revalidatePath } from 'next/cache';
@@ -29,7 +29,7 @@ export const getMusic = async (musicId?: number) => {
 			'score.isFullCombo', 'score.isAllJustice', 'score.isSuccess', 'score.scoreRank', 'score.scoreMax',
 			'score.maxComboCount',
 			fn<boolean>('NOT ISNULL', ['favorite.favId']).as('favorite'),
-			chuniRating()] as const)
+			sqlChuniRating()] as const)
 		.where(({ selectFrom, eb, and, or }) => and([
 			eb('music.version', '=', selectFrom('chuni_static_music')
 				.select(({ fn }) => fn.max('version').as('latest'))),

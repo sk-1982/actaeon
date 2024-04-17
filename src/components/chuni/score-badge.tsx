@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { CHUNI_LAMPS } from '@/helpers/chuni/lamps';
+import { CHUNI_SCORE_RANKS } from '@/helpers/chuni/score-ranks';
 
 const BACKGROUNDS = [
 	'bg-[linear-gradient(135deg,rgba(120,120,120,1)_30%,rgba(90,91,90,1)_50%,rgba(172,170,170,1)_50%,rgba(115,114,114,1)_63%,rgba(98,98,98,1)_80%,rgba(129,129,129,1)_100%)]',
@@ -78,8 +79,10 @@ export const ChuniScoreBadge = ({ children, variant, className, fontSize }: Chun
 export const ChuniLampSuccessBadge = ({ success, className }: { className?: string, success: number }) => {
 	const text = CHUNI_LAMPS.get(success)?.toUpperCase();
 	const fontSize = text?.length! > 5 ? text?.length! > 10 ? 'xs' : 'sm' : 'md';
-	return (<ChuniScoreBadge variant={getVariantFromLamp(success)} className={`${className ?? ''} ${fontSize === 'md' ? 'tracking-[0.1cqw]' : 'tracking-[0.025cqw]'}`} fontSize={fontSize}>
-		{text}
+	return (<ChuniScoreBadge variant={getVariantFromLamp(success)} className={className} fontSize={fontSize}>
+		<span className={fontSize === 'md' ? 'tracking-[1.5cqw]' : 'tracking-[0.75cqw]'}>
+			{text}
+		</span>
 	</ChuniScoreBadge>)
 }
 
@@ -89,3 +92,15 @@ export const ChuniLampComboBadge = ({ className, isFullCombo, isAllJustice }: { 
 		{isAllJustice ? 'ALL JUSTICE' : 'FULL COMBO'}
 	</ChuniScoreBadge>)
 }
+
+export const ChuniScoreRankBadge = ({ rank, ...rest }: { rank: number } & Pick<ChuniScoreBadgeProps, 'className' | 'fontSize'>) => {
+	const scoreRank = CHUNI_SCORE_RANKS[rank];
+	return (<ChuniScoreBadge variant={getVariantFromRank(rank)} {...rest}>
+		<div className="tracking-[1cqw]">
+			{scoreRank.endsWith('+') ? <>
+				{scoreRank.slice(0, -1)}
+				<div className="inline-block translate-y-[-15cqh]">+</div>
+			</> : scoreRank}
+		</div>
+	</ChuniScoreBadge>);
+};

@@ -11,16 +11,20 @@ import { ChuniScoreBadge, ChuniLampSuccessBadge, getVariantFromRank, ChuniLampCo
 import { ChuniRating } from '@/components/chuni/rating';
 import Link from 'next/link';
 import Image from 'next/image';
-import { HeartIcon as OutlineHeartIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
+import { CalculatorIcon, HeartIcon as OutlineHeartIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 import { HeartIcon as SolidHeartIcon }  from '@heroicons/react/24/solid';
 import { Ticker, TickerHoverProvider } from '@/components/ticker';
 import { useErrorModal } from '@/components/error-modal';
 import { CHUNI_FILTER_DIFFICULTY, CHUNI_FILTER_FAVORITE, CHUNI_FILTER_GENRE, CHUNI_FILTER_LAMP, CHUNI_FILTER_LEVEL, CHUNI_FILTER_RATING, CHUNI_FILTER_SCORE, CHUNI_FILTER_WORLDS_END_STARS, CHUNI_FILTER_WORLDS_END_TAG } from '@/helpers/chuni/filter';
 import { WindowScrollerGrid } from '@/components/window-scroller-grid';
 import { useUser } from '@/helpers/use-user';
+import { Tooltip } from '@nextui-org/tooltip';
+import { ChuniScoreCalculator } from '@/components/chuni/score-calculator';
+import { ChuniUserRating } from '@/actions/chuni/profile';
 
 export type ChuniMusicListProps = {
-	music: ChuniMusic[]
+	music: ChuniMusic[],
+	topRating?: ChuniUserRating
 };
 
 const perPage = [25, 50, 100, 250, 500, Infinity];
@@ -48,7 +52,7 @@ const searcher = (query: string, data: ChuniMusicListProps['music'][number]) => 
 	return data.title?.toLowerCase().includes(query) || data.artist?.toLowerCase().includes(query);
 };
 
-const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListProps & {
+const MusicGrid = ({ music, size, setMusicList, fullMusicList, topRating }: ChuniMusicListProps & {
 	size: 'sm' | 'lg' | 'xs',
 	setMusicList: (m: typeof music) => void,
 	fullMusicList: ChuniMusicListProps['music']
@@ -75,77 +79,88 @@ const MusicGrid = ({ music, size, setMusicList, fullMusicList }: ChuniMusicListP
 
 	const setError = useErrorModal();
 	const [pendingFavorite, setPendingFavorite] = useState(false);
+	const [scoreCalculator, setScoreCalculator] = useState<ChuniMusic | null>(null);
 
-	return (<WindowScrollerGrid rowSize={itemHeight} colSize={itemWidth} items={music}>
-		{item => <TickerHoverProvider>
-			{setHover => 	<div className={itemClass}><ChuniDifficultyContainer difficulty={item.chartId!}
-				containerClassName="flex flex-col"
-				className="w-full h-full border border-gray-500/75 rounded-md"
-				onMouseEnter={() => setHover(true)}
-				onMouseLeave={() => setHover(false)}>
-				<div className="aspect-square w-full p-[0.2rem] relative">
-					<Link href={`/chuni/music/${item.songId}`}>
-						<Image width={100} height={100}
-							src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)}
-							alt={item.title ?? 'Music'} className="rounded w-full h-full" />
-					</Link>
-					{item.rating && !item.worldsEndTag && <div className={`${size === 'lg' ? 'text-2xl' : ''} absolute bottom-0.5 left-0.5 bg-gray-200/60 backdrop-blur-sm moz-no-backdrop-blur px-0.5 rounded`}>
-              <ChuniRating rating={+item.rating * 100} className="-my-0.5">
+	return (<>
+		<ChuniScoreCalculator music={scoreCalculator} onClose={() => setScoreCalculator(null)} topRating={topRating} />
+		<WindowScrollerGrid rowSize={itemHeight} colSize={itemWidth} items={music}>
+			{item => <TickerHoverProvider>
+				{setHover => <div className={itemClass}><ChuniDifficultyContainer difficulty={item.chartId!}
+					containerClassName="flex flex-col"
+					className="w-full h-full border border-gray-500/75 rounded-md"
+					onMouseEnter={() => setHover(true)}
+					onMouseLeave={() => setHover(false)}>
+					<div className="aspect-square w-full p-[0.2rem] relative">
+						<Link href={`/chuni/music/${item.songId}`}>
+							<Image width={100} height={100}
+								src={getJacketUrl(`chuni/jacket/${item.jacketPath}`)}
+								alt={item.title ?? 'Music'} className="rounded w-full h-full" />
+						</Link>
+						{item.rating && !item.worldsEndTag && <div className={`${size === 'lg' ? 'text-2xl' : ''} absolute bottom-0.5 left-0.5 bg-gray-200/60 backdrop-blur-sm moz-no-backdrop-blur px-0.5 rounded`}>
+							<ChuniRating rating={+item.rating * 100} className="-my-0.5">
 								{item.rating.slice(0, item.rating.indexOf('.') + 3)}
-              </ChuniRating>
-          </div>}
-					<ChuniLevelBadge className={`${size === 'lg' ? 'h-14' : 'w-14'} absolute bottom-px right-px`} music={item} />
+							</ChuniRating>
+						</div>}
+						<ChuniLevelBadge className={`${size === 'lg' ? 'h-14' : 'w-14'} absolute bottom-px right-px`} music={item} />
 
-					{!!user?.chuni && <Button isIconOnly className={`absolute top-0 left-0 pt-1 bg-gray-600/25 ${item.favorite ? 'text-red-500' : ''}`}
-						size={size === 'xs' ? 'sm' : 'md'} variant="flat" radius="full"
-						onPress={() => {
-							if (pendingFavorite) return;
-							const favorite = item.favorite;
-							setMusicList(fullMusicList.map(m => {
-								if (m.songId !== item.songId)
-									return m;
-								return { ...m, favorite: !favorite };
-							}));
-							setPendingFavorite(true);
-							(item.favorite ? removeFavoriteMusic : addFavoriteMusic)(item.songId!)
-								.then(res => {
-									if (res?.error) {
-										setMusicList(fullMusicList.map(m => {
-											if (m.songId !== item.songId)
-												return m;
-											return { ...m, favorite };
-										}));
-										return setError(`Failed to set favorite: ${res.message}`);
-									}
-								})
-								.finally(() => setPendingFavorite(false));
-						}}>
-						{item.favorite ? <SolidHeartIcon className="w-3/4" /> : <OutlineHeartIcon className="w-3/4" />}
-					</Button>}
-				</div>
-				<div className="px-0.5 mb-1 flex">
-					{size === 'lg' && <div className="h-full w-1/3 mr-0.5">
-						{item.isSuccess ? <ChuniLampSuccessBadge success={item.isSuccess} /> : null}
-          </div>}
+						<Tooltip content="Score Calculator">
+							<Button isIconOnly className="absolute top-0 right-0 pt-0.5 bg-gray-600/25" size={size === 'xs' ? 'sm' : 'md'} variant="flat" radius="full"
+								onPress={() => setScoreCalculator(item)}>
+								<CalculatorIcon className="w-3/4" />
+							</Button>
+						</Tooltip>
 
-					<div className={`h-full ${size === 'lg' ? 'w-1/3' : 'w-1/2'}`}>
-						{item.scoreRank !== null && <ChuniScoreBadge variant={getVariantFromRank(item.scoreRank)} className="h-full">
-							{item.scoreMax!.toLocaleString()}
-            </ChuniScoreBadge>}
+						{!!user?.chuni && <Button isIconOnly className={`absolute top-0 left-0 pt-1 bg-gray-600/25 ${item.favorite ? 'text-red-500' : ''}`}
+							size={size === 'xs' ? 'sm' : 'md'} variant="flat" radius="full"
+							onPress={() => {
+								if (pendingFavorite) return;
+								const favorite = item.favorite;
+								setMusicList(fullMusicList.map(m => {
+									if (m.songId !== item.songId)
+										return m;
+									return { ...m, favorite: !favorite };
+								}));
+								setPendingFavorite(true);
+								(item.favorite ? removeFavoriteMusic : addFavoriteMusic)(item.songId!)
+									.then(res => {
+										if (res?.error) {
+											setMusicList(fullMusicList.map(m => {
+												if (m.songId !== item.songId)
+													return m;
+												return { ...m, favorite };
+											}));
+											return setError(`Failed to set favorite: ${res.message}`);
+										}
+									})
+									.finally(() => setPendingFavorite(false));
+							}}>
+							{item.favorite ? <SolidHeartIcon className="w-3/4" /> : <OutlineHeartIcon className="w-3/4" />}
+						</Button>}
 					</div>
+					<div className="px-0.5 mb-1 flex">
+						{size === 'lg' && <div className="h-full w-1/3 mr-0.5">
+							{item.isSuccess ? <ChuniLampSuccessBadge success={item.isSuccess} /> : null}
+						</div>}
 
-					<div className={`h-full ml-0.5 ${size === 'lg' ? 'w-1/3' : 'w-1/2'}`}>
-						<ChuniLampComboBadge {...item} />
+						<div className={`h-full ${size === 'lg' ? 'w-1/3' : 'w-1/2'}`}>
+							{item.scoreRank !== null && <ChuniScoreBadge variant={getVariantFromRank(item.scoreRank)} className="h-full">
+								{item.scoreMax!.toLocaleString()}
+							</ChuniScoreBadge>}
+						</div>
+
+						<div className={`h-full ml-0.5 ${size === 'lg' ? 'w-1/3' : 'w-1/2'}`}>
+							<ChuniLampComboBadge {...item} />
+						</div>
 					</div>
-				</div>
-				<Link href={`/chuni/music/${item.songId}`}
-					className={`${size === 'lg' ? 'text-lg' : 'text-xs'} mt-auto px-1 block text-white hover:text-gray-200 transition text-center font-semibold drop-shadow-lg`}>
-					<Ticker hoverOnly noDelay>{item.title}</Ticker>
-				</Link>
-				<Ticker className={`${size === 'lg' ? 'text-medium mb-1.5' : 'text-xs mb-0.5' } text-center px-1 drop-shadow-2xl text-white`} hoverOnly noDelay>{item.artist}</Ticker>
-			</ChuniDifficultyContainer></div>}
-		</TickerHoverProvider>}
-	</WindowScrollerGrid>);
+					<Link href={`/chuni/music/${item.songId}`}
+						className={`${size === 'lg' ? 'text-lg' : 'text-xs'} mt-auto px-1 block text-white hover:text-gray-200 transition text-center font-semibold drop-shadow-lg`}>
+						<Ticker hoverOnly noDelay>{item.title}</Ticker>
+					</Link>
+					<Ticker className={`${size === 'lg' ? 'text-medium mb-1.5' : 'text-xs mb-0.5'} text-center px-1 drop-shadow-2xl text-white`} hoverOnly noDelay>{item.artist}</Ticker>
+				</ChuniDifficultyContainer></div>}
+			</TickerHoverProvider>}
+		</WindowScrollerGrid>
+	</>);
 };
 
 const DISPLAY_MODES = [{
@@ -177,7 +192,7 @@ const FILTERERS = [
 	CHUNI_FILTER_RATING
 ];
 
-export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
+export const ChuniMusicList = ({ music, topRating }: ChuniMusicListProps) => {
 	const [localMusic, setLocalMusic] = useState(music);
 
 	return (
@@ -185,7 +200,7 @@ export const ChuniMusicList = ({ music }: ChuniMusicListProps) => {
 			displayModes={DISPLAY_MODES} searcher={searcher}>
 			{(displayMode, data) => <div className="w-full flex-grow my-2">
 				<MusicGrid music={data} size={DISPLAY_IDS[displayMode as keyof typeof DISPLAY_IDS]}
-					fullMusicList={localMusic} setMusicList={setLocalMusic} />
+					fullMusicList={localMusic} setMusicList={setLocalMusic} topRating={topRating} />
 			</div>}
 		</FilterSorter>);
 };
