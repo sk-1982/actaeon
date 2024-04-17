@@ -68,6 +68,9 @@ export const getTeams = async ({ showUnlisted, uuids, user }:
 				.as('userCount'),
 			eb('team.uuid', '=', user?.team!).as('isMember'),
 			eb.or([
+				...(hasPermission(user?.permissions, UserPermissions.OWNER) ? [
+					eb.lit(true)
+				] : []),
 				eb('team.visibility', '=', Visibility.PUBLIC),
 				eb('team.uuid', '=', user?.team!),
 				...(showUnlisted ? [
