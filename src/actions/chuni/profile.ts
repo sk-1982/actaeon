@@ -96,8 +96,8 @@ export async function getUserRating(user: UserPayload) {
 		.innerJoin('actaeon_chuni_static_music_ext as musicExt', join => join
 			.onRef('music.songId', '=', 'musicExt.songId')
 			.onRef('music.chartId', '=', 'musicExt.chartId'))
-		.select(({ lit }) => [...CHUNI_MUSIC_PROPERTIES, sqlChuniRating(sql.raw(`CAST(score.scoreMax AS INT)`)),
-			sql<string>`CAST(score.scoreMax AS INT)`.as('scoreMax'),
+		.select(({ lit }) => [...CHUNI_MUSIC_PROPERTIES, sqlChuniRating(),
+			sql<number>`(score.scoreMax + 0)`.as('scoreMax'),
 			lit<number>(1).as('pastIndex')
 		])
 		.where(({ selectFrom, eb }) => eb('music.version', '=', selectFrom('chuni_static_music')
@@ -229,11 +229,13 @@ export const updateProfile = async (data: ProfileUpdate) => {
 		}
 	}
 
-	await db.updateTable('chuni_profile_data')
+	await db
+		.updateTable('chuni_profile_data')
 		.where(({ and, eb, selectFrom }) => and([
 			eb('user', '=', user.id),
-			eb('version', '=', selectFrom('chuni_profile_data')
-				.select(({ fn }) => fn.max('version').as('latest')))
+			eb('version', '=', selectFrom(db.selectFrom('chuni_profile_data')
+				.select(({ fn }) => fn.max('version').as('latest')).as('l'))
+				.select('latest'))
 		]))
 		.set(update)
 		.execute();

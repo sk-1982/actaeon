@@ -86,6 +86,7 @@ export const getUserboxItems = async (user: UserPayload, profile: ChuniUserData)
 				'avatar.texturePath'
 			]).as('avatar')] as const))
 		.selectFrom(['map_icons', 'name_plates', 'system_voices', 'trophies', 'avatars'])
+		.groupBy(['map_icons.mapIcon', 'name_plates.namePlate', 'system_voices.systemVoice', 'trophies.trophy'])
 		.select(eb => ['map_icons.mapIcon', 'name_plates.namePlate', 'system_voices.systemVoice', 'trophies.trophy',
 			jsonObjectArray(eb, [
 				'avatars.category', 'avatars.avatar'

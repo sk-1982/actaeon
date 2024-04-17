@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import { BigDecimal } from '../big-decimal';
 
-export const sqlChuniRating = (score: any = sql.raw(`CAST(score.scoreMax AS INT)`),
+export const sqlChuniRating = (score: any = sql.raw(`(score.scoreMax + 0)`),
                             level: any = sql.raw(`(CAST(music.level AS DECIMAL(3, 1)) * 100)`)) => sql<string>`
 CAST(GREATEST((CASE
     WHEN ${score} IS NULL THEN NULL

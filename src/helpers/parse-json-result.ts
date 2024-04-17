@@ -14,5 +14,5 @@ export const parseJsonResult = (<T extends object, K extends ParseableKeys<T>>(d
 	if (Array.isArray(data))
 		return data.map(d => parseJsonResult(d, keys));
 	return Object.fromEntries((Object.entries(data) as Entries<T>)
-		.map(([key, val]) => [key, keys.includes(key as any) ? JSON.parse(val as any) : val]));
+		.map(([key, val]) => [key, typeof val === 'string' && keys.includes(key as any) ? JSON.parse(val as any) : val]));
 }) as ParseJSONResultOptions;

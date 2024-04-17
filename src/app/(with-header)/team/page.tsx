@@ -33,7 +33,7 @@ export default async function TeamPage() {
 				<Link href={`/team/${team.uuid}`} className="font-semibold transition hover:text-secondary">
 					{team.name}
 				</Link>
-				{team.isMember && <Tooltip content="Your team">
+				{!!team.isMember && <Tooltip content="Your team">
 					<StarIcon className="h-6 text-amber-400" />
 				</Tooltip>}
 

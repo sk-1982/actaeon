@@ -10,6 +10,8 @@ You can change the encoding by running `ALTER DATABASE aime CHARACTER SET utf8mb
 ## Creating Database Tables
 Before running the database importer script, you must create the tables in your database. This can be done by running the server once with `AUTOMIGRATE` enabled ([see below](#runtime-variables)), or by running `npm run migrate` (make sure you have run `npm i` first and have the [`DATABASE_URL`](#runtime-variables) environment variable set).
 
+If you are running MySQL server, you may need to run `SET GLOBAL log_bin_trust_function_creators = 1;`
+
 # Building
 Make sure you have set the required [build-time variables](#build-time-variables) correctly.
 
