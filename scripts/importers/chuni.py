@@ -76,8 +76,19 @@ class Chuni(Importer):
                     parts = line.strip().split('\t')
                     if len(parts) == 2:
                         data[parts[0]] = parts[1]
-            inserts.append((song, chart, data['CREATOR'], data['T_JUDGE_TAP'], data['T_JUDGE_HLD'], data['T_JUDGE_SLD'],
-                            data['T_JUDGE_AIR'], data['T_JUDGE_FLK'], data['T_JUDGE_ALL']))
+            creator = data.get('CREATOR')
+            judgeTap = data.get('T_JUDGE_TAP')
+            judgeHold = data.get('T_JUDGE_HLD')
+            judgeSlide = data.get('T_JUDGE_SLD')
+            judgeAir = data.get('T_JUDGE_AIR')
+            judgeFlick = data.get('T_JUDGE_FLK')
+            judgeAll = data.get('T_JUDGE_ALL')
+
+            if creator is None or judgeTap is None or judgeHold is None or judgeSlide is None or judgeAir is None or judgeFlick is None or judgeAll is None:
+                print('warning: chart file missing data')
+
+            inserts.append((song, chart, creator or '', judgeTap or 0, judgeHold or 0, judgeSlide or 0,
+                            judgeAir or 0, judgeFlick or 0, judgeAll or 0))
         fields = ['songId', 'chartId', 'chartDesigner', 'tapJudgeCount', 'holdJudgeCount', 'slideJudgeCount',
                   'airJudgeCount', 'flickJudgeCount', 'allJudgeCount']
         self.cur.executemany(
