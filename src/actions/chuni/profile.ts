@@ -58,14 +58,17 @@ export async function getUserData(user: { id: number }) {
 				[`${name}.name as ${name}Name`, `${name}.iconPath as ${name}Icon`,
 					`${name}.texturePath as ${name}Texture`] as const)
 		])
-		.where(({ and, eb, selectFrom }) => and([
+		.where(({ and, eb, selectFrom, or }) => and([
 			eb('p.user', '=', user.id),
 			eb('p.version', '=',
 				selectFrom('chuni_static_music')
 					.select(({ fn }) => fn.max('version').as('latest'))
 			),
-			...avatarNames.map(name => eb(`${name}.version`, '=', selectFrom('chuni_static_music')
-				.select(({ fn }) => fn.max('version').as('latest'))))
+			...avatarNames.map(name => or([
+				eb(`${name}.version`, '=', selectFrom('chuni_static_avatar')
+					.select(({ fn }) => fn.max('version').as('latest'))),
+				eb(`${name}.version`, 'is', null)
+			]))
 		]))
 		.executeTakeFirst();
 

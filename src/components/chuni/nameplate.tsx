@@ -15,7 +15,7 @@ export type Profile = PickNullable<ChuniUserData, (typeof CHUNI_NAMEPLATE_PROFIL
 
 export type ChuniNameplateProps = {
 	className?: string,
-	profile: Profile,
+	profile: Partial<Profile>,
 };
 
 export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
@@ -36,7 +36,7 @@ export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
 						</div>
 					</div>
 				</div>
-				<ChuniTrophy rarity={profile.trophyRareType} name={profile.trophyName} />
+				<ChuniTrophy rarity={profile?.trophyRareType ?? 0} name={profile?.trophyName ?? ''} />
 				<div className="w-[99%] h-[52%] flex">
 					<div className="w-full m-[0.25%]">
 						<div className="h-full w-full bg-gray-400 px-[2%] @container-size flex flex-col text-black font-semibold text-nowrap overflow-hidden">
@@ -65,8 +65,8 @@ export const ChuniNameplate = ({ className, profile }: ChuniNameplateProps) => {
 						</div>
 					</div>
 					<Image className="ml-auto aspect-square h-full w-auto bg-gray-200 border-2 border-black" alt="Character" width={135} height={135} src={profile.characterId !== null ? getImageUrl(
-						`chuni/character/CHU_UI_Character_${Math.floor(profile.characterId / 10).toString()
-							.padStart(4, '0')}_${(profile.characterId % 10).toString().padStart(2, '0')}_02`) : ''}/>
+						`chuni/character/CHU_UI_Character_${Math.floor(profile.characterId! / 10).toString()
+							.padStart(4, '0')}_${(profile.characterId! % 10).toString().padStart(2, '0')}_02`) : ''}/>
 				</div>
 			</div>
 			<Image width={576} height={228} priority

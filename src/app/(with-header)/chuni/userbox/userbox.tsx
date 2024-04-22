@@ -43,7 +43,7 @@ const ITEM_KEYS: Record<keyof UserboxItems, keyof NonNullable<ChuniUserData>> = 
 const AVATAR_KEYS = ['avatarWear', 'avatarHead', 'avatarFace', 'avatarSkin', 'avatarItem', 'avatarFront', 'avatarBack'] as const;
 
 type RequiredUserbox = NonNullable<UserboxItems>;
-type EquippedItem = { [K in keyof RequiredUserbox]: RequiredUserbox[K][number] };
+type EquippedItem = { [K in keyof RequiredUserbox]: RequiredUserbox[K][number] | null };
 type SavedItem = { [K in keyof RequiredUserbox]: boolean } & { username: boolean };
 
 export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
@@ -92,7 +92,7 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 
 		const update: Partial<ProfileUpdate> = Object.fromEntries((Object.entries(equipped) as Entries<typeof equipped>)
 			.filter(([k]) => items.includes(k as any))
-			.map(([k, v]) => [ITEM_KEYS[k], v.id]));
+			.map(([k, v]) => [ITEM_KEYS[k], v?.id]));
 		
 		if ((items as string[]).includes('username'))
 			update.userName = username;
@@ -129,13 +129,13 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 			selectedKeys={selectedLine} onSelectionChange={s => {
 			if (typeof s === 'string' || !s.size) return;
 			setSelectedLine(s as any);
-			play(getAudioUrl(`chuni/system-voice/${selectingVoice?.cuePath ?? equipped.systemVoice.cuePath}_${[...s][0]}`))
+			play(getAudioUrl(`chuni/system-voice/${selectingVoice?.cuePath ?? equipped.systemVoice?.cuePath}_${[...s][0]}`))
 		}}>
 			{CHUNI_VOICE_LINES.map(([line, id]) => <SelectItem key={id}>{line}</SelectItem>)}
 		</Select>
 		<Button isIconOnly color="primary" className="p-1.5 h-full" radius="none" size="lg" isDisabled={!playPreviews}
 			onPress={() => playingVoice ? stop() :
-			play(getAudioUrl(`chuni/system-voice/${selectingVoice?.cuePath ?? equipped.systemVoice.cuePath}_${[...selectedLine][0]}`))}>
+			play(getAudioUrl(`chuni/system-voice/${selectingVoice?.cuePath ?? equipped.systemVoice?.cuePath}_${[...selectedLine][0]}`))}>
 			{playingVoice ? <StopIcon /> : <PlayIcon />}
 		</Button>
 	</div>);
@@ -171,14 +171,14 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 						<ChuniNameplate profile={profile ? {
 							...profile,
 							userName: username,
-							nameplateName: equipped.namePlate.name,
-							nameplateImage: equipped.namePlate.imagePath,
-							trophyName: equipped.trophy.name,
-							trophyRareType: equipped.trophy.rareType
+							nameplateName: equipped.namePlate?.name,
+							nameplateImage: equipped.namePlate?.imagePath,
+							trophyName: equipped.trophy?.name,
+							trophyRareType: equipped.trophy?.rareType
 						} : null} className="w-full" />
 					</div>
 
-					<ChuniNameModal username={profile?.userName!} isOpen={editingUsername}
+					<ChuniNameModal username={profile?.userName ?? ''} isOpen={editingUsername}
 						onClose={() => setEditingUsername(false)}
 						setUsername={u => {
 							setSaved(s => ({ ...s, username: false }));
@@ -225,12 +225,12 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 				<div className="flex flex-col sm:flex-row h-full w-full items-center sm:pl-3 sm:pr-6 sm:pb-2">
 					<div className="w-full max-w-96">
 						<ChuniAvatar className="w-full sm:w-auto sm:h-96"
-							wear={equipped.avatarWear.texturePath}
-							head={equipped.avatarHead.texturePath}
-							face={equipped.avatarFace.texturePath}
-							skin={equipped.avatarSkin.texturePath}
-							item={equipped.avatarItem.texturePath}
-							back={equipped.avatarBack.texturePath}/>
+							wear={equipped.avatarWear?.texturePath}
+							head={equipped.avatarHead?.texturePath}
+							face={equipped.avatarFace?.texturePath}
+							skin={equipped.avatarSkin?.texturePath}
+							item={equipped.avatarItem?.texturePath}
+							back={equipped.avatarBack?.texturePath}/>
 					</div>
 					<div className="grid grid-cols-2 w-full px-2 sm:px-0 sm:flex flex-col gap-1.5 sm:ml-3 flex-grow">
 						{(['avatarHead', 'avatarFace', 'avatarWear', 'avatarSkin', 'avatarItem', 'avatarBack'] as const).map(k => ((k !== 'avatarSkin' || userboxItems.avatarSkin.length > 1) && <SelectModalButton
@@ -267,8 +267,8 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 				<div className="flex w-full flex-col sm:flex-row items-center px-2 sm:px-4 sm:pb-4 h-full">
 					<div className="flex flex-col">
 						<Image className="w-80 max-w-full" width={320} height={204} priority
-							alt={equipped.systemVoice.name ?? ''} src={getImageUrl(`chuni/system-voice-icon/${equipped.systemVoice.imagePath}`)} />
-						<span className="text-center">{ equipped.systemVoice.name }</span>
+							alt={equipped.systemVoice?.name ?? ''} src={getImageUrl(`chuni/system-voice-icon/${equipped.systemVoice?.imagePath}`)} />
+						<span className="text-center">{ equipped.systemVoice?.name }</span>
 					</div>
 
 					<div className="flex flex-col flex-grow w-fullmt-3 sm:-mt-5 sm:w-auto gap-2 w-full">
@@ -324,8 +324,8 @@ export const ChuniUserbox = ({ profile, userboxItems }: ChuniUserboxProps) => {
 
 
 				<Image className="w-52 max-w-full -mt-2" width={208} height={208} priority
-					alt={equipped.mapIcon.name ?? ''} src={getImageUrl(`chuni/map-icon/${equipped.mapIcon.imagePath}`)} />
-				<span className="text-center mb-2">{ equipped.mapIcon.name }</span>
+					alt={equipped.mapIcon?.name ?? ''} src={getImageUrl(`chuni/map-icon/${equipped.mapIcon?.imagePath}`)} />
+				<span className="text-center mb-2">{ equipped.mapIcon?.name }</span>
 				<div className="px-2 w-full flex justify-center">
 					<SelectModalButton onSelected={i => i && equipItem('mapIcon', i)} selectedItem={equipped.mapIcon}
 						displayMode="grid" modalSize="full" rowSize={210} colSize={175} items={userboxItems.mapIcon} gap={6}

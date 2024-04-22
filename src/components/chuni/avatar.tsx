@@ -2,12 +2,12 @@ import { getImageUrl } from '@/helpers/assets';
 import Image from 'next/image';
 
 export type ChuniAvatarProps = {
-	wear: string | null,
-	head: string | null,
-	face: string | null,
-	skin: string | null,
-	item: string | null,
-	back: string | null,
+	wear: string | null | undefined,
+	head: string | null | undefined,
+	face: string | null | undefined,
+	skin: string | null | undefined,
+	item: string | null | undefined,
+	back: string | null | undefined,
 	className?: string
 };
 
