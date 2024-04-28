@@ -27,7 +27,9 @@ export const ChuniTopRating = ({ rating, className }: ChuniTopRatingProps) => {
 			</ChuniDifficultyContainer>
 
 			<div className="flex flex-col text-sm self-top flex-grow">
-				<Link href={`/chuni/music/${music.songId}`}>{i + 1}: <span className="underline hover:text-secondary transition">{music.title}</span></Link>
+				<Link href={`/chuni/music/${music.songId}`} className="line-clamp-2 text-ellipsis">
+					{i + 1}: <span className="underline hover:text-secondary transition">{music.title}</span>
+				</Link>
 				<div className="flex items-baseline mt-auto">
 					<ChuniRating rating={+music.rating * 100} className={"text-xs"}>RATING&nbsp;</ChuniRating>
 					<ChuniRating rating={+music.rating * 100} className="text-medium">{floorToDp(music.rating, 2)}</ChuniRating>
